@@ -39,9 +39,9 @@ def get_companyset(part):
     return company_set
 
 
-def variable(interval_data, airline, wingsize, part):
+def variable(second_interval_data, airline, wingsize, part):
     company_set = get_companyset(part)
-    temp = np.isin(interval_data['airline'], company_set)
+    temp = np.isin(second_interval_data['airline'], company_set)
     interval_set = list(np.where(temp)[0])
     n = len(interval_set)
     gate = list(wingsize.keys())
@@ -51,31 +51,33 @@ def variable(interval_data, airline, wingsize, part):
     x = [[0] * m for _ in range(n)]
     del_set = []
     for i in range(n):
-        fit = select(wingsize, i, interval_data, interval_set, airline, gate_set)
+        fit = select(wingsize, i, second_interval_data, interval_set, airline, gate_set)
         if len(fit) == 0:
             del_set.append(i)
         for j in fit:
             x[i][j] = 1
-    print(del_set, 'del_Set')
+    # print(del_set, 'del_Set')
     if len(del_set) != 0:
         sys.exit(1)
     # print(interval_set)
-    interval_data = timetransform(interval_data)
-    return interval_data, interval_set, gate_set, x
+    min_interval_data = timetransform(second_interval_data)
+    return min_interval_data, interval_set, gate_set, x
 
 
-def actual_x(x, gate_fix, fix_set, gate_set):
+def actual_x(x, gate_fix, fix_set, gate_set, interval_data):
+    temp = []
     m = len(gate_set)
+    # print(m, 'gate set')
     for i in range(len(fix_set)):
         x[fix_set[i]] = [0] * m
         x[fix_set[i]][gate_fix[i]] = 1
+        temp.append(interval_data['registration'][fix_set[i]])
+    print(fix_set)
+    print(temp)
     return x
 
 
-def get_obstruction(interval_data, airline, wingsize, part):
-    result_set = variable(interval_data, airline, wingsize, part)
-    interval_data = result_set[0]
-    interval_set = result_set[1]
+def get_obstruction(interval_data, interval_set):
     n = len(interval_set)
     obstruction = []
     fa = [value for i, value in enumerate(interval_data['begin_interval']) if i in interval_set]

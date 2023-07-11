@@ -9,7 +9,7 @@ import GenernateSolution
 import reallocation
 
 part = 3
-t_or_a = 1
+t_or_a = 0
 delta = 5
 seuil = 28
 regulation = 1

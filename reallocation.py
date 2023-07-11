@@ -48,14 +48,17 @@ class ReallocationInterval(ReGetInterval):
         # print(flight_list)
         temp = self.presolve(quarter, data, seuil, delta)
         interval_flight = temp[2]  # 每个间隔相关的航班
-        # interval_data = temp[0]
+        interval_data = temp[0]
         # print(interval_flight)
-        fix_list = []  # 需要固定的间隔信息
+        fix_info = []  # 需要固定的间隔信息
+        fix_set = []
         for i in range(len(interval_flight)):
             inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
             if len(inter) != 0:
-                fix_list.append(i)
-        return fix_list
+                fix_info.append(i)
+                fix_set.append(interval_data['registration'][i])
+        # print(fix_set)
+        return fix_info
 
     # def fix_set(self, fix_info, interval, quarter, data, seuil, delta):
     #     # 按照间隔信息找到对应间隔
@@ -84,11 +87,13 @@ def reallocation(filename, seuil, part, delta, gate_choose):
     gate_fix = []
     gate_set = []  # 当前part所用的所有机坪
     result = None
-    while quarter < 94:
+    while quarter < 7:
         interval = new_interval.presolve(quarter, data, seuil, delta)  # 计算当前quarter下的interval
-        interval_data = interval[0]
-        variable_set = variable.variable(interval_data, airline, wingsize, part)  # 计算当前quarter下的variable
-        obstruction = variable.get_obstruction(interval_data, airline, wingsize, part)
+        second_interval_data = interval[0]
+        variable_set = variable.variable(second_interval_data, airline, wingsize, part)  # 计算当前quarter下的variable
+        interval_data = variable_set[0]
+        interval_set = variable_set[1]
+        obstruction = variable.get_obstruction(interval_data, interval_set)
         for i in range(len(interval_data['interval'])):
             if interval_data['interval'][i] < 0:
                 print(interval_data['registration'][i],
@@ -99,23 +104,30 @@ def reallocation(filename, seuil, part, delta, gate_choose):
         total_fix_list = new_interval.fix_infomation(data, quarter, seuil, delta)  # 计算当前quarter后半小时固定的variable
         used_interval = variable_set[1]  # 此part用到的所有interval
         fix_set = []
+        fix_info = []
         for i in total_fix_list:
             if i in used_interval:
                 fix_set.append(used_interval.index(i))  # 找到当前quarter、当前part下后半小时固定的variable
-        # print(fix_set)
+                fix_info.append(interval_data['registration'][i])
+        print(fix_info, "apres")
+        print(fix_set)
         if quarter == 0:
             gate_fix = []
             for i in fix_set:
                 gate_fix.append(gate_choose[i])  # 计算当前固定的variable对应的gate
-        print(gate_fix)
-        x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set)  # 更新x
-        # temp_list = []
-        # for i in range(len(x)):
-        #     if sum(x[i]) == 1:
-        #         for temp in range(len(x[i])):
-        #             if x[i][temp] == 1:
-        #                 temp_list.append(temp)
-        # print(temp_list)
+        print(gate_fix, "apres")
+        x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data)  # 更新x
+        temp_list = []
+        temp_i = []
+        print(len(x))
+        for i in range(len(x)):
+            if sum(x[i]) == 1:
+                for temp in range(len(x[i])):
+                    if x[i][temp] == 1:
+                        temp_list.append(temp)
+                        temp_i.append(interval_data['registration'][i])
+        print(temp_i, 'x list')
+        print(temp_list, "x gate")
         target_matrix = []
         result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
         quarter += 1
@@ -125,14 +137,16 @@ def reallocation(filename, seuil, part, delta, gate_choose):
         # print(total_fix_info)
         used_interval = variable_set[1]
         fix_set = []
+        fix_info = []
         for i in total_fix_info:
             if i in used_interval:
                 fix_set.append(used_interval.index(i))  # 找到当前quarter、当前part下后半小时固定的variable
+                fix_info.append(interval_data['registration'][i])
         gate_fix = []
-        # print(fix_set)
+        print(fix_info, "avant")
         for i in fix_set:
             gate_fix.append(gate_choose[i])  # 计算当前固定的variable对应的gate
-        print(gate_fix)
+        print(gate_fix, "avant")
     outputdata.write_xls(result, sheetname, gate_set)
     gate_choose = result[1]
     return gate_choose

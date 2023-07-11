@@ -22,7 +22,6 @@ class Optimization:
         model = gp.Model()
         n = len(y)
         m = len(y[0])
-        print(n, m)
         for i in range(n):
             if len(y[i]) == 0:
                 print(i, "x error")
