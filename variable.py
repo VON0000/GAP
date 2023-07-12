@@ -64,16 +64,16 @@ def variable(second_interval_data, airline, wingsize, part):
     return min_interval_data, interval_set, gate_set, x
 
 
-def actual_x(x, gate_fix, fix_set, gate_set, interval_data):
-    temp = []
+def actual_x(x, gate_fix, fix_set, gate_set, interval_data, interval_set):
+    # temp = []
     m = len(gate_set)
     # print(m, 'gate set')
     for i in range(len(fix_set)):
         x[fix_set[i]] = [0] * m
         x[fix_set[i]][gate_fix[i]] = 1
-        temp.append(interval_data['registration'][fix_set[i]])
-    print(fix_set)
-    print(temp)
+        # temp.append(interval_data['registration'][interval_set[fix_set[i]]])
+    # print(fix_set)
+    # print(temp)
     return x
 
 
@@ -92,10 +92,7 @@ def get_obstruction(interval_data, interval_set):
     return obstruction
 
 
-def target(taxi_matrix, interval_data, airline, wingsize, part):
-    result_set = variable(interval_data, airline, wingsize, part)
-    interval_set = result_set[1]
-    gate_set = result_set[2]
+def target(taxi_matrix, wingsize, interval_set, gate_set):
     target_matrix = [row for i, row in enumerate(taxi_matrix) if i in interval_set]
     gate_index = [index for index, value in enumerate(wingsize.keys()) if value in gate_set]
     # print(gate_index)

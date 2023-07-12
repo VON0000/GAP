@@ -21,9 +21,10 @@ def generante_solution(filename, regulation, seuil, t_or_a, part, delta):
     result_set = variable.variable(second_interval_data, airline, wingsize, part)
     interval_data = result_set[0]
     interval_set = result_set[1]
+    gate_set = result_set[2]
     taxi_matrix = taxiingtime_matrix.taxiingtime_matrix(taxiingtime, interval_data, interval_pattern)
     obstruction = variable.get_obstruction(interval_data, interval_set)
-    target_matrix = variable.target(taxi_matrix, interval_data, airline, wingsize, part)
+    target_matrix = variable.target(taxi_matrix, wingsize, interval_set, gate_set)
     x = result_set[3]
     gate_set = result_set[2]
     result = optim_temp.optim(x, obstruction, target_matrix, part)
