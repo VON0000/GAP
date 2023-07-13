@@ -97,23 +97,28 @@ class Optimization:
         # print(model)
         model = self.objective(x, n, m, target_matrix, model)
         model.optimize()
-        # model.computeIIS()
-        # model.write("model1.ilp")
+        status = model.status
         print('优化结束')
         t2 = time.time()
-        gate_choose = []
-        for v in model.getVars():  # getVars获取所有变量
-            if v.x == 1:
-                # print("%s %g" % (v.varName, v.x))  # (v.varName,v.x)是（变量名字，优化结果）
-                temp = self.find_numbers(v.varName)[1]
-                gate_choose.append(int(temp))
-        # print(gate_choose)
-        # print("Obj: %g" % model.objVal)
-        obj = model.objVal
         optim_time = t2 - t1
-        print('程序运行时间:%s毫秒' % (optim_time*1000))
-        # print(gate_choose)
-        return optim_time*1000, gate_choose, obj
+        print('程序运行时间:%s毫秒' % (optim_time * 1000))
+        if status != 3:
+            # model.computeIIS()
+            # model.write("model1.ilp")
+            gate_choose = []
+            for v in model.getVars():  # getVars获取所有变量
+                if v.x == 1:
+                    # print("%s %g" % (v.varName, v.x))  # (v.varName,v.x)是（变量名字，优化结果）
+                    temp = self.find_numbers(v.varName)[1]
+                    gate_choose.append(int(temp))
+            # print(gate_choose)
+            # print("Obj: %g" % model.objVal)
+            obj = model.objVal
+        else:
+            obj = None
+            gate_choose = None
+            pass
+        return optim_time*1000, gate_choose, obj, status
 
     @staticmethod
     def objective(x, n, m, target_matrix, model):

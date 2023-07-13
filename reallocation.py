@@ -80,6 +80,34 @@ class ReallocationInterval(ReGetInterval):
         return fix_set
 
 
+class IfInfeasible(ReallocationInterval):
+    def fix_information(self, data, quarter, seuil, delta, minutes=None):
+        half_h = minutes * 60
+        q = 15 * 60
+        n = len(data['data'])
+        flight_list = []  # 计算需要固定的航班序列
+        departure_set = np.where(data['departure'] == 'ZBTJ')[0]
+        for i in range(n):
+            if i in departure_set:
+                if data['ATOT'][i] <= quarter * q + half_h:
+                    flight_list.append(i)
+            else:
+                if data['ALDT'][i] <= quarter * q + half_h:
+                    flight_list.append(i)
+        temp = self.presolve(quarter, data, seuil, delta)
+        interval_flight = temp[2]  # 每个间隔相关的航班
+        interval_data = temp[0]
+        # print(interval_flight)
+        fix_info = []  # 需要固定的间隔信息
+        fix_set = []
+        for i in range(len(interval_flight)):
+            inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
+            if len(inter) != 0:
+                fix_set.append(i)
+                fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
+        return fix_info
+
+
 class ReOptimization(Optimization):
     @staticmethod
     def objective(x, n, m, target_matrix, model):
@@ -129,23 +157,64 @@ def reallocation(filename, seuil, part, delta, gate_choose):
             gate_fix = []
             for i in fix_set:
                 gate_fix.append(gate_choose[i])  # 计算当前固定的variable对应的gate
-        print(gate_fix, "apres")
+        # print(gate_fix, "apres")
         x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
-        # temp_list = []
-        # temp_i1 = []
+        temp_list = []
+        temp_i1 = []
         # temp_i2 = []
-        # for i in range(len(x)):
-        #     if sum(x[i]) == 1:
-        #         for temp in range(len(x[i])):
-        #             if x[i][temp] == 1:
-        #                 temp_list.append(temp)
-        #                 temp_i1.append(interval_data['begin_callsign'][interval_set[i]])
-        #                 temp_i2.append(interval_data['registration'][interval_set[i]])
-        # print(temp_i1, 'x list')
-        # # print(temp_i2, "x list")
-        # print(temp_list, "x gate")
+        for i in range(len(x)):
+            if sum(x[i]) == 1:
+                for temp in range(len(x[i])):
+                    if x[i][temp] == 1:
+                        temp_list.append(temp)
+                        temp_i1.append(interval_data['begin_callsign'][interval_set[i]])
+                        # temp_i2.append(interval_data['registration'][interval_set[i]])
+        print(len(temp_i1), temp_i1, 'x list')
+        # print(temp_i2, "x list")
+        print(temp_list, "x gate")
         target_matrix = []
         result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
+        status = result[3]
+        t = 20
+        while status == 3 and t >= 0:
+            if_interval = IfInfeasible()
+            t = t - 5
+            delta_temp = -5
+            interval = if_interval.presolve(quarter, data, seuil, delta_temp)  # 计算当前quarter下的interval
+            second_interval_data = interval[0]
+            variable_set = variable.variable(second_interval_data, airline, wingsize, part)  # 计算当前quarter下的variable
+            interval_data = variable_set[0]
+            interval_set = variable_set[1]
+            obstruction = variable.get_obstruction(interval_data, interval_set)
+            for i in range(len(interval_data['interval'])):
+                if interval_data['interval'][i] < 0:
+                    print(interval_data['registration'][i],
+                          interval_data['begin_callsign'][i], interval_data['end_callsign'][i], '001')
+                    sys.exit(1)
+            temp_x = variable_set[3]
+            gate_set = variable_set[2]
+            # 计算当前quarter后半小时固定的variable
+            total_fix_info = if_interval.fix_information(data, quarter, seuil, delta_temp, t)
+            total_fix_list = if_interval.fix_set(total_fix_info, interval_data)
+            fix_set = []
+            for i in total_fix_list:
+                if i in used_interval:
+                    fix_set.append(used_interval.index(i))  # 找到当前quarter、当前part下后半小时固定的variable
+            x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
+            temp_list = []
+            temp_i1 = []
+            for i in range(len(x)):
+                if sum(x[i]) == 1:
+                    for temp in range(len(x[i])):
+                        if x[i][temp] == 1:
+                            temp_list.append(temp)
+                            temp_i1.append(interval_data['begin_callsign'][interval_set[i]])
+            print(len(temp_i1), temp_i1, 'x list')
+            print(temp_list, "x gate")
+            target_matrix = []
+            result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
+            status = result[3]
+            print(t, "relaxation of optimization conditions")
         quarter += 1
         print(quarter)
         gate_choose = result[1]
