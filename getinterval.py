@@ -126,6 +126,7 @@ class GetInterval:
         for i in range(0, n):
             if data['departure'][i] == 'ZBTJ':
                 departure_set.append(i)
+        # print(departure_set)
         my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',
                   'end_callsign', 'wingspan']
         default_value = []

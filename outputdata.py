@@ -28,3 +28,26 @@ def write_xls(result, sheetname, gate_set):
 
     # 保存excel文件
     wb.save('E:/gap/results/python/buffer/result.xls')
+
+
+def write_interval(result, sheetname):
+    sheetname = ' '.join(sheetname)
+    interval_data = result[0]
+
+    wb = xlwt.Workbook()
+    # 添加一个表
+    ws = wb.add_sheet(sheetname)
+
+    # 3个参数分别为行号，列号，和内容
+    # 需要注意的是行号和列号都是从0开始的
+    my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',
+              'end_callsign', 'wingspan']
+    for i in range(len(my_key)):
+        ws.write(0, i, my_key[i])
+
+    for i in range(len(my_key)):
+        for j in range(len(interval_data['interval'])):
+            ws.write(j + 1, i, interval_data[my_key[i]][j])
+
+    # 保存excel文件
+    wb.save('E:/gap/results/python/buffer/interval.xls')

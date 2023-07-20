@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import sys
+import math
 
 
 def select(wingsize, i, interval_data, interval_set, airline, gate_set):
@@ -16,9 +17,19 @@ def select(wingsize, i, interval_data, interval_set, airline, gate_set):
     return fit
 
 
-def timetransform(interval_data):
-    interval_data['begin_interval'] = [item / 30 for item in interval_data['begin_interval']]
-    interval_data['end_interval'] = [item / 30 for item in interval_data['end_interval']]
+def timetransform(second_interval_data):
+    my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',
+              'end_callsign', 'wingspan']
+    default_value = []
+    interval_data = dict.fromkeys(my_key, default_value)
+    interval_data['airline'] = second_interval_data['airline']
+    interval_data['interval'] = second_interval_data['interval']
+    interval_data['registration'] = second_interval_data['registration']
+    interval_data['begin_callsign'] = second_interval_data['begin_callsign']
+    interval_data['end_callsign'] = second_interval_data['end_callsign']
+    interval_data['wingspan'] = second_interval_data['wingspan']
+    interval_data['begin_interval'] = [math.ceil(item / 30) for item in second_interval_data['begin_interval']]
+    interval_data['end_interval'] = [math.ceil(item / 30) for item in second_interval_data['end_interval']]
     return interval_data
 
 
@@ -39,15 +50,41 @@ def get_companyset(part):
     return company_set
 
 
-def variable(second_interval_data, airline, wingsize, part):
+def variable(second_interval_data, airline, wingsize, part, interval_flight, data, quarter):
+    # 找到满足航空公司限制的interval
     company_set = get_companyset(part)
     temp = np.isin(second_interval_data['airline'], company_set)
     interval_set = list(np.where(temp)[0])
-    n = len(interval_set)
+
+    # 加入actual time 和 target time 限制
+    departure_set = np.where(data['departure'] == 'ZBTJ')[0]
+    h = 60 * 60
+    q = 15 * 60
+    n = len(data['data'])
+    del_list_data = []
+    for i in range(n):
+        if i in departure_set:
+            if data['ATOT'][i] > quarter * q + h and data['TTOT'][i] < quarter * q:
+                del_list_data.append(i)
+        else:
+            if data['ALDT'][i] > quarter * q + h and data['TLDT'][i] < quarter * q:
+                del_list_data.append(i)
+    # print(del_list_data)
+    # print(len(interval_set))
+    for i in range(len(interval_flight)):
+        inter = list(set(del_list_data) & set(interval_flight[i]))  # 判断此间隔是否需要固定
+        if len(inter) != 0 and i in interval_set:
+            interval_set.remove(i)
+
+    # 找到此次计算所用的所有gate
     gate = list(wingsize.keys())
     gate_set = set().union(*[airline[key] for key in company_set])
     gate_set = sorted(gate_set, key=lambda y: gate.index(y))
+
+    # 验证是否有interval无可满足航司及翼展限制的机坪 同时得到x
+    n = len(interval_set)
     m = len(gate_set)
+    # print(n, m)
     x = [[0] * m for _ in range(n)]
     del_set = []
     for i in range(n):
@@ -59,12 +96,13 @@ def variable(second_interval_data, airline, wingsize, part):
     # print(del_set, 'del_Set')
     if len(del_set) != 0:
         sys.exit(1)
+
     # print(interval_set)
     min_interval_data = timetransform(second_interval_data)
     return min_interval_data, interval_set, gate_set, x
 
 
-def variable_infeasible(second_interval_data, airline, wingsize, part, quarter, interval_set_total):
+def variable_infeasible(second_interval_data, airline, wingsize, part, quarter, interval_set_total, counter, pr_temp):
     h = 60 * 60
     company_set = get_companyset(part)
     temp = np.isin(second_interval_data['airline'], company_set)
@@ -72,11 +110,21 @@ def variable_infeasible(second_interval_data, airline, wingsize, part, quarter, 
     temp_set2 = np.where(np.array(second_interval_data['begin_interval']) <= quarter * 15 * 60 + h)[0]
     interval_set = np.intersect1d(temp_set1, temp_set2)
     interval_set = list(interval_set)
-    temp_set3 = np.where((quarter * 15 * 60 <= np.array(second_interval_data['end_interval'])) &
-                         (np.array(second_interval_data['begin_interval']) <= quarter * 15 * 60 + h))[0]
-    interval_pr = np.intersect1d(temp_set1, temp_set3)
-    interval_pr = list(interval_pr)
+
+    if counter == 2:
+        for i in pr_temp[1]:
+            pr_temp[0].remove(i)
+        for i in pr_temp[0]:
+            interval_set.remove(i)
+    # temp_set3 = np.where((quarter * 15 * 60 <= np.array(second_interval_data['end_interval'])) &
+    #                      (np.array(second_interval_data['begin_interval']) <= quarter * 15 * 60 + h))[0]
+    # interval_pr = np.intersect1d(temp_set1, temp_set3)
+    # interval_pr = list(interval_pr)
+    # print(len(interval_pr))
+    # for i in range(37):
+    #     interval_set.remove(interval_pr[i])
     n = len(interval_set)
+    # print(n, "n")
     gate = list(wingsize.keys())
     gate_set = set().union(*[airline[key] for key in company_set])
     gate_set = sorted(gate_set, key=lambda y: gate.index(y))
@@ -89,12 +137,12 @@ def variable_infeasible(second_interval_data, airline, wingsize, part, quarter, 
             del_set.append(i)
         for j in fit:
             x[i][j] = 1
-        if interval_set[i] in interval_pr:
-            print(second_interval_data['begin_interval'][interval_set[i]],
-                  second_interval_data['end_interval'][interval_set[i]],
-                  second_interval_data['registration'][interval_set[i]],
-                  second_interval_data['begin_callsign'][interval_set[i]],
-                  second_interval_data['end_callsign'][interval_set[i]], fit)
+        # if interval_set[i] in interval_pr:
+        #     print(second_interval_data['begin_interval'][interval_set[i]],
+        #           second_interval_data['end_interval'][interval_set[i]],
+        #           second_interval_data['registration'][interval_set[i]],
+        #           second_interval_data['begin_callsign'][interval_set[i]],
+        #           second_interval_data['end_callsign'][interval_set[i]], fit)
     if len(del_set) != 0:
         print(del_set, "del_set")
         sys.exit(1)
@@ -135,6 +183,8 @@ def get_obstruction(interval_data, interval_set):
     obstruction = []
     fa = [value for i, value in enumerate(interval_data['begin_interval']) if i in interval_set]
     fd = [value for i, value in enumerate(interval_data['end_interval']) if i in interval_set]
+    fa = np.array(fa)
+    fd = np.array(fd)
     for i in range(n):
         part1 = np.where((fa[i] <= fd) & (fd <= fd[i]) | (fa[i] <= fa) & (fa <= fd[i]))[0]
         part3 = np.where((fa <= fa[i]) & (fd[i] <= fd))[0]
@@ -142,10 +192,11 @@ def get_obstruction(interval_data, interval_set):
         obs_list = list(obs_list)
         obs_list.remove(i)
         obstruction.append(obs_list)
+    # print(obstruction)
     return obstruction
 
 
-def target(taxi_matrix, wingsize, interval_set, gate_set):
+def target_gen(taxi_matrix, wingsize, interval_set, gate_set):
     target_matrix = [row for i, row in enumerate(taxi_matrix) if i in interval_set]
     gate_index = [index for index, value in enumerate(wingsize.keys()) if value in gate_set]
     # print(gate_index)

@@ -15,16 +15,19 @@ def generante_solution(filename, regulation, seuil, t_or_a, part, delta):
     wingsize = getdata.load_wingsize()
     generante_interval = GetInterval()
     second_interval = generante_interval.presolve(t_or_a, data, seuil, delta)
+    # outputdata.write_interval(second_interval, sheetname)
     second_interval_data = second_interval[0]
+    interval_flight = second_interval[2]
     # print(interval_data['end_interval'])
     interval_pattern = second_interval[1]
-    result_set = variable.variable(second_interval_data, airline, wingsize, part)
+    quarter = 0
+    result_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data, quarter)
     interval_data = result_set[0]
     interval_set = result_set[1]
     gate_set = result_set[2]
     taxi_matrix = taxiingtime_matrix.taxiingtime_matrix(taxiingtime, interval_data, interval_pattern)
     obstruction = variable.get_obstruction(interval_data, interval_set)
-    target_matrix = variable.target(taxi_matrix, wingsize, interval_set, gate_set)
+    target_matrix = variable.target_gen(taxi_matrix, wingsize, interval_set, gate_set)
     x = result_set[3]
     gate_set = result_set[2]
     result = optim_temp.optim(x, obstruction, target_matrix, part)
