@@ -135,7 +135,8 @@ class GetInterval:
         interval_flight = []
         sample = []
         for i in range(n):
-            temp = np.where(data['registration'] == data['registration'][i])
+            registration = np.array(data['registration'])
+            temp = np.where(registration == data['registration'][i])
             num = list(temp[0])
             num.sort()
             # print(num, i)
@@ -166,8 +167,16 @@ class GetInterval:
         tot = temp[0]
         ldt = temp[1]
         n = len(data['data'])
-        departure_set = np.where(data['departure'] == 'ZBTJ')[0]
-        arrivee_set = np.where(data['arrivee'] == 'ZBTJ')[0]
+        departure = data['departure']
+        departure_set = []
+        arrivee_set = []
+        for i in range(len(departure)):
+            if departure[i] == 'ZBTJ':
+                departure_set.append(i)
+            else:
+                arrivee_set.append(i)
+        # departure_set = np.where(departure == 'ZBTJ')[0]
+        # arrivee_set = np.where(data['arrivee'] == 'ZBTJ')[0]
         departure_time = []
         arrivee_time = []
         for i in range(n):
@@ -181,8 +190,8 @@ class GetInterval:
         for i in departure_set:
             pattern[i] = 1
         for i in range(24):
-            departure_index = [index for index, x in enumerate(departure_time) if h * i < x < (h * (i + 1))]
-            arrivee_index = [index for index, x in enumerate(arrivee_time) if h * i < x < (h * (i + 1))]
+            departure_index = [index for index, x in enumerate(departure_time) if h * i < x <= (h * (i + 1))]
+            arrivee_index = [index for index, x in enumerate(arrivee_time) if h * i < x <= (h * (i + 1))]
             amount = len(departure_index) + len(arrivee_index)
             for index in arrivee_index:
                 if amount < seuil:

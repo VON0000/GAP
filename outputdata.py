@@ -1,11 +1,8 @@
 import xlwt
 
 
-def write_xls(result, sheetname, gate_set):
+def write_xls(gate_dict, sheetname, gate_set):
     sheetname = ' '.join(sheetname)
-    optim_time = result[0]
-    gate_choose = result[1]
-    obj = result[2]
 
     wb = xlwt.Workbook()
     # 添加一个表
@@ -13,18 +10,19 @@ def write_xls(result, sheetname, gate_set):
 
     # 3个参数分别为行号，列号，和内容
     # 需要注意的是行号和列号都是从0开始的
-    ws.write(0, 0, 'optim_time')
-    ws.write(0, 1, 'obj')
-    ws.write(0, 2, 'interval')
-    ws.write(0, 3, 'gate_choose')
+    ws.write(0, 0, 'call_sign_1')
+    ws.write(0, 1, 'call_sign_2')
+    ws.write(0, 2, 'registration')
+    ws.write(0, 3, 'gate')
 
-    ws.write(1, 0, optim_time)
-    ws.write(1, 1, obj)
-
-    for i in range(len(gate_choose)):
-        index = int(gate_choose[i])
-        ws.write(i + 1, 2, i+1)
-        ws.write(i+1, 3, gate_set[index])
+    for i in range(len(gate_dict['gate'])):
+        ws.write(i + 1, 0, gate_dict['begin_callsign'][i])
+        try:
+            ws.write(i + 1, 1, gate_dict['end_callsign'][i])
+        except KeyError:
+            pass
+        ws.write(i + 1, 2, gate_dict['registration'][i])
+        ws.write(i + 1, 3, gate_set[gate_dict['gate'][i]])
 
     # 保存excel文件
     wb.save('E:/gap/results/python/buffer/result.xls')

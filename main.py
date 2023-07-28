@@ -8,6 +8,7 @@ import os
 import GenernateSolution
 import reallocation
 
+
 part = 3
 t_or_a = 0
 delta = 5
@@ -19,5 +20,4 @@ if __name__ == '__main__':
     filename = "E:/gap/error-in-data/gaptraffic-2017-08-03-new.csv"
     genernate_solution = GenernateSolution.generante_solution(filename, regulation, seuil, t_or_a, part, delta)
     reallocation.reallocation(filename, seuil, part, delta, genernate_solution)
-    # plot.draw_fjssp_gantt()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

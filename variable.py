@@ -6,7 +6,8 @@ import math
 
 def select(wingsize, i, interval_data, interval_set, airline, gate_set):
     index = [interval_set[i]][0]
-    wing_limit = np.where(list(wingsize.values()) >= interval_data['wingspan'][index])[0]
+    wingspan = np.array(list(wingsize.values()))
+    wing_limit = np.where(wingspan >= interval_data['wingspan'][index])[0]
     temp = interval_data['airline'][index]
     company_limit = [i for i, item in enumerate(wingsize.keys()) if item in airline[temp]]
     intersection = set(wing_limit) & set(company_limit)
@@ -56,8 +57,8 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
     temp = np.isin(second_interval_data['airline'], company_set)
     interval_set = list(np.where(temp)[0])
 
-    # 加入actual time 和 target time 限制
-    departure_set = np.where(data['departure'] == 'ZBTJ')[0]
+    # target time 小于当前时间 且 actual time 大于当前时间后一小时 的删除
+    departure_set = np.where(np.array(data['departure']) == 'ZBTJ')[0]
     h = 60 * 60
     q = 15 * 60
     n = len(data['data'])
@@ -72,7 +73,7 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
     # print(del_list_data)
     # print(len(interval_set))
     for i in range(len(interval_flight)):
-        inter = list(set(del_list_data) & set(interval_flight[i]))  # 判断此间隔是否需要固定
+        inter = list(set(del_list_data) & set(interval_flight[i]))  # 判断此间隔是否需要删除
         if len(inter) != 0 and i in interval_set:
             interval_set.remove(i)
 
@@ -203,4 +204,54 @@ def target_gen(taxi_matrix, wingsize, interval_set, gate_set):
     target_matrix = [row[g] for row in target_matrix for g in gate_index]
     target_matrix = [target_matrix[i:i + len(gate_index)] for i in range(0, len(target_matrix), len(gate_index))]
     # print(target_matrix[80])
+    return target_matrix
+
+
+def target_re(gate_dict, interval_set_total, interval_data, gate_set):
+    # 找到每个interval在上一次计算中的gate
+    interval_index = []
+    g = []
+    for i in interval_set_total:
+        if interval_data['begin_callsign'][i] in gate_dict['begin_callsign']:
+            temp = [j for j, values in enumerate(gate_dict['begin_callsign'])
+                    if values == interval_data['begin_callsign'][i]]
+            if len(temp) == 1:
+                interval_index.append(interval_set_total.index(i))
+                g.append(gate_dict['gate'][temp[0]])
+            else:
+                value = [values for values in temp
+                         if gate_dict['registration'][values] == interval_data['registration'][i]]
+                interval_index.append(interval_set_total.index(i))
+                # print(value)
+                g.append(gate_dict['gate'][value[0]])
+        else:
+            pass
+
+    # 航站楼一号、二号、远机位
+    no_1 = [x for x in range(5)]
+    no_2 = [x for x in range(5, 35)]
+    no_3 = [x for x in range(35, 46)]
+    no_3.extend([x for x in range(56, 68)])
+    no_4 = [x for x in range(46, 56)]
+
+    # 构建target_matrix
+    n = len(interval_set_total)
+    m = len(gate_set)
+    target_matrix = [[100] * m for _ in range(n)]
+    for i in range(m):
+        if i in interval_index:
+            target_matrix = cost(g, i, no_1, target_matrix)
+            target_matrix = cost(g, i, no_2, target_matrix)
+            target_matrix = cost(g, i, no_3, target_matrix)
+            target_matrix = cost(g, i, no_4, target_matrix)
+        else:
+            pass
+    return target_matrix
+
+
+def cost(g, i, no, target_matrix):
+    if g[i] in no:
+        for k in no:
+            target_matrix[i][k] = 1
+        target_matrix[i][g[i]] = 0
     return target_matrix

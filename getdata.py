@@ -46,6 +46,8 @@ def load_airlinsgate():
 
 def load_traffic(filename):
     data = pd.read_csv(filename)
+    data = data.to_dict(orient='list')
+    # print(data)
     n = len(data['data'])
     for i in range(n):
         if data['arrivee'][i] == 'ZBTJ':

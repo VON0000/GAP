@@ -6,6 +6,24 @@ import re
 
 
 class Optimization:
+    # TODO:改 dependent gate 限制条件
+    @staticmethod
+    def dependent_gate():
+        my_key = ['gate', 'dependent']
+        default_value = []
+        dependent_dic = dict.fromkeys(my_key, default_value)
+        gate = [40, 41, 42, 43, 44, 45, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67]
+        dependent = [[56, 57], [58, 59], [60, 61], [62, 63], [64, 65], [66, 67],
+                     [40], [40], [41], [41], [42], [42], [43], [43], [44], [44], [45], [45]]
+        dependent_dic['gate'] = gate
+        dependent_dic['dependent'] = dependent
+        return dependent_dic
+
+    @staticmethod
+    def dependent_set():
+        dependent_set = [40, 41, 42, 43, 44, 45, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67]
+        return dependent_set
+
     @staticmethod
     def find_numbers(text):
         numbers = re.findall(r'\d+', text)

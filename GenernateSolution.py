@@ -31,6 +31,23 @@ def generante_solution(filename, regulation, seuil, t_or_a, part, delta):
     x = result_set[3]
     gate_set = result_set[2]
     result = optim_temp.optim(x, obstruction, target_matrix, part)
-    outputdata.write_xls(result, sheetname, gate_set)
     gate_choose = result[1]
-    return gate_choose
+
+    # 构建gate_choose
+    temp_1 = []
+    temp_2 = []
+    temp_3 = []
+    for i in range(len(gate_choose)):
+        index = interval_set[i]
+        temp_1.append(interval_data['begin_callsign'][index])
+        temp_2.append(interval_data['registration'][index])
+        temp_3.append(gate_choose[i])
+    my_key = ['begin_callsign', 'registration', 'gate']
+    default_value = []
+    gate_dict = dict.fromkeys(my_key, default_value)
+    gate_dict['begin_callsign'] = temp_1
+    gate_dict['registration'] = temp_2
+    gate_dict['gate'] = temp_3
+
+    outputdata.write_xls(gate_dict, sheetname, gate_set)
+    return gate_dict
