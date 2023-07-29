@@ -59,8 +59,8 @@ class ReallocationInterval(ReGetInterval):
         fix_info = []  # 需要固定的间隔信息
         fix_set = []
         for i in range(len(interval_flight)):
-            inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
-            if len(inter) != 0:
+            # inter = list(set(flight_list) & set(interval_flight[i][0]))  # 判断此间隔是否需要固定
+            if interval_flight[i][0] in flight_list:
                 fix_set.append(i)
                 fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
         # print(fix_info)
@@ -124,8 +124,8 @@ class IfInfeasible(ReallocationInterval):
         fix_info = []  # 需要固定的间隔信息
         fix_set = []
         for i in range(len(interval_flight)):
-            inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
-            if len(inter) != 0:
+            # inter = list(set(flight_list) & set(interval_flight[i][0]))  # 判断此间隔是否需要固定
+            if interval_flight[i][0] in flight_list:
                 fix_set.append(i)
                 fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
         return fix_info
