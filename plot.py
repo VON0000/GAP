@@ -23,7 +23,7 @@ def make_json(gen_x, interval_set, interval_data):
         xticks.append(x)
         x = x + 100
     dic = {"packages": total_data, "title": "Gantt", "xlabel": "time", "xticks": xticks}
-g    return dic
+    return dic
 
 
 def dict2json(file_name, the_dict):

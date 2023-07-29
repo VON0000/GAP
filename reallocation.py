@@ -149,7 +149,7 @@ def reallocation(filename, seuil, part, delta, gate_dict):
     result = None
     gate_set = []
 
-    while quarter < 95:
+    while quarter < 49:
         # 得到所有interval相关量
         interval = new_interval.presolve(quarter, data, seuil, delta)  # 计算当前quarter下的interval
         second_interval_data = interval[0]
@@ -281,8 +281,10 @@ def reallocation(filename, seuil, part, delta, gate_dict):
                     fix_set.append(interval_set.index(i))
             x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
             gate_dict = localsearch.local_search(x, obstruction, interval_set, interval_data, fix_set, gate_dict)
+            outputdata.write_xls(gate_dict, 'before', gate_set, interval_data, interval_set)
             gate_dict = localsearch.remote_allocation(gate_dict, wingsize, gate_set, interval_set, interval_data,
                                                       obstruction)
+            outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
 
             # dic = plot.make_json(generation, interval_set, interval_data)
             # flag = plot.dict2json('E:/gap/results/python/buffer/j_data.json', dic)
@@ -290,7 +292,6 @@ def reallocation(filename, seuil, part, delta, gate_dict):
 
         quarter += 1
         print(quarter)
-    outputdata.write_xls(gate_dict, sheetname, gate_set)
 
     gate_choose = result[1]
     return gate_choose

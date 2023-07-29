@@ -1,7 +1,7 @@
 import xlwt
 
 
-def write_xls(gate_dict, sheetname, gate_set):
+def write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set):
     sheetname = ' '.join(sheetname)
 
     wb = xlwt.Workbook()
@@ -14,6 +14,8 @@ def write_xls(gate_dict, sheetname, gate_set):
     ws.write(0, 1, 'call_sign_2')
     ws.write(0, 2, 'registration')
     ws.write(0, 3, 'gate')
+    ws.write(0, 4, 'begin time')
+    ws.write(0, 5, 'finish time')
 
     for i in range(len(gate_dict['gate'])):
         ws.write(i + 1, 0, gate_dict['begin_callsign'][i])
@@ -23,6 +25,8 @@ def write_xls(gate_dict, sheetname, gate_set):
             pass
         ws.write(i + 1, 2, gate_dict['registration'][i])
         ws.write(i + 1, 3, gate_set[gate_dict['gate'][i]])
+        ws.write(i + 1, 4, interval_data['begin_interval'][interval_set[i]])
+        ws.write(i + 1, 5, interval_data['end_interval'][interval_set[i]])
 
     # 保存excel文件
     wb.save('E:/gap/results/python/buffer/result.xls')

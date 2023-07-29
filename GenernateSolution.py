@@ -49,5 +49,5 @@ def generante_solution(filename, regulation, seuil, t_or_a, part, delta):
     gate_dict['registration'] = temp_2
     gate_dict['gate'] = temp_3
 
-    outputdata.write_xls(gate_dict, sheetname, gate_set)
+    # outputdata.write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set)
     return gate_dict
