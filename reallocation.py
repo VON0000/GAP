@@ -149,7 +149,7 @@ def reallocation(filename, seuil, part, delta, gate_dict):
     result = None
     gate_set = []
 
-    while quarter < 49:
+    while quarter < 94:
         # 得到所有interval相关量
         interval = new_interval.presolve(quarter, data, seuil, delta)  # 计算当前quarter下的interval
         second_interval_data = interval[0]
@@ -166,7 +166,7 @@ def reallocation(filename, seuil, part, delta, gate_dict):
 
         # 验证interval是否都大于零
         for i in range(len(interval_data['interval'])):
-            if interval_data['interval'][i] < 0:
+            if interval_data['interval'][i] <= 0:
                 print(interval_data['registration'][i],
                       interval_data['begin_callsign'][i], interval_data['end_callsign'][i], '001')
                 sys.exit(1)
@@ -204,21 +204,21 @@ def reallocation(filename, seuil, part, delta, gate_dict):
         #           second_interval_data['end_callsign'][i])
 
         # 打印出固定的interval以及他们的gate
-        # temp_list = []
-        # temp_i1 = []
-        # # temp_i2 = []
-        # for i in range(len(x)):
-        #     if sum(x[i]) == 1:
-        #         for temp in range(len(x[i])):
-        #             if x[i][temp] == 1:
-        #                 temp_list.append(temp)
-        #                 temp_i1.append(interval_data['begin_callsign'][interval_set_total[i]])
-        #                 # temp_i2.append(interval_data['registration'][interval_set_total[i]])
-        #                 print(interval_data['begin_callsign'][interval_set_total[i]], temp)
-        # print(len(temp_i1), 'x list', len(temp_list), "x gate")
-        # # print(temp_i2, "x list")
-        # # print(len(temp_list), "x gate")
-        # print(len(interval_set_total))
+        temp_list = []
+        temp_i1 = []
+        # temp_i2 = []
+        for i in range(len(x)):
+            if sum(x[i]) == 1:
+                for temp in range(len(x[i])):
+                    if x[i][temp] == 1:
+                        temp_list.append(temp)
+                        temp_i1.append(interval_data['begin_callsign'][interval_set_total[i]])
+                        # temp_i2.append(interval_data['registration'][interval_set_total[i]])
+                        print(interval_data['begin_callsign'][interval_set_total[i]], temp)
+        print(len(temp_i1), 'x list', len(temp_list), "x gate")
+        # print(temp_i2, "x list")
+        # print(len(temp_list), "x gate")
+        print(len(interval_set_total))
 
         # 优化
         target_matrix = variable.target_re(gate_dict, interval_set_total, interval_data, gate_set)
