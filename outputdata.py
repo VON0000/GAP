@@ -29,7 +29,7 @@ def write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set):
         ws.write(i + 1, 5, interval_data['end_interval'][interval_set[i]])
 
     # 保存excel文件
-    wb.save('E:/gap/results/python/buffer/result.xls')
+    wb.save('./results/python/buffer/result.xls')
 
 
 def write_interval(result, sheetname):
@@ -52,4 +52,4 @@ def write_interval(result, sheetname):
             ws.write(j + 1, i, interval_data[my_key[i]][j])
 
     # 保存excel文件
-    wb.save('E:/gap/results/python/buffer/interval.xls')
+    wb.save('./results/python/buffer/interval.xls')

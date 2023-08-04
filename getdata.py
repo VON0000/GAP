@@ -17,7 +17,7 @@ def load_wingsize():
 def load_airlinsgate():
     airlines_data = pd.read_csv("./data/airlinesgate.csv", header=0, usecols=["airlines"])
     airlines = {}
-    with open("E:/gap/data2/airlinesgate.csv", 'r') as gate:
+    with open("./data/airlinesgate.csv", 'r') as gate:
         lines = gate.readlines()
         counter = 0
         gate_data = []
