@@ -59,8 +59,8 @@ class ReallocationInterval(ReGetInterval):
         fix_info = []  # 需要固定的间隔信息
         fix_set = []
         for i in range(len(interval_flight)):
-            # inter = list(set(flight_list) & set(interval_flight[i][0]))  # 判断此间隔是否需要固定
-            if interval_flight[i][0] in flight_list:
+            inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
+            if len(inter) != 0:
                 fix_set.append(i)
                 fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
         # print(fix_info)
@@ -124,8 +124,8 @@ class IfInfeasible(ReallocationInterval):
         fix_info = []  # 需要固定的间隔信息
         fix_set = []
         for i in range(len(interval_flight)):
-            # inter = list(set(flight_list) & set(interval_flight[i][0]))  # 判断此间隔是否需要固定
-            if interval_flight[i][0] in flight_list:
+            inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
+            if len(inter) != 0:
                 fix_set.append(i)
                 fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
         return fix_info
@@ -204,21 +204,21 @@ def reallocation(filename, seuil, part, delta, gate_dict):
         #           second_interval_data['end_callsign'][i])
 
         # 打印出固定的interval以及他们的gate
-        temp_list = []
-        temp_i1 = []
-        # temp_i2 = []
-        for i in range(len(x)):
-            if sum(x[i]) == 1:
-                for temp in range(len(x[i])):
-                    if x[i][temp] == 1:
-                        temp_list.append(temp)
-                        temp_i1.append(interval_data['begin_callsign'][interval_set_total[i]])
-                        # temp_i2.append(interval_data['registration'][interval_set_total[i]])
-                        print(interval_data['begin_callsign'][interval_set_total[i]], temp)
-        print(len(temp_i1), 'x list', len(temp_list), "x gate")
-        # print(temp_i2, "x list")
-        # print(len(temp_list), "x gate")
-        print(len(interval_set_total))
+        # temp_list = []
+        # temp_i1 = []
+        # # temp_i2 = []
+        # for i in range(len(x)):
+        #     if sum(x[i]) == 1:
+        #         for temp in range(len(x[i])):
+        #             if x[i][temp] == 1:
+        #                 temp_list.append(temp)
+        #                 temp_i1.append(interval_data['begin_callsign'][interval_set_total[i]])
+        #                 # temp_i2.append(interval_data['registration'][interval_set_total[i]])
+        #                 print(interval_data['begin_callsign'][interval_set_total[i]], temp)
+        # print(len(temp_i1), 'x list', len(temp_list), "x gate")
+        # # print(temp_i2, "x list")
+        # # print(len(temp_list), "x gate")
+        # print(len(interval_set_total))
 
         # 优化
         target_matrix = variable.target_re(gate_dict, interval_set_total, interval_data, gate_set)
@@ -281,10 +281,10 @@ def reallocation(filename, seuil, part, delta, gate_dict):
                     fix_set.append(interval_set.index(i))
             x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
             gate_dict = localsearch.local_search(x, obstruction, interval_set, interval_data, fix_set, gate_dict)
-            outputdata.write_xls(gate_dict, 'before', gate_set, interval_data, interval_set)
+            # outputdata.write_xls(gate_dict, 'before', gate_set, interval_data, interval_set)
             gate_dict = localsearch.remote_allocation(gate_dict, wingsize, gate_set, interval_set, interval_data,
                                                       obstruction)
-            outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
+            # outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
 
             # dic = plot.make_json(generation, interval_set, interval_data)
             # flag = plot.dict2json('E:/gap/results/python/buffer/j_data.json', dic)

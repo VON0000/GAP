@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def load_wingsize():
-    data = pd.read_excel("E:/gap/data2/wingsizelimit.xls", sheet_name=None)
+    data = pd.read_excel("./data/wingsizelimit.xls", sheet_name=None)
     sheet_data = data['sheet1']
     wingsize = {}
     for i in sheet_data.index:
@@ -15,7 +15,7 @@ def load_wingsize():
 
 
 def load_airlinsgate():
-    airlines_data = pd.read_csv("E:/gap/data2/airlinesgate.csv", header=0, usecols=["airlines"])
+    airlines_data = pd.read_csv("./data/airlinesgate.csv", header=0, usecols=["airlines"])
     airlines = {}
     with open("E:/gap/data2/airlinesgate.csv", 'r') as gate:
         lines = gate.readlines()
@@ -58,7 +58,7 @@ def load_traffic(filename):
 
 
 def load_taxitime(regulation):
-    data = pd.read_excel("E:/gap/data2/mintaxitime.xlsx", sheet_name=None, header=2)
+    data = pd.read_excel("./data/mintaxitime.xlsx", sheet_name=None, header=2)
     sheet_data = data['sheet1']
     # print(sheet_data['DEP-16R'])
     taxitime = {}
