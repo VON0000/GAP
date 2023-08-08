@@ -20,6 +20,7 @@ def generante_solution(filename, regulation, seuil, t_or_a, part, delta):
     interval_flight = second_interval[2]
     # print(interval_data['end_interval'])
     interval_pattern = second_interval[1]
+    pattern = second_interval[3]
     quarter = 0
     result_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data, quarter)
     interval_data = result_set[0]
@@ -50,4 +51,4 @@ def generante_solution(filename, regulation, seuil, t_or_a, part, delta):
     gate_dict['gate'] = temp_3
 
     # outputdata.write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set)
-    return gate_dict
+    return gate_dict, pattern

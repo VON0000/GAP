@@ -84,18 +84,24 @@ class GetInterval:
                     interval_time = departure_time - arrivee_time
                     # print(interval_time)
                     if interval_time <= h:
-                        temp = self.shorttime(i, ldt, tot, sorted_indices)
-                        interval_data['interval'].append(temp[0])
-                        interval_data['begin_interval'].append(temp[1])
-                        interval_data['end_interval'].append(temp[2])
-                        interval_data['airline'].append(data['Airline'][sorted_indices[i]])
-                        interval_data['registration'].append(data['registration'][sorted_indices[i]])
-                        interval_data['begin_callsign'].append(data['callsign'][sorted_indices[i]])
-                        interval_data['end_callsign'].append(data['callsign'][sorted_indices[i + 1]])
-                        interval_data['wingspan'].append(data['Wingspan'][sorted_indices[i]])
-                        # print(interval_data)
-                        interval_pattern.append([pattern[sorted_indices[i]], pattern[sorted_indices[i+1]]])
-                        interval_flight.append([sorted_indices[i], sorted_indices[i + 1]])
+                        if interval_time >= h * 2 / 3:
+                            temp = self.shorttime(i, ldt, tot, sorted_indices)
+                            interval_data['interval'].append(temp[0])
+                            interval_data['begin_interval'].append(temp[1])
+                            interval_data['end_interval'].append(temp[2])
+                            interval_data['airline'].append(data['Airline'][sorted_indices[i]])
+                            interval_data['registration'].append(data['registration'][sorted_indices[i]])
+                            interval_data['begin_callsign'].append(data['callsign'][sorted_indices[i]])
+                            interval_data['end_callsign'].append(data['callsign'][sorted_indices[i + 1]])
+                            interval_data['wingspan'].append(data['Wingspan'][sorted_indices[i]])
+                            # print(interval_data)
+                            interval_pattern.append([pattern[sorted_indices[i]], pattern[sorted_indices[i+1]]])
+                            interval_flight.append([sorted_indices[i], sorted_indices[i + 1]])
+                        else:
+                            interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
+                                                                interval_data, ldt)
+                            interval_pattern.append([pattern[sorted_indices[i]], 0])
+                            interval_flight.append([sorted_indices[i]])
                     else:
                         interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
                                                             interval_data, ldt)
@@ -160,9 +166,10 @@ class GetInterval:
         for i in range(len(interval_pattern)):
             if interval_pattern[i][1] == 1:
                 interval_data['end_interval'][i] = interval_data['end_interval'][i] + minute * delta
-        return interval_data, interval_pattern, interval_flight
+        return interval_data, interval_pattern, interval_flight, pattern
 
     def taxiing_pattern(self, t_or_a, seuil, data):
+        # 1 dep_16R 2 arr_16L 3 dep_16R
         temp = self.actual_target(data, t_or_a)
         tot = temp[0]
         ldt = temp[1]

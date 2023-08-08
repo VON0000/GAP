@@ -29,6 +29,7 @@ def timetransform(second_interval_data):
     interval_data['begin_callsign'] = second_interval_data['begin_callsign']
     interval_data['end_callsign'] = second_interval_data['end_callsign']
     interval_data['wingspan'] = second_interval_data['wingspan']
+    interval_data['interval'] = [math.ceil(item / 30) for item in second_interval_data['interval']]
     interval_data['begin_interval'] = [math.ceil(item / 30) for item in second_interval_data['begin_interval']]
     interval_data['end_interval'] = [math.ceil(item / 30) for item in second_interval_data['end_interval']]
     return interval_data

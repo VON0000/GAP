@@ -121,8 +121,6 @@ class Optimization:
         optim_time = t2 - t1
         print('程序运行时间:%s毫秒' % (optim_time * 1000))
         if status != 3:
-            # model.computeIIS()
-            # model.write("model1.ilp")
             gate_choose = []
             for v in model.getVars():  # getVars获取所有变量
                 if v.x == 1:
@@ -133,6 +131,8 @@ class Optimization:
             # print("Obj: %g" % model.objVal)
             obj = model.objVal
         else:
+            model.computeIIS()
+            model.write("model1.ilp")
             obj = None
             gate_choose = None
             pass

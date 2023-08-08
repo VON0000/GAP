@@ -5,6 +5,7 @@ from optimization import Optimization
 import numpy as np
 import sys
 import localsearch
+import plot
 import outputdata
 
 
@@ -137,7 +138,36 @@ class ReOptimization(Optimization):
         return model
 
 
-def reallocation(filename, seuil, part, delta, gate_dict):
+def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix):
+    question = -1
+    flag = 1000
+    for i in fix_set:
+        idx = interval_set[i]
+        begin_time = interval_data['begin_interval'][idx]
+        if begin_time < quarter * 15 * 2:
+            continue
+        else:
+            gate = gate_fix[fix_set.index(i)]
+            fix_avant = []
+            for f in range(len(fix_set)):
+                gate_temp = gate_fix[f]
+                if gate_temp == gate:
+                    fix_avant.append(fix_set[f])
+            local_obstruction = obstruction[i]
+            temp = list(set(local_obstruction) & set(fix_avant))
+            if len(temp) == 0:
+                continue
+            else:
+                if begin_time > question:
+                    question = begin_time
+                    flag = i
+    if question != -1:
+        gate_fix.pop(fix_set.index(flag))
+        fix_set.remove(flag)
+    return fix_set, gate_fix
+
+
+def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
     # 初始化
     quarter = 0
     optim_temp = Optimization()
@@ -148,6 +178,8 @@ def reallocation(filename, seuil, part, delta, gate_dict):
     new_interval = ReallocationInterval()
     result = None
     gate_set = []
+    interval_data = None
+    interval_set =[]
 
     while quarter < 94:
         # 得到所有interval相关量
@@ -159,8 +191,8 @@ def reallocation(filename, seuil, part, delta, gate_dict):
         # 计算当前quarter下的variable，包括x
         variable_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data, quarter)
         interval_data = variable_set[0]
-        interval_set_total = variable_set[1]  # 此part用到的所有满足tot和dlt的interval在总共的interval中的索引
-        obstruction = variable.get_obstruction(interval_data, interval_set_total)
+        interval_set = variable_set[1]  # 此part用到的所有满足tot和dlt的interval在总共的interval中的索引
+        obstruction = variable.get_obstruction(interval_data, interval_set)
         temp_x = variable_set[3]
         gate_set = variable_set[2]
 
@@ -176,8 +208,8 @@ def reallocation(filename, seuil, part, delta, gate_dict):
         total_fix_list = new_interval.fix_set(total_fix_info, interval_data)
         fix_set = []
         for i in total_fix_list:
-            if i[0] in interval_set_total:
-                fix_set.append(interval_set_total.index(i))  # 找到当前quarter、当前part下后半小时固定的variable
+            if i[0] in interval_set:
+                fix_set.append(interval_set.index(i))  # 找到当前quarter、当前part下后半小时固定的variable
                 # print(second_interval_data['begin_interval'][i[0]],
                 #       second_interval_data['end_interval'][i[0]],
                 #       second_interval_data['registration'][i[0]],
@@ -188,8 +220,11 @@ def reallocation(filename, seuil, part, delta, gate_dict):
         gate_fix = new_interval.gate_set(total_fix_info, gate_dict)
         print(len(fix_set), 'fix_set', len(gate_fix), 'gate_fix')
 
+        # 判断已经固定的部分是否有冲突
+        fix_set, gate_fix = find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix)
+
         # 将fix_set中的量固定
-        x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set_total)  # 更新x
+        x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
 
         # interval_pr = [value for index, value in enumerate(interval_set_total) if index in fix_set]
         # print(interval_pr, "interval_pr")
@@ -221,7 +256,7 @@ def reallocation(filename, seuil, part, delta, gate_dict):
         # print(len(interval_set_total))
 
         # 优化
-        target_matrix = variable.target_re(gate_dict, interval_set_total, interval_data, gate_set)
+        target_matrix = variable.target_re(gate_dict, interval_set, interval_data, gate_set)
         result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
         status = result[3]
         gate_choose = result[1]
@@ -233,7 +268,7 @@ def reallocation(filename, seuil, part, delta, gate_dict):
             temp_3 = []
             temp_4 = []
             for i in range(len(gate_choose)):
-                index = interval_set_total[i]
+                index = interval_set[i]
                 temp_1.append(interval_data['begin_callsign'][index])
                 temp_2.append(interval_data['registration'][index])
                 temp_3.append(gate_choose[i])
@@ -284,7 +319,7 @@ def reallocation(filename, seuil, part, delta, gate_dict):
             # outputdata.write_xls(gate_dict, 'before', gate_set, interval_data, interval_set)
             gate_dict = localsearch.remote_allocation(gate_dict, wingsize, gate_set, interval_set, interval_data,
                                                       obstruction)
-            # outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
+            outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
 
             # dic = plot.make_json(generation, interval_set, interval_data)
             # flag = plot.dict2json('E:/gap/results/python/buffer/j_data.json', dic)
@@ -292,6 +327,5 @@ def reallocation(filename, seuil, part, delta, gate_dict):
 
         quarter += 1
         print(quarter)
-
-    gate_choose = result[1]
-    return gate_choose
+    outputdata.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename)
+    return gate_dict
