@@ -145,3 +145,65 @@ def new_data(data, front_part, gate_set, gate_dict, i, registration, last_two_ch
                     new_value = gate_set[gate_dict['gate'][i]]
                     data.loc[c, 'Parking'] = new_value
     return data
+
+
+def write_other(gate_dict, sheetname, gate_set, pattern, regulation):
+    if regulation == 1:
+        name = sheetname + ['ZBTJ', 'MANEX']
+    elif regulation == 2:
+        name = sheetname + ['ZBTJ', 'MIN']
+    elif regulation == 3:
+        name = sheetname + ['ZBTJ-PN', 'MANEX']
+    else:
+        name = sheetname + ['ZBTJ-PN', 'MIN']
+
+    name = '_'.join(name)
+    out_name = ['./results/buffer/', name, '.csv']
+    output_file_path = ''.join(out_name)
+    input_file_path = ''.join(out_name)
+
+    data = pd.read_csv(input_file_path)
+
+    # 指定要更改的列名
+    column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
+
+    if len(pattern) != len(data[column_name_to_change]):
+        print('the length of pattern is not equal to the length of data')
+        sys.exit(1)
+
+    # 使用 for 循环遍历每一行并修改指定列的值
+    for index, row in data.iterrows():
+        if pattern[index] == 1:
+            new_value = '16R'
+        elif pattern[index] == 2:
+            new_value = '16L'
+        else:
+            new_value = '16R'
+        data.loc[index, column_name_to_change] = new_value
+
+    # # 指定要更改的列名
+    # column_name_to_change = 'Parking'  # 将 'column_name' 替换为实际的列名
+    #
+    # # 读取原始 CSV 文件并修改指定列的数据
+    # data[column_name_to_change] = None
+    #
+    # for i in range(len(gate_dict['gate'])):
+    #     call_sign1 = gate_dict['begin_callsign'][i]
+    #     call_sign2 = gate_dict['end_callsign'][i]
+    #     registration = gate_dict['registration'][i]
+    #     if call_sign1 == call_sign2:
+    #         front_part = call_sign1[:-2]
+    #         front_part = front_part.rstrip()
+    #         last_two_chars = call_sign1[-2:]
+    #         data = new_data(data, front_part, gate_set, gate_dict, i, registration, last_two_chars)
+    #     else:
+    #         front_part1 = call_sign1[:-2]
+    #         front_part1 = front_part1.rstrip()
+    #         last_two_chars1 = call_sign1[-2:]
+    #         front_part2 = call_sign2[:-2]
+    #         front_part2 = front_part2.rstrip()
+    #         last_two_chars2 = call_sign2[-2:]
+    #         data = new_data(data, front_part1, gate_set, gate_dict, i, registration, last_two_chars1)
+    #         data = new_data(data, front_part2, gate_set, gate_dict, i, registration, last_two_chars2)
+    # 将修改后的数据保存为新的 CSV 文件
+    data.to_csv(output_file_path, index=False)

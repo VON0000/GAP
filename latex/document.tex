@@ -10,7 +10,7 @@
 			\Require $data$, $regulation$, $threshold$, $delta$, $taxiingTime$
 			\Ensure $gateList$
 			\State $intervalData\gets$ GetInterval($data, 0$)
-			\Statex \Comment{Data within 12pm to 1am is based on the actual time, while the rest uses target time }
+			\Statex \Comment{Data within 12am to 1am is based on the actual time, while the rest uses target time }
 			\State $intervalData\gets$ ExtendDepartureSide($intervalData$, $delta$) 
 			\State $objectiveMatrix\gets$ MinimizeTaxiingTime($data$, $threshold$, $taxiingTime$)
 			\State $gateMatrix\gets$ ChooseAvailableGate($data$)
@@ -111,7 +111,7 @@
 		\begin{algorithmic}[1]
 			\Require $intervalData$, $quarter$, $gateList$
 			\Ensure $fixList$
-			\State \Comment{$intervalData$ within the next 30 minutes from the current $quarter$ use the gate allocated in the previous iteration}
+			\Statex \Comment{$intervalData$ within the next 30 minutes from the current $quarter$ use the gate allocated in the previous iteration}
 			\State $m \gets$ length of $intervalData$ 
 			\For{$i \gets 0$ to $m-1$}
 			\If{$intervalData < quarter * 15*60 + 60*30$}

@@ -97,6 +97,7 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
             x[i][j] = 1
     # print(del_set, 'del_Set')
     if len(del_set) != 0:
+        print(del_set, 'del_Set')
         sys.exit(1)
 
     # print(interval_set)

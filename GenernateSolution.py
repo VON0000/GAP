@@ -35,7 +35,6 @@ def generante_solution(filename, regulation, seuil, quarter, part, delta):
 
     # 获得x
     x = result_set[3]
-    gate_set = result_set[2]
 
     # 优化
     result = optim_temp.optim(x, obstruction, target_matrix, part)
@@ -45,17 +44,19 @@ def generante_solution(filename, regulation, seuil, quarter, part, delta):
     temp_1 = []
     temp_2 = []
     temp_3 = []
+    temp_4 = []
     for i in range(len(gate_choose)):
         index = interval_set[i]
         temp_1.append(interval_data['begin_callsign'][index])
         temp_2.append(interval_data['registration'][index])
         temp_3.append(gate_choose[i])
-    my_key = ['begin_callsign', 'registration', 'gate']
+        temp_4.append(interval_data['end_callsign'][index])
+    my_key = ['begin_callsign', 'registration', 'gate', 'end_callsign']
     default_value = []
     gate_dict = dict.fromkeys(my_key, default_value)
     gate_dict['begin_callsign'] = temp_1
     gate_dict['registration'] = temp_2
     gate_dict['gate'] = temp_3
-
-    # outputdata.write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set)
+    gate_dict['end_callsign'] = temp_4
+    # outputdata.write_other(gate_dict, sheetname, gate_set, pattern, regulation)
     return gate_dict, pattern
