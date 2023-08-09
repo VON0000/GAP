@@ -3,13 +3,27 @@ import numpy as np
 
 class GetInterval:
     @staticmethod
-    def actual_target(data, t_or_a):
-        if t_or_a == 0:
-            tot = data['TTOT']
-            ldt = data['TLDT']
-        else:
-            tot = data['ATOT']
-            ldt = data['ALDT']
+    def actual_target(data, quarter):
+        departure = np.array(data['departure'])
+        departure_set = np.where(departure == 'ZBTJ')[0]
+        h = 60 * 60
+        q = 15 * 60
+        n = len(data['data'])
+        tot = data['TTOT']
+        ldt = data['TLDT']
+        for i in range(n):
+            if i in departure_set:
+                if data['ATOT'][i] <= quarter * q + h:
+                    tot[i] = data['ATOT'][i]
+                else:
+                    if data['TTOT'][i] < quarter * q:
+                        tot[i] = data['ATOT'][i]
+            else:
+                if data['ALDT'][i] <= quarter * q + h:
+                    ldt[i] = data['ALDT'][i]
+                else:
+                    if data['TLDT'][i] < quarter * q:
+                        ldt[i] = data['ALDT'][i]
         return tot, ldt
 
     @staticmethod

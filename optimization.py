@@ -131,8 +131,8 @@ class Optimization:
             # print("Obj: %g" % model.objVal)
             obj = model.objVal
         else:
-            model.computeIIS()
-            model.write("model1.ilp")
+            # model.computeIIS()
+            # model.write("model1.ilp")
             obj = None
             gate_choose = None
             pass

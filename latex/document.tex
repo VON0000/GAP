@@ -1,0 +1,177 @@
+\documentclass{article}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath, amssymb}
+
+\begin{document}
+	\begin{algorithm}
+		\caption{Initial Solution}\label{alg:InitialSolution}
+		\begin{algorithmic}[1]
+			\Require $data$, $regulation$, $threshold$, $delta$, $taxiingTime$
+			\Ensure $gateList$
+			\State $intervalData\gets$ GetInterval($data, 0$)
+			\Statex \Comment{Data within 12pm to 1am is based on the actual time, while the rest uses target time }
+			\State $intervalData\gets$ ExtendDepartureSide($intervalData$, $delta$) 
+			\State $objectiveMatrix\gets$ MinimizeTaxiingTime($data$, $threshold$, $taxiingTime$)
+			\State $gateMatrix\gets$ ChooseAvailableGate($data$)
+			\Comment{airlines and wingspan}
+			\State $obstructionDict\gets$ FindConflictedFlight($intervalData$)
+			\State $gateList\gets$ Optimization($intervalData$, $objectiveMatrix$, $gateMatrix$, $obstructionDict$)
+			\State \Return $gateList$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{GetInterval}\label{alg:GetInterval}
+		\begin{algorithmic}[1]
+			\Require $data$
+			\Ensure $intervalData$
+			\State $m \gets$ length of $intervalData$
+			\For{$i \gets 0$ to $m-1$}
+			\If{$data[i] < 60 \times 60$}
+			\State $tot \gets$ ATOT
+			\State $ldt \gets$ ALDT
+			\Else
+			\State $tot \gets$ TTOT
+			\State $ldt \gets$ TLDT
+			\EndIf
+			\If{$ldt - tot <= 60*60$ and $ldt - tot >= 40*60$}
+			\State $interval \gets $ ShortTime($ldt, tot$)
+			\Else
+			\State $interval \gets $ LongTime($ldt, tot$)
+			\EndIf
+			\EndFor
+			\State $intervalData \gets interval $
+			\State \Return $intervalData$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{MinimizeTaxiingTime}\label{alg:MinimizeTaxiingTime}
+		\begin{algorithmic}[1]
+			\Require $data$, $threshold$, $taxiingTime$
+			\Ensure $objectiveMatrix$
+			\While{$hour < 24$}
+			\State $amount \gets$ the amount of the departing or landing aircraft
+			\If{$amount > threshold$}
+			\State $objectiveMatrix \gets$ 16R for departing aircraft and 16L for landing aircraft
+			\Else
+			\State $objectiveMatrix \gets$ 16R for departing aircraft and landing aircraft
+			\EndIf
+			\EndWhile
+			\State \Return $objectiveMatrix$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{Sliding Windows}\label{alg:SlidingWindows}
+		\begin{algorithmic}[1]
+			\Require $data$, $regulation$, $threshold$, $delta$, $taxiingTime$
+			\Ensure $gateList$
+			\State $quarter \gets 0$
+			\Comment{Recalculate every 15 minutes.}
+			\While{$quarter < 24 \times 4$}
+			\State $intervalData\gets$ GetInterval($data, quarter$)
+			\Statex \Comment{Data with actual time comes from within the next hour from the current $quarter$, while the rest uses target time }
+			\State $intervalData\gets$ ExtendDepartureSide($intervalData$, $delta$) 
+			\State $objectiveMatrix\gets$ SelectNearestGate($gateList$, $intervalSet$)
+			\State $gateMatrix\gets$ ChooseAvailableGate($data$)
+			\Comment{airlines and wingspan}
+			\State $fixList \gets$ FixedFlight($intervalData, quarter$)
+			\State $obstructionDict\gets$ FindConflictedFlight($intervalData$)
+			\State $gateList\gets$ Optimization($intervalData$, $objectiveMatrix$, $gateMatrix$, $obstructionDict$)
+			\EndWhile
+			\State \Return $gateList$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{SelectNearestGate}\label{alg:SelectNearestGate}
+		\begin{algorithmic}[1]
+			\Require $gateList$, $intervalSet$
+			\Ensure $objectiveMatrix$
+			\Comment{Recalculate Target}
+			\State $gate \gets$ the gate allocated to the $intervalSet$ in the previous iteration
+			
+			\State $no1 \gets$ gates belonging to Terminal 1
+			\State $no2 \gets$ gates belonging to Terminal 2
+			\State $no3 \gets$ gates belonging to remote parking stands set 1
+			\State $no4 \gets$ gates belonging to remote parking stands set 2
+			
+			\State $m \gets$ length of $intervalSet$ 
+			\For{$i \gets 0$ to $m-1$}
+			\State $g \gets$ the allocated gate for $i$
+			
+			\State $objectiveMatrix \gets$ \textbf{cost}($g$, $i$, $no\_1$, $target\_matrix$)
+			\State $objectiveMatrix \gets$ \textbf{cost}($g$, $i$, $no\_2$, $target\_matrix$)
+			\State $objectiveMatrix \gets$ \textbf{cost}($g$, $i$, $no\_3$, $target\_matrix$)
+			\State $objectiveMatrix \gets$ \textbf{cost}($g$, $i$, $no\_4$, $target\_matrix$)
+			\EndFor
+			\State \Return $objectiveMatrix$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{FixedFlight}\label{alg:FixedFlight}
+		\begin{algorithmic}[1]
+			\Require $intervalData$, $quarter$, $gateList$
+			\Ensure $fixList$
+			\State \Comment{$intervalData$ within the next 30 minutes from the current $quarter$ use the gate allocated in the previous iteration}
+			\State $m \gets$ length of $intervalData$ 
+			\For{$i \gets 0$ to $m-1$}
+			\If{$intervalData < quarter * 15*60 + 60*30$}
+			\State $fixList \gets gateList$
+			\EndIf
+			\EndFor
+			\State \Return $fixList$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{Local Search}\label{alg:Local Search}
+		\begin{algorithmic}[1]
+			\Require $oldGateList, intervalSet$
+			\Ensure $newGateList$
+			\State $counter \gets$ 0
+			\State $\left\{\begin{aligned}newGateList\\UnallocatedList\end{aligned}\right. \gets$ GenerateInitialSolution($intervalSet$)
+			\While{counter < 1000}
+			\State $fitness \gets $ SelectBestGate($oldGateList$, $newGateList$)
+			\State $gateList \gets$ Swap($newGateList, UnallocatedList$)
+			\State $gateList \gets$ Change($newGateList, UnallocatedList$)
+			\State $newFitness \gets $ SelectNearestGate($oldGateList$, $gateList$)
+			\If{$newFitness < fitness$}
+			\State $newGateList \gets gateList$
+			\EndIf
+			\EndWhile
+			\If{$UnallocatedList \neq \emptyset$}
+			\State $newGateList \gets$ AllocateToRemoteGate($newGateList, UnallocatedList$)
+			\EndIf
+			\State \Return $newGateList$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{Swap}\label{alg:Swap}
+		\begin{algorithmic}[1]
+			\Require $gateList, UnallocatedList$
+			\Ensure $gateList, UnallocatedList$
+			\State $\left\{\begin{aligned}s1\\s2\end{aligned}\right.\gets$ ChooseRandowFlight($gateList$)
+			\State $gateList \gets$ ExchangeGate($s1, s2$) 
+			\For{$i \text{in} UnallocatedList$}
+			\If{ i is not conflicted with gateList}
+			\State $gateList \gets$ ChooseAvailableGate($i$)
+			\EndIf
+			\EndFor
+			\State \Return $fixList$
+		\end{algorithmic}
+	\end{algorithm}
+	\begin{algorithm}
+		\caption{Change}\label{alg:Change}
+		\begin{algorithmic}[1]
+			\Require $gateList, UnallocatedList$
+			\Ensure $gateList, UnallocatedList$
+			\State $s1 \gets$ ChooseRandowFlight($gateList$)
+			\State $gateList \gets gateList \backslash \left\{s1\right\}$
+			\State $UnallocatedList \gets Unallocation + [s1]$
+			\For{$i \text{in} UnallocatedList$}
+			\If{ i is not conflicted with gateList}
+			\State $gateList \gets$ ChooseAvailableGate($i$)
+			\EndIf
+			\EndFor
+			\State \Return $fixList$
+		\end{algorithmic}
+	\end{algorithm}
+\end{document}

@@ -425,6 +425,8 @@ def local_search(x, obstruction, interval_set, interval_data, fix_set, gate_dict
     while counter <= 1000:
         if not infeasible:
             print('infeasible list is empty')
+            my_dict = plot.make_json(solution, interval_set, interval_data)
+            plot.dict2json('A', my_dict)
             break
         fitvalue = cal_fitness(origin_dict, gate_dict)
         origin_dict = gate_dict
@@ -436,8 +438,6 @@ def local_search(x, obstruction, interval_set, interval_data, fix_set, gate_dict
             counter = counter + 1
         else:
             gate_dict = new_gate_dict
-    my_dict = plot.make_json(solution, interval_set, interval_data)
-    plot.dict2json('A', my_dict)
     return gate_dict
 
 

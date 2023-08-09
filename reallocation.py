@@ -17,29 +17,6 @@ class ReGetInterval(GetInterval):
 
 
 class ReallocationInterval(ReGetInterval):
-    @staticmethod
-    def actual_target(data, quarter):
-        departure = np.array(data['departure'])
-        departure_set = np.where(departure == 'ZBTJ')[0]
-        h = 60 * 60
-        q = 15 * 60
-        n = len(data['data'])
-        tot = data['TTOT']
-        ldt = data['TLDT']
-        for i in range(n):
-            if i in departure_set:
-                if data['ATOT'][i] <= quarter * q + h:
-                    tot[i] = data['ATOT'][i]
-                else:
-                    if data['TTOT'][i] < quarter * q:
-                        tot[i] = data['ATOT'][i]
-            else:
-                if data['ALDT'][i] <= quarter * q + h:
-                    ldt[i] = data['ALDT'][i]
-                else:
-                    if data['TLDT'][i] < quarter * q:
-                        ldt[i] = data['ALDT'][i]
-        return tot, ldt
 
     def fix_information(self, data, quarter, seuil, delta, interval_flight, interval_data):
         # 所有interval（由data直接计算得到的interval）中，在半小时内的
@@ -139,6 +116,9 @@ class ReOptimization(Optimization):
 
 
 def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix):
+    dependent_dic = Optimization.dependent_gate()
+    dependent_set = Optimization.dependent_set()
+
     question = -1
     flag = 1000
     for i in fix_set:
@@ -148,13 +128,24 @@ def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter,
             continue
         else:
             gate = gate_fix[fix_set.index(i)]
-            fix_avant = []
-            for f in range(len(fix_set)):
-                gate_temp = gate_fix[f]
-                if gate_temp == gate:
-                    fix_avant.append(fix_set[f])
-            local_obstruction = obstruction[i]
-            temp = list(set(local_obstruction) & set(fix_avant))
+            if gate not in dependent_set:
+                fix_avant = []
+                for f in range(len(fix_set)):
+                    gate_temp = gate_fix[f]
+                    if gate_temp == gate:
+                        fix_avant.append(fix_set[f])
+                local_obstruction = obstruction[i]
+                temp = list(set(local_obstruction) & set(fix_avant))
+            else:
+                fix_avant = []
+                for f in range(len(fix_set)):
+                    gate_temp = gate_fix[f]
+                    index = np.where(np.array(dependent_dic['gate']) == gate)[0][0]
+                    new_gate_list = [gate] + dependent_dic['dependent'][index]
+                    if gate_temp in new_gate_list:
+                        fix_avant.append(fix_set[f])
+                local_obstruction = obstruction[i]
+                temp = list(set(local_obstruction) & set(fix_avant))
             if len(temp) == 0:
                 continue
             else:
@@ -176,10 +167,7 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
     data = getdata.load_traffic(filename)
     wingsize = getdata.load_wingsize()
     new_interval = ReallocationInterval()
-    result = None
     gate_set = []
-    interval_data = None
-    interval_set =[]
 
     while quarter < 94:
         # 得到所有interval相关量
