@@ -12,7 +12,7 @@ import reallocation
 part = 3
 delta = 5
 seuil = 28
-regulation = 4
+regulation = 4 
 quarter = 0
 
 if __name__ == '__main__':
