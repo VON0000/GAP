@@ -270,50 +270,50 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
             gate_dict['end_callsign'] = temp_4
 
         # 无解时
-        t = 30
-        if status == 3:
-            if_interval = IfInfeasible()
-            delta_temp = 5
-            interval = if_interval.presolve(quarter, data, seuil, delta_temp)  # 计算当前quarter下的interval
-            second_interval_data = interval[0]
-
-            # 计算当前quarter下的variable
-            variable_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data,
-                                             quarter)
-            interval_data = variable_set[0]  # 所有interval的数据 每半分钟
-            interval_set = variable_set[1]
-            obstruction = variable.get_obstruction(interval_data, interval_set)
-            temp_x = variable_set[3]
-            gate_set = variable_set[2]
-
-            # 验证interval是否有小于零的情况
-            for i in range(len(interval_data['interval'])):
-                if interval_data['interval'][i] < 0:
-                    print(interval_data['registration'][i],
-                          interval_data['begin_callsign'][i], interval_data['end_callsign'][i], '001')
-                    sys.exit(1)
-
-            # 计算当前quarter后半小时？固定的variable
-            total_fix_info = if_interval.fix_information(data, quarter, seuil, delta_temp,
-                                                         interval_flight, interval_data, t)
-            total_fix_list = if_interval.fix_set(total_fix_info, interval_data)
-            fix_set = []
-            for i in total_fix_list:
-                if i in interval_set:
-                    # 找到当前quarter、当前part下后半小时固定的variable fix_set是interval_set中的索引
-                    fix_set.append(interval_set.index(i))
-            x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
-            gate_dict = localsearch.local_search(x, obstruction, interval_set, interval_data, fix_set, gate_dict)
-            # outputdata.write_xls(gate_dict, 'before', gate_set, interval_data, interval_set)
-            gate_dict = localsearch.remote_allocation(gate_dict, wingsize, gate_set, interval_set, interval_data,
-                                                      obstruction)
-            outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
-
-            # dic = plot.make_json(generation, interval_set, interval_data)
-            # flag = plot.dict2json('E:/gap/results/python/buffer/j_data.json', dic)
-            # print(flag)
+        # t = 30
+        # if status == 3:
+        #     if_interval = IfInfeasible()
+        #     delta_temp = 5
+        #     interval = if_interval.presolve(quarter, data, seuil, delta_temp)  # 计算当前quarter下的interval
+        #     second_interval_data = interval[0]
+        #
+        #     # 计算当前quarter下的variable
+        #     variable_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data,
+        #                                      quarter)
+        #     interval_data = variable_set[0]  # 所有interval的数据 每半分钟
+        #     interval_set = variable_set[1]
+        #     obstruction = variable.get_obstruction(interval_data, interval_set)
+        #     temp_x = variable_set[3]
+        #     gate_set = variable_set[2]
+        #
+        #     # 验证interval是否有小于零的情况
+        #     for i in range(len(interval_data['interval'])):
+        #         if interval_data['interval'][i] < 0:
+        #             print(interval_data['registration'][i],
+        #                   interval_data['begin_callsign'][i], interval_data['end_callsign'][i], '001')
+        #             sys.exit(1)
+        #
+        #     # 计算当前quarter后半小时？固定的variable
+        #     total_fix_info = if_interval.fix_information(data, quarter, seuil, delta_temp,
+        #                                                  interval_flight, interval_data, t)
+        #     total_fix_list = if_interval.fix_set(total_fix_info, interval_data)
+        #     fix_set = []
+        #     for i in total_fix_list:
+        #         if i in interval_set:
+        #             # 找到当前quarter、当前part下后半小时固定的variable fix_set是interval_set中的索引
+        #             fix_set.append(interval_set.index(i))
+        #     x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
+        #     gate_dict = localsearch.local_search(x, obstruction, interval_set, interval_data, fix_set, gate_dict)
+        #     # outputdata.write_xls(gate_dict, 'before', gate_set, interval_data, interval_set)
+        #     gate_dict = localsearch.remote_allocation(gate_dict, wingsize, gate_set, interval_set, interval_data,
+        #                                               obstruction)
+        #     outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
+        #
+        #     # dic = plot.make_json(generation, interval_set, interval_data)
+        #     # flag = plot.dict2json('E:/gap/results/python/buffer/j_data.json', dic)
+        #     # print(flag)
 
         quarter += 1
         print(quarter)
-    outputdata.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename)
+    # outputdata.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename)
     return gate_dict
