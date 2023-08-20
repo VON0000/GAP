@@ -270,8 +270,10 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
             gate_dict['end_callsign'] = temp_4
 
         # 无解时
-        # t = 30
-        # if status == 3:
+        if status == 3:
+            print("the model is infeasible")
+            sys.exit(1)
+        #     t = 30
         #     if_interval = IfInfeasible()
         #     delta_temp = 5
         #     interval = if_interval.presolve(quarter, data, seuil, delta_temp)  # 计算当前quarter下的interval

@@ -18,6 +18,15 @@ def select(wingsize, i, interval_data, interval_set, airline, gate_set):
     return fit
 
 
+def add_remote(fit, wingsize, i, interval_data, interval_set, airline, gate_set):
+    index = interval_set[i]
+    temp = interval_data['airline'][index]
+    airline_gate = airline[temp]
+    if '414' is not in airline_gate:
+
+    return fit
+
+
 def timetransform(second_interval_data):
     my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',
               'end_callsign', 'wingspan']
@@ -91,6 +100,8 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
     del_set = []
     for i in range(n):
         fit = select(wingsize, i, second_interval_data, interval_set, airline, gate_set)
+        if part == 3:
+            fit = add_remote(fit, wingsize, i, second_interval_data, interval_set, airline, gate_set)
         if len(fit) == 0:
             del_set.append(i)
         for j in fit:
@@ -210,6 +221,7 @@ def target_gen(taxi_matrix, wingsize, interval_set, gate_set):
 
 
 def target_re(gate_dict, interval_set_total, interval_data, gate_set):
+    # TODO:航站楼部分面向“结果”编程
     # 找到每个interval在上一次计算中的gate
     interval_index = []
     g = []
