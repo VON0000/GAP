@@ -2,6 +2,7 @@ import getdata
 from getinterval import GetInterval
 import variable
 from optimization import Optimization
+import taxiingtime_matrix
 import numpy as np
 import sys
 import localsearch
@@ -244,7 +245,7 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # print(len(interval_set_total))
 
         # 优化
-        target_matrix = variable.target_re(gate_dict, interval_set, interval_data, gate_set)
+        target_matrix = taxiingtime_matrix.target_re(gate_dict, interval_set, interval_data, gate_set)
         result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
         status = result[3]
         gate_choose = result[1]

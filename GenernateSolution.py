@@ -31,7 +31,7 @@ def generante_solution(filename, regulation, seuil, quarter, part, delta):
     # 计算目标函数 时间冲突
     taxi_matrix = taxiingtime_matrix.taxiingtime_matrix(taxiingtime, interval_data, interval_pattern)
     obstruction = variable.get_obstruction(interval_data, interval_set)
-    target_matrix = variable.target_gen(taxi_matrix, wingsize, interval_set, gate_set)
+    target_matrix = taxiingtime_matrix.target_gen(taxi_matrix, wingsize, interval_set, gate_set)
 
     # 获得x
     x = result_set[3]
