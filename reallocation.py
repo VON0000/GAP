@@ -5,8 +5,8 @@ from optimization import Optimization
 import taxiingtime_matrix
 import numpy as np
 import sys
-import localsearch
-import plot
+# import localsearch
+# import plot
 import outputdata
 
 
@@ -159,8 +159,41 @@ def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter,
     return fix_set, gate_fix
 
 
+def change_times(old_gate_dic, gate_dict, counter):
+    n = len(gate_dict['gate'])
+    for i in range(n):
+        list_1 = [index for index, value in enumerate(old_gate_dic['begin_callsign'])
+                  if value == gate_dict['begin_callsign'][i]]
+        list_2 = [index for index, value in enumerate(old_gate_dic['registration'])
+                  if value == gate_dict['registration'][i]]
+        k = list(set(list_1) & set(list_2))
+        if not k:
+            continue
+        else:
+            k = k[0]
+            if old_gate_dic['gate'][k] != gate_dict['gate'][i]:
+                counter += 1
+    return counter
+
+
+def final_remote(gate_dict, airline, interval_data, gate_set):
+    remote_number = 0
+    n = len(gate_dict['gate'])
+    for i in range(n):
+        index = [j for j, x in enumerate(interval_data['registration']) if x == gate_dict['registration'][i]]
+        company = interval_data['airline'][index[0]]
+        company_gate = airline[company]
+        company_gate = [i for i, x in enumerate(gate_set) if x in company_gate]
+        if gate_dict['gate'][i] in company_gate:
+            continue
+        else:
+            remote_number += 1
+    return remote_number
+
+
 def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
     # 初始化
+    counter = 0
     quarter = 0
     optim_temp = Optimization()
     sheetname = optim_temp.find_numbers(filename)
@@ -169,6 +202,7 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
     wingsize = getdata.load_wingsize()
     new_interval = ReallocationInterval()
     gate_set = []
+    interval_data = None
 
     while quarter < 94:
         # 得到所有interval相关量
@@ -245,10 +279,14 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # print(len(interval_set_total))
 
         # 优化
-        target_matrix = taxiingtime_matrix.target_re(gate_dict, interval_set, interval_data, gate_set)
+        target_matrix = taxiingtime_matrix.target_re(gate_dict, interval_set, interval_data, interval_set,
+                                                     gate_set, airline)
         result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
         status = result[3]
         gate_choose = result[1]
+
+        # 存旧解
+        old_gate_dic = gate_dict
 
         # 构建gate和interval的对应dict
         if status != 3:
@@ -316,7 +354,12 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         #     # flag = plot.dict2json('E:/gap/results/python/buffer/j_data.json', dic)
         #     # print(flag)
 
+        # 计数
+        counter = change_times(old_gate_dic, gate_dict, counter)
+
         quarter += 1
         print(quarter)
-    # outputdata.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename)
+
+    remote_number = final_remote(gate_dict, airline, interval_data, gate_set)
+    outputdata.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
     return gate_dict

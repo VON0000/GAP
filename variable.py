@@ -4,6 +4,15 @@ import sys
 import math
 
 
+class SpecialVariable:
+    @staticmethod
+    def remote_gate():
+        remote_gate = ['409', '410', '411', '412', '413', '414', '415', '416', '417', '418', '419',
+                       '414L', '414R', '415L', '415R', '416L', '416R', '417L', '417R', '418L', '418R', '419L', '419R',
+                       '601', '602', '603', '604', '605', '606', '607', '608', '609', '610']
+        return remote_gate
+
+
 def select(wingsize, i, interval_data, interval_set, airline, gate_set):
     index = [interval_set[i]][0]
     wingspan = np.array(list(wingsize.values()))
@@ -22,9 +31,7 @@ def add_remote(fit, wingsize, i, interval_data, interval_set, airline, gate_set)
     index = interval_set[i]
     temp = interval_data['airline'][index]
     airline_gate = airline[temp]
-    remote_gate = ['409', '410', '411', '412', '413', '414', '415',	'416', '417', '418', '419',
-                   '414L', '414R', '415L', '415R', '416L', '416R', '417L', '417R', '418L', '418R', '419L', '419R'
-                   '601', '602', '603', '604', '605', '606', '607', '608', '609', '610']
+    remote_gate = SpecialVariable.remote_gate()
     augmentation = list(set(remote_gate) - set(airline_gate))
     wingspan = np.array(list(wingsize.values()))
     wing_limit = np.where(wingspan >= interval_data['wingspan'][index])[0]
