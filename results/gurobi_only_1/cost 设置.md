@@ -1,6 +1,6 @@
 <!-- MarkdownTOC -->
 # cost 设置
-Couts pour Gate Allocation / Reallocation ?
+### Couts pour Gate Allocation / Reallocation ?
 - Gate Alloc initial : Coût = \alpha^0 * contact/distance + Taxi time: Cik = 
   \alpha^0 = taxi_{max} * n_{max} = 1000 x 1000 = 1000000
   - Avion pouvant être à distance

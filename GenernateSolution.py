@@ -1,8 +1,8 @@
 import getdata
 from getinterval import GetInterval
-import taxiingtime_matrix
+from taxiingtime_matrix import Matrix
 import variable
-import outputdata
+from outputdata import ToCsv
 from optimization import Optimization
 
 
@@ -15,6 +15,8 @@ def generante_solution(filename, regulation, seuil, quarter, part, delta):
     taxiingtime = getdata.load_taxitime(regulation)
     wingsize = getdata.load_wingsize()
     generante_interval = GetInterval()
+    matrix = Matrix()
+    to_csv = ToCsv()
 
     # 计算interval 按照每半分钟
     second_interval = generante_interval.presolve(quarter, data, seuil, delta)
@@ -29,10 +31,9 @@ def generante_solution(filename, regulation, seuil, quarter, part, delta):
     gate_set = result_set[2]
 
     # 计算目标函数 时间冲突
-    taxi_matrix = taxiingtime_matrix.taxiingtime_matrix(taxiingtime, interval_data, interval_pattern)
     obstruction = variable.get_obstruction(interval_data, interval_set)
-    target_matrix = taxiingtime_matrix.target_gen(taxi_matrix, wingsize, interval_set, gate_set,
-                                                  part, interval_data, airline)
+    target_matrix = matrix.target_gen(wingsize, interval_set, gate_set, part, interval_data, airline, taxiingtime,
+                                      interval_pattern)
 
     # 获得x
     x = result_set[3]
@@ -60,4 +61,5 @@ def generante_solution(filename, regulation, seuil, quarter, part, delta):
     gate_dict['gate'] = temp_3
     gate_dict['end_callsign'] = temp_4
     # outputdata.write_other(gate_dict, sheetname, gate_set, pattern, regulation)
+    to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
     return gate_dict, pattern

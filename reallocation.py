@@ -2,18 +2,19 @@ import getdata
 from getinterval import GetInterval
 import variable
 from optimization import Optimization
-import taxiingtime_matrix
+from taxiingtime_matrix import ReMatrix
 import numpy as np
 import sys
 # import localsearch
 # import plot
-import outputdata
+from outputdata import ToCsv
+from outputdata import ProcessToCsv
 
 
 class ReGetInterval(GetInterval):
     def taxiing_pattern(self, t_or_a, seuil, data):
-        n = len(data['data'])
-        pattern = [0] * n
+        t_or_a = 0
+        pattern = super().taxiing_pattern(t_or_a, seuil, data)
         return pattern
 
 
@@ -200,14 +201,21 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
     airline = getdata.load_airlinsgate()
     data = getdata.load_traffic(filename)
     wingsize = getdata.load_wingsize()
+    taxiingtime = getdata.load_taxitime(regulation)
     new_interval = ReallocationInterval()
     gate_set = []
     interval_data = None
+    matrix = ReMatrix()
+    to_csv = ToCsv()
+    process_to_csv = ProcessToCsv()
 
+    # 初始解
+    genernate = gate_dict
     while quarter < 94:
         # 得到所有interval相关量
         interval = new_interval.presolve(quarter, data, seuil, delta)  # 计算当前quarter下的interval
         second_interval_data = interval[0]
+        interval_pattern = interval[1]
         interval_flight = interval[2]
         # print(second_interval_data['begin_callsign'])
 
@@ -279,8 +287,8 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # print(len(interval_set_total))
 
         # 优化
-        target_matrix = taxiingtime_matrix.target_re(gate_dict, interval_set, interval_data, interval_set,
-                                                     gate_set, airline)
+        target_matrix = matrix.target_re(gate_dict, interval_data, interval_set, gate_set, genernate, taxiingtime,
+                                         interval_pattern, wingsize)
         result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
         status = result[3]
         gate_choose = result[1]
@@ -356,10 +364,10 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
 
         # 计数
         counter = change_times(old_gate_dic, gate_dict, counter)
-
+        process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
         quarter += 1
         print(quarter)
 
     remote_number = final_remote(gate_dict, airline, interval_data, gate_set)
-    outputdata.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
+    to_csv.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
     return gate_dict
