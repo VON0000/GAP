@@ -247,7 +247,9 @@ class ToCsv:
         data = data.drop(['Wingspan'], axis=1)
         data = data.drop(['Airline'], axis=1)
         data = data.drop(['QFU'], axis=1)
+        temp = data.loc[:, 'Parking']
         data = data.drop(['Parking'], axis=1)
+        data['Parking'] = temp
 
         for i in range(len(gate_dict['gate'])):
             call_sign1 = gate_dict['begin_callsign'][i]
@@ -317,6 +319,8 @@ class ProcessToCsv(ToCsv):
         input_file_path = ''.join(in_name)
 
         data = pd.read_csv(input_file_path)
+        last_col_name = data.columns[-1]
+        data['Parking' + str(quarter)] = data[last_col_name]
 
         for i in range(len(gate_dict['gate'])):
             call_sign1 = gate_dict['begin_callsign'][i]

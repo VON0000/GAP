@@ -125,7 +125,7 @@ class ReMatrix(Matrix):
                 initg = genernate['gate'][temp[0]]
             else:
                 value = [values for values in temp
-                         if genernate['registration'][values] == interval_data['registration'][i]]
+                         if genernate['registration'][values] == interval_data['registration'][idx]]
                 initg = genernate['gate'][value[0]]
         else:
             initg = None
