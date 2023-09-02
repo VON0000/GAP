@@ -364,10 +364,10 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
 
         # 计数
         counter = change_times(old_gate_dic, gate_dict, counter)
-        process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
+        # process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
         quarter += 1
         print(quarter)
 
     remote_number = final_remote(gate_dict, airline, interval_data, gate_set)
-    to_csv.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
+    # to_csv.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
     return gate_dict

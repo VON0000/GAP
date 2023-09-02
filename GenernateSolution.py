@@ -61,5 +61,5 @@ def generante_solution(filename, regulation, seuil, quarter, part, delta):
     gate_dict['gate'] = temp_3
     gate_dict['end_callsign'] = temp_4
     # outputdata.write_other(gate_dict, sheetname, gate_set, pattern, regulation)
-    to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
+    # to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
     return gate_dict, pattern
