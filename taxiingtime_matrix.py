@@ -4,7 +4,7 @@ from variable import SpecialVariable
 class Matrix:
     @staticmethod
     def taxiingtime_matrix(taxiingtime, interval_data, interval_pattern):
-        # 每个interval分配到不同gate的滑行时间
+        # The taxiing time for each interval assigned to different gates
         n = len(interval_data['interval'])
         m = len(taxiingtime.keys())
         gate = list(taxiingtime.keys())
@@ -23,9 +23,9 @@ class Matrix:
         return matrix
 
     def find_used(self, taxiingtime, interval_data, interval_pattern, interval_set, wingsize, gate_set):
-        # 找到需要使用的taxi time
+        # The required taxi time
         taxi_matrix = self.taxiingtime_matrix(taxiingtime, interval_data, interval_pattern)
-        # 构建所有interval和所有gate滑行时间的二维list
+        # Build a two-dimensional list of taxiing times for all intervals and all gates.
         target_matrix = [row for i, row in enumerate(taxi_matrix) if i in interval_set]
         gate_index = [index for index, value in enumerate(wingsize.keys()) if value in gate_set]
         # print(gate_index)
@@ -44,13 +44,13 @@ class Matrix:
             for i in range(len(interval_set)):
                 for j in remote_index:
                     target_matrix[i][j] = target_matrix[i][j] + alpha * 10
-                # interval 所属航空公司是否有远机位
+                # Whether the interval can use remote parking stands
                 intersection = list(set(airline[interval_data['airline'][interval_set[i]]]) & set(remote_gate))
                 if not intersection:
-                    # 为空
+                    # None of the remote stands could be used
                     continue
                 else:
-                    # 找到可以使用的远机位的索引
+                    # The indices of the remote stands could be used
                     intersection_index = [index for index, value in enumerate(gate_set) if value in intersection]
                     for h in intersection_index:
                         target_matrix[i][h] = target_matrix[i][h] - alpha * 9
@@ -85,10 +85,10 @@ class ReMatrix(Matrix):
                   wingsize):
         # TODO:航站楼部分面向“结果”编程
         target_matrix = self.find_used(taxiingtime, interval_data, interval_pattern, interval_set, wingsize, gate_set)
-        # 找到每个interval在上一次计算中的gate 和在interval_set中的索引
+        # index of every interval in interval_set and the gate in last interation
         g, interval_index = self.last_results(gate_dict, interval_set, interval_data)
 
-        # 航站楼一号、二号、远机位
+        # terminal 1 and 2  remote stands
         no_1 = [x for x in range(5)]
         no_2 = [x for x in range(5, 35)]
         no_3 = [x for x in range(35, 46)]
@@ -99,8 +99,8 @@ class ReMatrix(Matrix):
         n = len(interval_set)
         for i in range(n):
             if i in interval_index:
-                # i 是 interval_index中的元素
-                # interval_index是interval_set的索引list
+                # i is element in interval_index
+                # interval_index is the list of index of interval_set
                 # e.g. interval_set = [3, 4, 7, 8, ...] interval_index = [0, 1, 3, ...]
                 # i = 3 interval_index.index(i) = 2
                 # interval_set[i] = 8
@@ -135,14 +135,14 @@ class ReMatrix(Matrix):
     def cost_contact(g, i, no_1, no_2, no_3, no_4, target_matrix, interval_index):
         if g[interval_index.index(i)] in no_1:
             alpha = 1000 * 1000
-            # 一号航站楼 二号航站楼
+            # terminal 1 and 2
             for k in no_1:
                 target_matrix[i][k] = alpha * 1 + target_matrix[i][k]
             target_matrix[i][g[interval_index.index(i)]] = - alpha * 1 + target_matrix[i][g[interval_index.index(i)]]
             for k in no_2:
                 target_matrix[i][k] = alpha * 10 + target_matrix[i][k]
 
-            # 远机位
+            # remote stands
             rest = no_3 + no_4
             for k in rest:
                 target_matrix[i][k] = alpha * 100 + target_matrix[i][k]
@@ -155,43 +155,43 @@ class ReMatrix(Matrix):
             alpha = 1000 * 1000
 
             if initgate:
-                temp = no_1 + no_2  # 近机位的集合
+                temp = no_1 + no_2
                 if initgate in temp:
 
-                    # 近机位
+                    # contact stands
                     for k in temp:
                         target_matrix[i][k] = 0 * alpha + target_matrix[i][k]
 
-                    # 远机位
+                    # remote stands
                     rest = no_3 + no_4
                     for k in rest:
                         target_matrix[i][k] = 10 * alpha + target_matrix[i][k]
 
-                    # 本机位
+                    # the origin stand
                     target_matrix[i][localgate] = - 9 * alpha + target_matrix[i][localgate]
                 else:
-                    # 近机位
+                    # contact stands
                     for k in temp:
                         target_matrix[i][k] = 1 * alpha + target_matrix[i][k]
 
-                    # 远机位
+                    # remote stands
                     rest = no_3 + no_4
                     for k in rest:
                         target_matrix[i][k] = 10 * alpha + target_matrix[i][k]
 
-                    # 本机位
+                    # the origin stand
                     target_matrix[i][localgate] = - 10 * alpha + target_matrix[i][localgate]
             else:
-                # 近机位
+                # contact stands
                 temp = no_1 + no_2
                 for k in temp:
                     target_matrix[i][k] = 0 * alpha + target_matrix[i][k]
 
-                # 远机位
+                # remote stands
                 rest = no_3 + no_4
                 for k in rest:
                     target_matrix[i][k] = 10 * alpha + target_matrix[i][k]
 
-                # 本机位
+                # the origin stand
                 target_matrix[i][localgate] = - 9 * alpha + target_matrix[i][localgate]
         return target_matrix

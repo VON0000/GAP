@@ -3,6 +3,10 @@ import pandas as pd
 
 
 def load_wingsize():
+    """
+
+    :return: the wing span limitations for each gate
+    """
     data = pd.read_excel("./data/wingsizelimit.xls", sheet_name=None)
     sheet_data = data['sheet1']
     wingsize = {}
@@ -15,6 +19,10 @@ def load_wingsize():
 
 
 def load_airlinsgate():
+    """
+
+    :return: the available gates for each airline
+    """
     airlines_data = pd.read_csv("./data/airlinesgate.csv", header=0, usecols=["airlines"])
     airlines = {}
     with open("./data/airlinesgate.csv", 'r') as gate:
@@ -45,6 +53,11 @@ def load_airlinsgate():
 
 
 def load_traffic(filename):
+    """
+
+    :param filename: the file which is calculated now
+    :return: the data of flights
+    """
     data = pd.read_csv(filename)
     data = data.to_dict(orient='list')
     # print(data)
@@ -58,6 +71,11 @@ def load_traffic(filename):
 
 
 def load_taxitime(regulation):
+    """
+
+    :param regulation: PN or NP
+    :return: the taxiing time of each gate
+    """
     data = pd.read_excel("./data/mintaxitime.xlsx", sheet_name=None, header=2)
     sheet_data = data['sheet1']
     # print(sheet_data['DEP-16R'])

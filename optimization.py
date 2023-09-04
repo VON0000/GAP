@@ -6,6 +6,16 @@ import re
 
 
 class Optimization:
+    """
+    Optimization
+    variable: x
+    constraints: Every interval has one and only one parking position.
+                 Meet the constraints of both the airline and wingspan.
+                 Dependent gate e.g. 414R/414 414L/414
+    objective: Minimize the number of parking stand changes
+               Maximize the utilization of nearby parking stands
+               Minimize the sum of taxiing time
+    """
     # TODO:改 dependent gate 限制条件
     @staticmethod
     def dependent_gate():

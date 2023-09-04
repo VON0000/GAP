@@ -19,8 +19,12 @@ class ReGetInterval(GetInterval):
 
 
 class ReallocationInterval(ReGetInterval):
-
-    def fix_information(self, data, quarter, seuil, delta, interval_flight, interval_data):
+    """
+    determine specific intervals that should remain unchanged
+    and fix the parking stands assigned to them.
+    """
+    @staticmethod
+    def fix_information(data, quarter, seuil, delta, interval_flight, interval_data):
         # 所有interval（由data直接计算得到的interval）中，在半小时内的
         half_h = 30 * 60
         q = 15 * 60
@@ -84,40 +88,44 @@ class ReallocationInterval(ReGetInterval):
         return gate_set
 
 
-class IfInfeasible(ReallocationInterval):
-    def fix_information(self, data, quarter, seuil, delta, interval_flight, interval_data, minutes=None):
-        print(minutes, "minutes")
-        half_h = minutes * 60
-        q = 15 * 60
-        n = len(data['data'])
-        flight_list = []  # 计算需要固定的航班序列
-        departure = np.array(data['departure'])
-        departure_set = np.where(departure == 'ZBTJ')[0]
-        for i in range(n):
-            if i in departure_set:
-                if data['ATOT'][i] <= quarter * q + half_h:
-                    flight_list.append(i)
-            else:
-                if data['ALDT'][i] <= quarter * q + half_h:
-                    flight_list.append(i)
-        # print(interval_flight)
-        fix_info = []  # 需要固定的间隔信息
-        fix_set = []
-        for i in range(len(interval_flight)):
-            inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
-            if len(inter) != 0:
-                fix_set.append(i)
-                fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
-        return fix_info
+# class IfInfeasible(ReallocationInterval):
+#     def fix_information(self, data, quarter, seuil, delta, interval_flight, interval_data, minutes=None):
+#         print(minutes, "minutes")
+#         half_h = minutes * 60
+#         q = 15 * 60
+#         n = len(data['data'])
+#         flight_list = []  # 计算需要固定的航班序列
+#         departure = np.array(data['departure'])
+#         departure_set = np.where(departure == 'ZBTJ')[0]
+#         for i in range(n):
+#             if i in departure_set:
+#                 if data['ATOT'][i] <= quarter * q + half_h:
+#                     flight_list.append(i)
+#             else:
+#                 if data['ALDT'][i] <= quarter * q + half_h:
+#                     flight_list.append(i)
+#         # print(interval_flight)
+#         fix_info = []  # 需要固定的间隔信息
+#         fix_set = []
+#         for i in range(len(interval_flight)):
+#             inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
+#             if len(inter) != 0:
+#                 fix_set.append(i)
+#                 fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
+#         return fix_info
 
 
-class ReOptimization(Optimization):
-    @staticmethod
-    def objective(x, n, m, target_matrix, model):
-        return model
+# class ReOptimization(Optimization):
+#     @staticmethod
+#     def objective(x, n, m, target_matrix, model):
+#         return model
 
 
 def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix):
+    """
+
+    Whether there are conflicts within the part of the solution that has been fixed
+    """
     dependent_dic = Optimization.dependent_gate()
     dependent_set = Optimization.dependent_set()
 
@@ -161,6 +169,10 @@ def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter,
 
 
 def change_times(old_gate_dic, gate_dict, counter):
+    """
+
+    How many times were parking stands changed
+    """
     n = len(gate_dict['gate'])
     for i in range(n):
         list_1 = [index for index, value in enumerate(old_gate_dic['begin_callsign'])
@@ -178,6 +190,10 @@ def change_times(old_gate_dic, gate_dict, counter):
 
 
 def final_remote(gate_dict, airline, interval_data, gate_set):
+    """
+
+    How many aircraft have been allocated to remote stands at the end of the iteration
+    """
     remote_number = 0
     n = len(gate_dict['gate'])
     for i in range(n):
@@ -193,48 +209,57 @@ def final_remote(gate_dict, airline, interval_data, gate_set):
 
 
 def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
-    # 初始化
+    """
+
+    Every 15 minutes, update the actual time and reassign parking stands.
+    """
+    # Initialize
     counter = 0
     quarter = 0
     optim_temp = Optimization()
-    sheetname = optim_temp.find_numbers(filename)
-    airline = getdata.load_airlinsgate()
-    data = getdata.load_traffic(filename)
-    wingsize = getdata.load_wingsize()
-    taxiingtime = getdata.load_taxitime(regulation)
     new_interval = ReallocationInterval()
     gate_set = []
     interval_data = None
     matrix = ReMatrix()
     to_csv = ToCsv()
     process_to_csv = ProcessToCsv()
+    sheetname = optim_temp.find_numbers(filename)
 
-    # 初始解
+    # Import data
+    airline = getdata.load_airlinsgate()
+    data = getdata.load_traffic(filename)
+    wingsize = getdata.load_wingsize()
+    taxiingtime = getdata.load_taxitime(regulation)
+
+    # Initial solution
     genernate = gate_dict
+
     while quarter < 94:
-        # 得到所有interval相关量
-        interval = new_interval.presolve(quarter, data, seuil, delta)  # 计算当前quarter下的interval
+        # Obtain all interval-related data
+        interval = new_interval.presolve(quarter, data, seuil, delta)  # Intervals for the current quarter
         second_interval_data = interval[0]
         interval_pattern = interval[1]
         interval_flight = interval[2]
         # print(second_interval_data['begin_callsign'])
 
-        # 计算当前quarter下的variable，包括x
+        # Variables for the current quarter, including x
         variable_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data, quarter)
-        interval_data = variable_set[0]
-        interval_set = variable_set[1]  # 此part用到的所有满足tot和dlt的interval在总共的interval中的索引
-        obstruction = variable.get_obstruction(interval_data, interval_set)
-        temp_x = variable_set[3]
-        gate_set = variable_set[2]
+        interval_data, interval_set, gate_set, temp_x = variable_set
+        # interval set -> The indices of intervals satisfying 'tot' and 'dlt' criteria used in this part
+        #                 within the total set of intervals.
 
-        # 验证interval是否都大于零
+        # conflicts
+        obstruction = variable.get_obstruction(interval_data, interval_set)
+
+        # Check if intervals are all greater than zero
+        # TODO:assert
         for i in range(len(interval_data['interval'])):
             if interval_data['interval'][i] <= 0:
                 print(interval_data['registration'][i],
                       interval_data['begin_callsign'][i], interval_data['end_callsign'][i], '001')
                 sys.exit(1)
 
-        # 计算当前quarter后半小时固定的variable在interval_set(x)中的索引
+        # The indices of fixed variables (quarter + 30 minutes) in the interval_set(x)
         total_fix_info = new_interval.fix_information(data, quarter, seuil, delta, interval_flight, interval_data)
         total_fix_list = new_interval.fix_set(total_fix_info, interval_data)
         fix_set = []
@@ -247,14 +272,14 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
                 #       second_interval_data['begin_callsign'][i[0]],
                 #       second_interval_data['end_callsign'][i[0]])
 
-        # 找到固定的gate
+        # Gates for fixed intervals
         gate_fix = new_interval.gate_set(total_fix_info, gate_dict)
         print(len(fix_set), 'fix_set', len(gate_fix), 'gate_fix')
 
-        # 判断已经固定的部分是否有冲突
+        # Check if fixed part has conflicts
         fix_set, gate_fix = find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix)
 
-        # 将fix_set中的量固定
+        # Fix variables in fix_set
         x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
 
         # interval_pr = [value for index, value in enumerate(interval_set_total) if index in fix_set]
@@ -287,39 +312,28 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # print(len(interval_set_total))
 
         # 优化
+        # Objective
         target_matrix = matrix.target_re(gate_dict, interval_data, interval_set, gate_set, genernate, taxiingtime,
                                          interval_pattern, wingsize)
-        result = optim_temp.optim(x, obstruction, target_matrix, part)  # 优化
+
+        # Optimization
+        result = optim_temp.optim(x, obstruction, target_matrix, part)
         status = result[3]
         gate_choose = result[1]
 
-        # 存旧解
+        # Store old solution
         old_gate_dic = gate_dict
 
-        # 构建gate和interval的对应dict
-        if status != 3:
-            temp_1 = []
-            temp_2 = []
-            temp_3 = []
-            temp_4 = []
-            for i in range(len(gate_choose)):
-                index = interval_set[i]
-                temp_1.append(interval_data['begin_callsign'][index])
-                temp_2.append(interval_data['registration'][index])
-                temp_3.append(gate_choose[i])
-                temp_4.append(interval_data['end_callsign'][index])
-            my_key = ['begin_callsign', 'registration', 'gate', 'end_callsign']
-            default_value = []
-            gate_dict = dict.fromkeys(my_key, default_value)
-            gate_dict['begin_callsign'] = temp_1
-            gate_dict['registration'] = temp_2
-            gate_dict['gate'] = temp_3
-            gate_dict['end_callsign'] = temp_4
+        # Get results
+        assert status != 3, "the model is infeasible"
+        gate_dict = variable.SpecialVariable.get_aim_dict(gate_choose, interval_set, interval_data)
 
-        # 无解时
-        if status == 3:
-            print("the model is infeasible")
-            sys.exit(1)
+        # if status != 3:
+        #     gate_dict = variable.SpecialVariable.get_aim_dict(gate_choose, interval_set, interval_data)
+
+        # if status == 3:
+        #     print("the model is infeasible")
+        #     sys.exit(1)
         #     t = 30
         #     if_interval = IfInfeasible()
         #     delta_temp = 5

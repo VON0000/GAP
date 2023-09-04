@@ -4,6 +4,9 @@ import pandas as pd
 
 
 class ToCsv:
+    """
+    Export the results to a CSV file
+    """
     @staticmethod
     def write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set):
         sheetname = ' '.join(sheetname)

@@ -27,12 +27,13 @@ def make_json(gen_x, interval_set, interval_data):
 
 
 def dict2json(file_name, the_dict):
-    '''
+    """
+
     将字典文件写如到json文件中
     :param file_name: 要写入的json文件名(需要有.json后缀),str类型
     :param the_dict: 要写入的数据，dict类型
     :return: 1代表写入成功,0代表写入失败
-    '''
+    """
     try:
         json_str = json.dumps(the_dict, indent=2)
         with open(file_name, 'w', encoding="gbk") as json_file:
