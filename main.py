@@ -20,10 +20,10 @@ if __name__ == '__main__':
         if filename.endswith('.csv'):  # Check if the file ends with .csv
             filename = os.path.join(folder_path, filename)
 
-            # allocation reallocation local search
-            results = GenernateSolution.generante_solution(filename, regulation, seuil, quarter, part, delta)
-            genernate_solution = results[0]
-            pattern = results[1]
+            # Generate initial solution
+            genernate_solution, pattern = GenernateSolution.generante_solution(filename, regulation, seuil, quarter, part, delta)
+
+            # Reallocate through iteration
             re_solution = reallocation.reallocation(filename, seuil, part, delta, genernate_solution, regulation,
                                                     pattern)
 
