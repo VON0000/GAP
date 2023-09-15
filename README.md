@@ -38,8 +38,6 @@ Interval
 
 
 
-
-
 ### Iteration
 
 Given the discrepancies between the estimated and actual take-off and landing times, initial calculations are based on estimated times. Subsequently, every **15 minutes**, the actual take-off and landing times for the upcoming **60 minutes** are updated. Additionally, the gate assignments for intervals in the next **30 minutes** remain the same as those last saved.
@@ -53,3 +51,31 @@ Given the discrepancies between the estimated and actual take-off and landing ti
 ### * Local Search
 
 Reduce the number of intervals that cannot be allocated.
+
+
+
+### update in 2023/9/15
+
+#### change the parking interval of each flight
+
+A regarder dans données : dt = min(ATOT - ALDT) pour le même avion ?
+
+- Si dt <= 30 : on prend Taxi_T = 5, Gate_T = 10
+
+- Si 40 <= dt : on prend Taxi_T = 5, Gate_T = 15
+
+ A l'instant t :
+ LDT = TLDT si t + 1h < ALDT ; ALDT sinon
+ TOT0 = TTOT si t + 1h < ATOT ; ATOT sinon
+
+ /!\ il est possible que TOT0 < LDT
+ => TOT = max(TOT0, LDT + 30m)
+
+ Règles
+
+- Si même avion :
+  - Si TOT - LDT < 1h
+    - ARRDEP même parking sur LDT + 5 -> TOT - 5
+  - Sinon
+    - ARR : LDT + 5      -> LDT + 5 + Gate_T
+    - DEP : TOT - 5 - Gate_T -> TOT - 5
