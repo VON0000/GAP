@@ -6,7 +6,7 @@ from outputdata import ToCsv
 from optimization import Optimization
 
 
-def generante_solution(filename, regulation, seuil, quarter, part, delta):
+def generante_solution(filename: str, regulation: int, seuil: int, quarter: int, part: int, delta: int):
     """
 
     :param filename: the file which is calculated now
