@@ -47,7 +47,6 @@ Given the discrepancies between the estimated and actual take-off and landing ti
 
 
 *not be used in this branch*
-
 ### ** Local Search*
 
 *Reduce the number of intervals that cannot be allocated.*
