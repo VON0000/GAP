@@ -121,6 +121,7 @@ class GetInterval:
                         interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
                         temp = self.longtime_departure(i + 1, tot)
                         interval_data = self.interval_value(data, i + 1, sorted_indices, interval_data, temp)
+                        interval_pattern.append([pattern[sorted_indices[i]], 0])
                         interval_pattern.append([0, pattern[sorted_indices[i + 1]]])
                         interval_flight.append([sorted_indices[i]])
                         interval_flight.append([sorted_indices[i + 1]])
