@@ -1,4 +1,3 @@
-<!-- MarkdownTOC -->
 # cost 设置
 ### Couts pour Gate Allocation / Reallocation ?
 - Gate Alloc initial : Coût = \alpha^0 * contact/distance + Taxi time: Cik = 
@@ -32,4 +31,4 @@ notation pour la définition du coût (pas très au point):
  - c^0_{i,k} = f^0(distance, taxi)
  - c^t_{i,k} = f(changement(=g(x^{t-1}_{i,k})), distance(=h(x^0_{i,k})), taxi)
 
-<!-- /MarkdownTOC -->
+

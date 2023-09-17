@@ -48,9 +48,9 @@ Given the discrepancies between the estimated and actual take-off and landing ti
 
 *not be used in this branch*
 
-### * Local Search
+### ** Local Search*
 
-Reduce the number of intervals that cannot be allocated.
+*Reduce the number of intervals that cannot be allocated.*
 
 
 
@@ -70,8 +70,7 @@ A regarder dans données : dt = min(ATOT - ALDT) pour le même avion ?
  LDT = TLDT si t + 1h < ALDT ; ALDT sinon
  TOT0 = TTOT si t + 1h < ATOT ; ATOT sinon
 
- /!\ il est possible que TOT0 < LDT
- => TOT = max(TOT0, LDT + 30m)
+:collision:il est possible que TOT0 < LDT => TOT = max(TOT0, LDT + 30m)
 
  Règles
 
