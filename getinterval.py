@@ -4,6 +4,10 @@ import numpy as np
 class GetInterval:
     @staticmethod
     def actual_target(data, quarter):
+        """
+
+        Every 15 minutes, replace the target time with the actual time before the current moment.
+        """
         departure = np.array(data['departure'])
         departure_set = np.where(departure == 'ZBTJ')[0]
         h = 60 * 60
@@ -65,6 +69,10 @@ class GetInterval:
         return interval_data
 
     def get_interval(self, data, departure_set, num, pattern, tot, ldt):
+        """
+
+        Get the parking interval for each aircraft
+        """
         zbtj_time = []
         for i in num:
             if i in departure_set:
@@ -137,6 +145,10 @@ class GetInterval:
         return interval_data, interval_pattern, interval_flight
 
     def presolve(self, t_or_a, data, seuil, delta):
+        """
+
+        Get all parking intervals
+        """
         temp = self.actual_target(data, t_or_a)
         tot = temp[0]
         ldt = temp[1]
@@ -183,6 +195,10 @@ class GetInterval:
         return interval_data, interval_pattern, interval_flight, pattern
 
     def taxiing_pattern(self, t_or_a, seuil, data):
+        """
+
+        Choose 16R or 16L for each aircraft
+        """
         # 1 dep_16R 2 arr_16L 3 dep_16R
         temp = self.actual_target(data, t_or_a)
         tot = temp[0]
