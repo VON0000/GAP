@@ -110,7 +110,7 @@ class ReMatrix(Matrix):
                 else:
                     initg = self.find_gate(i, genernate, interval_data, interval_set)
                     target_matrix = self.cost_remote(g, initg, interval_index, i, no_1, no_2, no_3, no_4, target_matrix)
-                    target_matrix = self.cost_remote(g, initg, interval_index, i, no_1, no_2, no_3, no_4, target_matrix)
+                    target_matrix = self.cost_remote(g, initg, interval_index, i, no_1, no_2, no_4, no_3, target_matrix)
             else:
                 pass
         return target_matrix
