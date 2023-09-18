@@ -123,7 +123,7 @@ def bar_pci(counter_list, filename):
     x = [30, 40, 50, 60, math.inf]
     xticks = np.arange(len(x))
 
-    fig, ax = plt.subplots(figsize=(40, 21))
+    fig, ax = plt.subplots(figsize=(30, 21))
     ax.bar(xticks, counter_list, width=0.25, label='number', color='sandybrown')
     plt.rcParams.update({'font.size': 15})
     plt.legend(loc='upper right')
