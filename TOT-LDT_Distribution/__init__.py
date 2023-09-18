@@ -8,6 +8,7 @@ from optimization import Optimization
 import numpy as np
 import matplotlib.pyplot as plt
 import re
+from itertools import chain
 
 
 class GetNewInterval(GetInterval):
@@ -123,7 +124,7 @@ def bar_pci(counter_list, filename):
     x = [30, 40, 50, 60, math.inf]
     xticks = np.arange(len(x))
 
-    fig, ax = plt.subplots(figsize=(30, 21))
+    fig, ax = plt.subplots(figsize=(10, 7))
     ax.bar(xticks, counter_list, width=0.25, label='number', color='sandybrown')
     plt.rcParams.update({'font.size': 15})
     plt.legend(loc='upper right')
@@ -132,8 +133,12 @@ def bar_pci(counter_list, filename):
     plt.tick_params(labelsize=17)
 
     # 最后调整x轴标签的位置
-    ax.set_xticks(xticks)
-    ax.set_xticklabels(x)
+    xticks_new = list(chain.from_iterable(zip(xticks - 0.125, xticks + 0.125)))
+    xticklabels_new = list(chain.from_iterable(zip(['0', ' 30', '40', '50', '60'], ['29', '39', '49', '59', 'Inf'])))
+    ax.set_xticks(xticks_new)
+    ax.set_xticklabels(xticklabels_new)
+    ax.set_xlabel("Time (min)", fontsize=17)
+    ax.set_ylabel("the Number of Interval", fontsize=17)
 
     # 设置画布颜色和边框
     ax.set_facecolor("white")
