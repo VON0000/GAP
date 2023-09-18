@@ -62,8 +62,8 @@ class GetNewInterval(GetInterval):
         interval_flight = []
         while i < len(sorted_indices):
             if sorted_indices[i] in departure_set:
-                temp = self.longtime_departure(i, tot)
-                interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
+                interval_data = self.interval_value(data, i, self.longtime_departure, sorted_indices,
+                                                    interval_data, tot)
                 interval_pattern.append([0, pattern[sorted_indices[i]]])
                 interval_flight.append([sorted_indices[i]])
                 # print(interval_data)
@@ -71,13 +71,20 @@ class GetNewInterval(GetInterval):
             else:
                 if i + 1 < len(sorted_indices):
                     temp = self.shorttime(i, ldt, tot, sorted_indices)
-                    interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
+                    interval_data['interval'].append(temp[0])
+                    interval_data['begin_interval'].append(temp[1])
+                    interval_data['end_interval'].append(temp[2])
+                    interval_data['airline'].append(data['Airline'][sorted_indices[i]])
+                    interval_data['registration'].append(data['registration'][sorted_indices[i]])
+                    interval_data['begin_callsign'].append(data['callsign'][sorted_indices[i]])
+                    interval_data['end_callsign'].append(data['callsign'][sorted_indices[i + 1]])
+                    interval_data['wingspan'].append(data['Wingspan'][sorted_indices[i]])
                     # print(interval_data)
-                    interval_pattern.append([pattern[sorted_indices[i]], pattern[sorted_indices[i+1]]])
+                    interval_pattern.append([pattern[sorted_indices[i]], pattern[sorted_indices[i + 1]]])
                     interval_flight.append([sorted_indices[i], sorted_indices[i + 1]])
                 else:
-                    temp = self.longtime_arrivee(i, ldt)
-                    interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
+                    interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
+                                                        interval_data, ldt)
                     interval_pattern.append([pattern[sorted_indices[i]], 0])
                     interval_flight.append([sorted_indices[i]])
                     # print(interval_data)
@@ -107,13 +114,13 @@ def get_number_of_interval(filename: str, seuil: int, quarter: int, delta: int):
     counter_list = [0] * len(hour_list)
     for i in second_interval_data['interval']:
         for h, (start, end) in enumerate(hour_list):
-            if start <= int(i) <= end:
+            if start <= int(i) / 60 <= end:
                 counter_list[h] += 1
     return counter_list
 
 
 def bar_pci(counter_list, filename):
-    x = [30 * (i + 1) for i in range(len(counter_list))]
+    x = [30, 40, 50, 60, math.inf]
     xticks = np.arange(len(x))
 
     fig, ax = plt.subplots(figsize=(40, 21))
