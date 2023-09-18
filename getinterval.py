@@ -4,10 +4,6 @@ import numpy as np
 class GetInterval:
     @staticmethod
     def actual_target(data, quarter):
-        """
-
-        Every 15 minutes, replace the target time with the actual time before the current moment.
-        """
         departure = np.array(data['departure'])
         departure_set = np.where(departure == 'ZBTJ')[0]
         h = 60 * 60
@@ -55,7 +51,8 @@ class GetInterval:
         return interval, begin_interval, end_interval
 
     @staticmethod
-    def interval_value(data, i, sorted_indices, interval_data, temp):
+    def interval_value(data, i, func, sorted_indices, interval_data, t):
+        temp = func(sorted_indices[i], t)
         interval_data['interval'].append(temp[0])
         interval_data['begin_interval'].append(temp[1])
         interval_data['end_interval'].append(temp[2])
@@ -68,10 +65,6 @@ class GetInterval:
         return interval_data
 
     def get_interval(self, data, departure_set, num, pattern, tot, ldt):
-        """
-
-        Get the parking interval for each aircraft
-        """
         zbtj_time = []
         for i in num:
             if i in departure_set:
@@ -92,8 +85,8 @@ class GetInterval:
         interval_flight = []
         while i < len(sorted_indices):
             if sorted_indices[i] in departure_set:
-                temp = self.longtime_departure(i, tot)
-                interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
+                interval_data = self.interval_value(data, i, self.longtime_departure, sorted_indices,
+                                                    interval_data, tot)
                 interval_pattern.append([0, pattern[sorted_indices[i]]])
                 interval_flight.append([sorted_indices[i]])
                 # print(interval_data)
@@ -107,28 +100,35 @@ class GetInterval:
                     if interval_time <= h:
                         if interval_time >= h * 2 / 3:
                             temp = self.shorttime(i, ldt, tot, sorted_indices)
-                            interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
+                            interval_data['interval'].append(temp[0])
+                            interval_data['begin_interval'].append(temp[1])
+                            interval_data['end_interval'].append(temp[2])
+                            interval_data['airline'].append(data['Airline'][sorted_indices[i]])
+                            interval_data['registration'].append(data['registration'][sorted_indices[i]])
+                            interval_data['begin_callsign'].append(data['callsign'][sorted_indices[i]])
+                            interval_data['end_callsign'].append(data['callsign'][sorted_indices[i + 1]])
+                            interval_data['wingspan'].append(data['Wingspan'][sorted_indices[i]])
                             # print(interval_data)
                             interval_pattern.append([pattern[sorted_indices[i]], pattern[sorted_indices[i+1]]])
                             interval_flight.append([sorted_indices[i], sorted_indices[i + 1]])
                         else:
-                            temp = self.longtime_arrivee(i, ldt)
-                            interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
+                            interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
+                                                                interval_data, ldt)
                             interval_pattern.append([pattern[sorted_indices[i]], 0])
                             interval_flight.append([sorted_indices[i]])
                     else:
-                        temp = self.longtime_arrivee(i, ldt)
-                        interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
-                        temp = self.longtime_departure(i + 1, tot)
-                        interval_data = self.interval_value(data, i + 1, sorted_indices, interval_data, temp)
+                        interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
+                                                            interval_data, ldt)
+                        interval_data = self.interval_value(data, i + 1, self.longtime_departure, sorted_indices,
+                                                            interval_data, tot)
                         interval_pattern.append([pattern[sorted_indices[i]], 0])
                         interval_pattern.append([0, pattern[sorted_indices[i + 1]]])
                         interval_flight.append([sorted_indices[i]])
                         interval_flight.append([sorted_indices[i + 1]])
                         # print(interval_data)
                 else:
-                    temp = self.longtime_arrivee(i, ldt)
-                    interval_data = self.interval_value(data, i, sorted_indices, interval_data, temp)
+                    interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
+                                                        interval_data, ldt)
                     interval_pattern.append([pattern[sorted_indices[i]], 0])
                     interval_flight.append([sorted_indices[i]])
                     # print(interval_data)
@@ -136,15 +136,11 @@ class GetInterval:
         # print(interval_data)
         return interval_data, interval_pattern, interval_flight
 
-    def presolve(self, quarter, data, seuil, delta):
-        """
-
-        Get all parking intervals
-        """
-        temp = self.actual_target(data, quarter)
+    def presolve(self, t_or_a, data, seuil, delta):
+        temp = self.actual_target(data, t_or_a)
         tot = temp[0]
         ldt = temp[1]
-        pattern = self.taxiing_pattern(quarter, seuil, data)
+        pattern = self.taxiing_pattern(t_or_a, seuil, data)
         n = len(data['data'])
         departure_set = []
         for i in range(0, n):
@@ -186,13 +182,9 @@ class GetInterval:
                 interval_data['end_interval'][i] = interval_data['end_interval'][i] + minute * delta
         return interval_data, interval_pattern, interval_flight, pattern
 
-    def taxiing_pattern(self, quarter, seuil, data):
-        """
-
-        Choose 16R or 16L for each aircraft
-        """
+    def taxiing_pattern(self, t_or_a, seuil, data):
         # 1 dep_16R 2 arr_16L 3 dep_16R
-        temp = self.actual_target(data, quarter)
+        temp = self.actual_target(data, t_or_a)
         tot = temp[0]
         ldt = temp[1]
         n = len(data['data'])
