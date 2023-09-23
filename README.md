@@ -48,9 +48,9 @@ Given the discrepancies between the estimated and actual take-off and landing ti
 
 :grey_exclamation:*not be used in this branch*
 
-### *:-1: Local Search*
+### * :-1: ~~Local Search~~ *
 
-*Reduce the number of intervals that cannot be allocated.*
+~~*Reduce the number of intervals that cannot be allocated.*~~
 
 
 
@@ -62,7 +62,7 @@ Given the discrepancies between the estimated and actual take-off and landing ti
 
 A regarder dans données : dt = min(ATOT - ALDT) pour le même avion ?
 
-- Si dt <= 30 : on prend Taxi_T = 5, Gate_T = 10
+- ~~Si dt <= 30 : on prend Taxi_T = 5, Gate_T = 10~~
 
 - Si 40 <= dt : on prend Taxi_T = 5, Gate_T = 15
 
