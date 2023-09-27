@@ -109,7 +109,7 @@ class ToCsv:
                 ws.write(j + 1, i, interval_data[my_key[i]][j])
 
         # 保存excel文件
-        wb.save('./results/buffer/interval.xls')
+        wb.save('./results/interval.xls')
 
     def write_final(self, gate_dict, sheetname, gate_set, pattern, regulation, in_name, counter, remote_number):
         if regulation == 1:
@@ -123,7 +123,7 @@ class ToCsv:
 
         name = '_'.join(name)
         out_name = ['./results/20230924/', name, '.csv']
-        in_name = ['./results/buffer_1/', name, '.csv']
+        in_name = ['./results/lastversion/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
@@ -295,7 +295,7 @@ class ToCsv:
 
         name = '_'.join(name)
         out_name = ['./results/20230924/', name, '_process.csv']
-        in_name = ['./results/buffer_1/', name, '.csv']
+        in_name = ['./results/lastversion/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
