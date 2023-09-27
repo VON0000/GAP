@@ -23,6 +23,7 @@ class ReallocationInterval(ReGetInterval):
     determine specific intervals that should remain unchanged
     and fix the parking stands assigned to them.
     """
+
     @staticmethod
     def fix_information(data, quarter, seuil, delta, interval_flight, interval_data):
         # 所有interval（由data直接计算得到的interval）中，在半小时内的
@@ -162,9 +163,9 @@ def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter,
                 if begin_time > question:
                     question = begin_time
                     flag = i
-    if question != -1:
-        gate_fix.pop(fix_set.index(flag))
-        fix_set.remove(flag)
+        if question != -1:
+            gate_fix.pop(fix_set.index(flag))
+            fix_set.remove(flag)
     return fix_set, gate_fix
 
 
@@ -265,16 +266,15 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         fix_set = []
         for i in total_fix_list:
             if i[0] in interval_set:
+                # fix_set are the index of interval_set
                 fix_set.append(interval_set.index(i))  # 找到当前quarter、当前part下后半小时固定的variable
-                # print(second_interval_data['begin_interval'][i[0]],
-                #       second_interval_data['end_interval'][i[0]],
-                #       second_interval_data['registration'][i[0]],
-                #       second_interval_data['begin_callsign'][i[0]],
-                #       second_interval_data['end_callsign'][i[0]])
 
         # Gates for fixed intervals
         gate_fix = new_interval.gate_set(total_fix_info, gate_dict)
-        print(len(fix_set), 'fix_set', len(gate_fix), 'gate_fix')
+
+        # write the fix_set to the Excel
+        # if quarter == 85:
+        #     to_csv.write_fix(gate_fix, fix_set, interval_data, sheetname, quarter, gate_set, interval_set)
 
         # Check if fixed part has conflicts
         fix_set, gate_fix = find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix)
@@ -372,16 +372,19 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         #                                               obstruction)
         #     outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
         #
-        #     # dic = plot.make_json(generation, interval_set, interval_data)
-        #     # flag = plot.dict2json('E:/gap/results/python/buffer/j_data.json', dic)
-        #     # print(flag)
+
+        # make picture
+        # dic = plot.make_json(gate_dict, interval_data)
+        # flag = plot.dict2json(r'E:\pycharm\GAP\results\20230924\j_data.json', dic, quarter)
+        # to_csv.write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set, quarter)
+        # print('flag:', flag)
 
         # 计数
         counter = change_times(old_gate_dic, gate_dict, counter)
-        # process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
+        process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
         quarter += 1
         print(quarter)
 
     remote_number = final_remote(gate_dict, airline, interval_data, gate_set)
-    # to_csv.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
+    to_csv.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
     return gate_dict

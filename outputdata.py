@@ -1,19 +1,68 @@
 import sys
 import xlwt
 import pandas as pd
+import variable
 
 
 class ToCsv:
     """
     Export the results to a CSV file
     """
+
     @staticmethod
-    def write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set):
-        sheetname = ' '.join(sheetname)
+    def write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set, quarter):
+        """
+        debug
+        """
+        try:
+            assert quarter >= 84
+            local_sheetname = sheetname + [str(quarter)]
+            local_sheetname = ''.join(local_sheetname)
+
+            wb = xlwt.Workbook()
+            # 添加一个表
+            ws = wb.add_sheet(local_sheetname)
+
+            # 3个参数分别为行号，列号，和内容
+            # 需要注意的是行号和列号都是从0开始的
+            ws.write(0, 0, 'call_sign_1')
+            ws.write(0, 1, 'call_sign_2')
+            ws.write(0, 2, 'registration')
+            ws.write(0, 3, 'gate')
+            ws.write(0, 4, 'begin time')
+            ws.write(0, 5, 'finish time')
+
+            for i in range(len(gate_dict['gate'])):
+                ws.write(i + 1, 0, gate_dict['begin_callsign'][i])
+                try:
+                    ws.write(i + 1, 1, gate_dict['end_callsign'][i])
+                except KeyError:
+                    pass
+                ws.write(i + 1, 2, gate_dict['registration'][i])
+                ws.write(i + 1, 3, gate_set[gate_dict['gate'][i]])
+                ws.write(i + 1, 4, interval_data['begin_interval'][interval_set[i]])
+                ws.write(i + 1, 5, interval_data['end_interval'][interval_set[i]])
+
+            # 保存excel文件
+            output_file_path = ''.join(['E:/pycharm/GAP/results/20230924/', local_sheetname, '.xls'])
+            wb.save(output_file_path)
+        except:
+            print("still less than 81")
+            return None
+
+    @staticmethod
+    def write_fix(gate_fix, fix_set, interval_data, sheetname, quarter, gate_set, interval_set):
+        """
+        just for debug, output the fix flights
+        """
+        set = [interval_set[i] for i in fix_set]
+        gate_dict = variable.SpecialVariable.get_aim_dict(gate_fix, set, interval_data)
+        local_sheetname = sheetname + [str(quarter), 'fix']
+        local_sheetname = ''.join(local_sheetname)
 
         wb = xlwt.Workbook()
         # 添加一个表
-        ws = wb.add_sheet(sheetname)
+        ws = wb.add_sheet(local_sheetname)
 
         # 3个参数分别为行号，列号，和内容
         # 需要注意的是行号和列号都是从0开始的
@@ -32,11 +81,12 @@ class ToCsv:
                 pass
             ws.write(i + 1, 2, gate_dict['registration'][i])
             ws.write(i + 1, 3, gate_set[gate_dict['gate'][i]])
-            ws.write(i + 1, 4, interval_data['begin_interval'][interval_set[i]])
-            ws.write(i + 1, 5, interval_data['end_interval'][interval_set[i]])
+            ws.write(i + 1, 4, interval_data['begin_interval'][set[i]])
+            ws.write(i + 1, 5, interval_data['end_interval'][set[i]])
 
         # 保存excel文件
-        wb.save('./results/buffer/result.xls')
+        output_file_path = ''.join(['E:/pycharm/GAP/results/20230924/', local_sheetname, '.xls'])
+        wb.save(output_file_path)
 
     @staticmethod
     def write_interval(result, sheetname):
@@ -72,7 +122,7 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/gurobi_only/', name, '.csv']
+        out_name = ['./results/20230924/', name, '.csv']
         in_name = ['./results/buffer_1/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
@@ -164,6 +214,10 @@ class ToCsv:
         return data
 
     def write_other(self, gate_dict, sheetname, gate_set, pattern, regulation):
+        """
+
+        this one is to record other regulations
+        """
         if regulation == 1:
             name = sheetname + ['ZBTJ', 'MANEX']
         elif regulation == 2:
@@ -225,6 +279,11 @@ class ToCsv:
         data.to_csv(output_file_path, index=False)
 
     def write_process(self, gate_dict, sheetname, gate_set, regulation, quarter):
+        """
+
+        this is for the GenerateSolution.py, which is used to record the first time of the allocation
+        """
+
         if regulation == 1:
             name = sheetname + ['ZBTJ', 'MANEX']
         elif regulation == 2:
@@ -235,7 +294,7 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/gurobi_only_1/', name, '_process.csv']
+        out_name = ['./results/20230924/', name, '_process.csv']
         in_name = ['./results/buffer_1/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
@@ -304,7 +363,11 @@ class ProcessToCsv(ToCsv):
                         data.loc[c, parking] = new_value
         return data
 
-    def write_process(self, gate_dict, sheetname, gate_set, regulation, quarter = None):
+    def write_process(self, gate_dict, sheetname, gate_set, regulation, quarter=None):
+        """
+
+        this one is for the reallocation.py, which is used to record the reallocation
+        """
         if regulation == 1:
             name = sheetname + ['ZBTJ', 'MANEX']
         elif regulation == 2:
@@ -315,8 +378,8 @@ class ProcessToCsv(ToCsv):
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/gurobi_only_1/', name, '_process.csv']
-        in_name = ['./results/gurobi_only_1/', name, '_process.csv']
+        out_name = ['./results/20230924/', name, '_process.csv']
+        in_name = ['./results/20230924/', name, '_process.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
