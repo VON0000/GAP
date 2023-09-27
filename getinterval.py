@@ -33,24 +33,24 @@ class GetInterval:
     @staticmethod
     def longtime_arrivee(i, ldt):
         m = 60
-        begin_interval = ldt[i] + 10 * m
-        end_interval = ldt[i] + 30 * m
+        begin_interval = ldt[i] + 5 * m
+        end_interval = ldt[i] + 20 * m
         interval = end_interval - begin_interval
         return interval, begin_interval, end_interval
 
     @staticmethod
     def longtime_departure(i, tot):
         m = 60
-        begin_interval = tot[i] - 30 * m
-        end_interval = tot[i] - 10 * m
+        begin_interval = tot[i] - 20 * m
+        end_interval = tot[i] - 5 * m
         interval = end_interval - begin_interval
         return interval, begin_interval, end_interval
 
     @staticmethod
     def shorttime(i, ldt, tot, sorted_indices):
         m = 60
-        begin_interval = ldt[sorted_indices[i]] + 10 * m
-        end_interval = tot[sorted_indices[i + 1]] - 10 * m
+        begin_interval = ldt[sorted_indices[i]] + 5 * m
+        end_interval = tot[sorted_indices[i + 1]] - 5 * m
         interval = end_interval - begin_interval
         return interval, begin_interval, end_interval
 
@@ -106,24 +106,28 @@ class GetInterval:
                     interval_time = departure_time - arrivee_time
                     # print(interval_time)
                     if interval_time <= h:
-                        if interval_time >= h * 2 / 3:
-                            temp = self.shorttime(i, ldt, tot, sorted_indices)
-                            interval_data['interval'].append(temp[0])
-                            interval_data['begin_interval'].append(temp[1])
-                            interval_data['end_interval'].append(temp[2])
-                            interval_data['airline'].append(data['Airline'][sorted_indices[i]])
-                            interval_data['registration'].append(data['registration'][sorted_indices[i]])
-                            interval_data['begin_callsign'].append(data['callsign'][sorted_indices[i]])
-                            interval_data['end_callsign'].append(data['callsign'][sorted_indices[i + 1]])
-                            interval_data['wingspan'].append(data['Wingspan'][sorted_indices[i]])
-                            # print(interval_data)
-                            interval_pattern.append([pattern[sorted_indices[i]], pattern[sorted_indices[i+1]]])
-                            interval_flight.append([sorted_indices[i], sorted_indices[i + 1]])
+                        temp = self.shorttime(i, ldt, tot, sorted_indices)
+                        interval_data['interval'].append(temp[0])
+                        interval_data['begin_interval'].append(temp[1])
+                        interval_data['end_interval'].append(temp[2])
+                        interval_data['airline'].append(data['Airline'][sorted_indices[i]])
+                        interval_data['registration'].append(data['registration'][sorted_indices[i]])
+                        interval_data['begin_callsign'].append(data['callsign'][sorted_indices[i]])
+                        interval_data['end_callsign'].append(data['callsign'][sorted_indices[i + 1]])
+                        interval_data['wingspan'].append(data['Wingspan'][sorted_indices[i]])
+                        # print(interval_data)
+                        interval_pattern.append([pattern[sorted_indices[i]], pattern[sorted_indices[i+1]]])
+                        interval_flight.append([sorted_indices[i], sorted_indices[i + 1]])
+                        if interval_time >= h * (5 + 5 + 15 + 15) / 60:
+                            pass
                         else:
-                            interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
-                                                                interval_data, ldt)
-                            interval_pattern.append([pattern[sorted_indices[i]], 0])
-                            interval_flight.append([sorted_indices[i]])
+                            # interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
+                            #                                     interval_data, ldt)
+                            # interval_pattern.append([pattern[sorted_indices[i]], 0])
+                            # interval_flight.append([sorted_indices[i]])
+                            interval_data['interval'][-1] = 30 * 60
+                            interval_data['end_interval'][-1] = (interval_data['begin_interval'][-1]
+                                                                 + interval_data['interval'][-1])
                     else:
                         interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
                                                             interval_data, ldt)
