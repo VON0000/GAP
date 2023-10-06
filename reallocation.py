@@ -4,7 +4,6 @@ import variable
 from optimization import Optimization
 from taxiingtime_matrix import ReMatrix
 import numpy as np
-import sys
 # import localsearch
 # import plot
 from outputdata import ToCsv
@@ -63,11 +62,6 @@ class ReallocationInterval(ReGetInterval):
                 else:
                     index = [values for values in temp if interval_data['registration'][values] == info[1]]
                     fix_set.append(index)
-                    # print(interval_data['registration'][temp[0]],
-                    #       interval_data['begin_callsign'][temp[0]], interval_data['end_callsign'][temp[0]], '000')
-                    # print(interval_data['registration'][temp[1]],
-                    #       interval_data['begin_callsign'][temp[1]], interval_data['end_callsign'][temp[1]], '000')
-                    # sys.exit(1)
             else:
                 pass
         return fix_set
@@ -253,12 +247,10 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         obstruction = variable.get_obstruction(interval_data, interval_set)
 
         # Check if intervals are all greater than zero
-        # TODO:assert
         for i in range(len(interval_data['interval'])):
-            if interval_data['interval'][i] <= 0:
-                print(interval_data['registration'][i],
-                      interval_data['begin_callsign'][i], interval_data['end_callsign'][i], '001')
-                sys.exit(1)
+            assert interval_data['interval'][i] > 0, [interval_data['registration'][i],
+                                                       interval_data['begin_callsign'][i],
+                                                       interval_data['end_callsign'][i], '001']
 
         # The indices of fixed variables (quarter + 30 minutes) in the interval_set(x)
         total_fix_info = new_interval.fix_information(data, quarter, seuil, delta, interval_flight, interval_data)

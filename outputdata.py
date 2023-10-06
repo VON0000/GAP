@@ -122,7 +122,7 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/20230924/', name, '.csv']
+        out_name = ['./results/gate_5_taxi_15/', name, '.csv']
         in_name = ['./results/lastversion/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
@@ -208,12 +208,14 @@ class ToCsv:
                     if data.loc[c, 'departure'] == 'ZBTJ' and last_two_chars == 'de':
                         new_value = gate_set[gate_dict['gate'][i]]
                         data.loc[c, 'Parking'] = new_value
-                    else:
+                    elif data.loc[c, 'arrivee'] == 'ZBTJ' and last_two_chars == 'ar':
                         new_value = gate_set[gate_dict['gate'][i]]
                         data.loc[c, 'Parking'] = new_value
+                    else:
+                        continue
         return data
 
-    def write_other(self, gate_dict, sheetname, gate_set, pattern, regulation):
+    def write_other(self, gate_dict, filename, sheetname, gate_set, pattern, regulation):
         """
 
         this one is to record other regulations
@@ -228,11 +230,10 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/buffer/', name, '.csv']
+        out_name = ['./results/gate_5_taxi_15/', name, '.csv']
         output_file_path = ''.join(out_name)
-        input_file_path = ''.join(out_name)
 
-        data = pd.read_csv(input_file_path)
+        data = pd.read_csv(output_file_path)
 
         # 指定要更改的列名
         column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
@@ -251,10 +252,10 @@ class ToCsv:
         #         new_value = '16R'
         #     data.loc[index, column_name_to_change] = new_value
 
-        # 指定要更改的列名
+        # # 指定要更改的列名
         # column_name_to_change = 'Parking'  # 将 'column_name' 替换为实际的列名
-
-        # 读取原始 CSV 文件并修改指定列的数据
+        #
+        # # 读取原始 CSV 文件并修改指定列的数据
         # data[column_name_to_change] = None
 
         for i in range(len(gate_dict['gate'])):
@@ -294,8 +295,8 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/20230924/', name, '_process.csv']
-        in_name = ['./results/lastversion/', name, '.csv']
+        out_name = ['./results/gate_5_taxi_15/', name, '_process.csv']
+        in_name = ['./results/gate_5_taxi_15/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
@@ -358,9 +359,11 @@ class ProcessToCsv(ToCsv):
                     if data.loc[c, 'departure'] == 'ZBTJ' and last_two_chars == 'de':
                         new_value = gate_set[gate_dict['gate'][i]]
                         data.loc[c, parking] = new_value
-                    else:
+                    elif data.loc[c, 'arrivee'] == 'ZBTJ' and last_two_chars == 'ar':
                         new_value = gate_set[gate_dict['gate'][i]]
                         data.loc[c, parking] = new_value
+                    else:
+                        continue
         return data
 
     def write_process(self, gate_dict, sheetname, gate_set, regulation, quarter=None):
@@ -378,8 +381,8 @@ class ProcessToCsv(ToCsv):
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/20230924/', name, '_process.csv']
-        in_name = ['./results/20230924/', name, '_process.csv']
+        out_name = ['./results/gate_5_taxi_15/', name, '_process.csv']
+        in_name = ['./results/gate_5_taxi_15/', name, '_process.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
