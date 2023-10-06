@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import sys
 import math
 
 
@@ -129,7 +128,7 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
     n = len(data['data'])
     del_list_data = []
     for i in range(n):
-        if i in departure_set:
+        if i in list(departure_set):
             if data['ATOT'][i] > quarter * q + h and data['TTOT'][i] < quarter * q:
                 del_list_data.append(i)
         else:
@@ -140,7 +139,12 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
     for i in range(len(interval_flight)):
         inter = list(set(del_list_data) & set(interval_flight[i]))  # Check if this interval should be deleted
         if len(inter) != 0 and i in interval_set:
-            interval_set.remove(i)
+            if interval_flight[i][0] == inter[0]:
+                interval_set.remove(i)
+            else:
+                second_interval_data['end_interval'][i] = second_interval_data['begin_interval'][i] + 15 * 60
+                second_interval_data['interval'][i] = 15 * 60
+                second_interval_data['end_callsign'][i] = second_interval_data['begin_callsign'][i]
 
     #  All gates in use
     gate = list(wingsize.keys())
@@ -162,10 +166,8 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
             del_set.append(i)
         for j in fit:
             x[i][j] = 1
-    # print(del_set, 'del_Set')
-    if len(del_set) != 0:
-        print(del_set, 'del_Set')
-        sys.exit(1)
+    assert len(del_set) == 0, \
+        "There are intervals that do not satisfy airline and wingspan restrictions for parking stands"
 
     # print(interval_set)
     min_interval_data = timetransform(second_interval_data)
@@ -268,4 +270,3 @@ def get_obstruction(interval_data, interval_set):
         obstruction.append(obs_list)
     # print(obstruction)
     return obstruction
-
