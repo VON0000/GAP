@@ -139,3 +139,5 @@ config_server/
 config.yaml
 schema.json
 
+
+data/
