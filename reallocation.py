@@ -229,7 +229,7 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
     # Initial solution
     genernate = gate_dict
 
-    while quarter < 94:
+    while quarter < 96:
         # Obtain all interval-related data
         interval = new_interval.presolve(quarter, data, seuil, delta)  # Intervals for the current quarter
         second_interval_data = interval[0]

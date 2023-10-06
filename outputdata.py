@@ -123,30 +123,30 @@ class ToCsv:
 
         name = '_'.join(name)
         out_name = ['./results/gate_5_taxi_15/', name, '.csv']
-        in_name = ['./results/lastversion/', name, '.csv']
+        in_name = ['./results/gate_5_taxi_15/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
 
         data = pd.read_csv(input_file_path)
 
-        # # 指定要更改的列名
-        # column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
-        #
-        # if len(pattern) != len(data[column_name_to_change]):
-        #     print('the length of pattern is not equal to the length of data')
-        #     sys.exit(1)
-        #
-        # # 使用 for 循环遍历每一行并修改指定列的值
-        # for index, row in data.iterrows():
-        #     if pattern[index] == 1:
-        #         new_value = '16R'
-        #     elif pattern[index] == 2:
-        #         new_value = '16L'
-        #     else:
-        #         new_value = '16R'
-        #     data.loc[index, column_name_to_change] = new_value
-        #
+        # 指定要更改的列名
+        column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
+
+        if len(pattern) != len(data[column_name_to_change]):
+            print('the length of pattern is not equal to the length of data')
+            sys.exit(1)
+
+        # 使用 for 循环遍历每一行并修改指定列的值
+        for index, row in data.iterrows():
+            if pattern[index] == 1:
+                new_value = '16R'
+            elif pattern[index] == 2:
+                new_value = '16L'
+            else:
+                new_value = '16R'
+            data.loc[index, column_name_to_change] = new_value
+
         # # 指定要更改的列名
         # column_name_to_change = 'Parking'  # 将 'column_name' 替换为实际的列名
         #
@@ -235,12 +235,12 @@ class ToCsv:
 
         data = pd.read_csv(output_file_path)
 
-        # 指定要更改的列名
-        column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
-
-        if len(pattern) != len(data[column_name_to_change]):
-            print('the length of pattern is not equal to the length of data')
-            sys.exit(1)
+        # # 指定要更改的列名
+        # column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
+        #
+        # if len(pattern) != len(data[column_name_to_change]):
+        #     print('the length of pattern is not equal to the length of data')
+        #     sys.exit(1)
 
         # # 使用 for 循环遍历每一行并修改指定列的值
         # for index, row in data.iterrows():

@@ -56,6 +56,6 @@ def generante_solution(filename: str, regulation: int, seuil: int, quarter: int,
 
     # Result
     gate_dict = variable.SpecialVariable.get_aim_dict(gate_choose, interval_set, interval_data)
-    # to_csv.write_other(gate_dict, filename, sheetname, gate_set, pattern, regulation)
-    to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
+    to_csv.write_other(gate_dict, filename, sheetname, gate_set, pattern, regulation)
+    # to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
     return gate_dict, pattern
