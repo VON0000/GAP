@@ -58,7 +58,7 @@ last saved.
 
 :grey_exclamation:*not be used in this branch*
 
-###   * :-1: ~~Local Search~~ *
+###    * :-1: ~~Local Search~~ *
 
 ~~*Reduce the number of intervals that cannot be allocated.*~~
 
@@ -85,22 +85,45 @@ TOT0 = TTOT si t + 1h < ATOT ; ATOT sinon
 Règles
 
 - Si même avion :
-  - Si TOT - LDT < 1h
-    - ARRDEP même parking sur LDT + 5 -> TOT - 5
-  - Sinon
-    - ARR : LDT + 5 -> LDT + 5 + Gate_T
-    - DEP : TOT - 5 - Gate_T -> TOT - 5
+    - Si TOT - LDT < 1h
+        - ARRDEP même parking sur LDT + 5 -> TOT - 5
+    - Sinon
+        - ARR : LDT + 5 -> LDT + 5 + Gate_T
+        - DEP : TOT - 5 - Gate_T -> TOT - 5
 
 ---
+
 ### update in 2023/9/24
+
 #### :question: question
 
 - :heavy_check_mark:extend those intervals which are less than 40 mins to 40 mins
-  - but when we meet the situation like TLDT - ATOT less than 40 mins and ALDT - ATOT more than 60 mins,
-    will it cause the problem that the fixed intervals will be changed ?
-    
-  - :bulb:maybe not, the new interval was covered by the old interval which was longer. and the interval will not 
-    be fixed before the TLDT change to ATOT.
-  
+    - but when we meet the situation like TLDT - ATOT less than 40 mins and ALDT - ATOT more than 60 mins,
+      will it cause the problem that the fixed intervals will be changed ?
+
+    - :bulb:maybe not, the new interval was covered by the old interval which was longer. and the interval will not
+      be fixed before the TLDT change to ATOT.
 - ignore the departure set and focus on the arriving set
-  - but if there is actual time less than 30 mins, it will cause the problem that we miss the departure set forever.
+    - but if there is actual time less than 30 mins, it will cause the problem that we miss the departure set forever.
+
+---
+
+### update in 2023/9/28
+
+#### fix the stupid bug related to pass-by-value and pass-by-reference.:upside_down_face:
+
+*~~Shameful!!!~~* :clown_face:
+
+- **getinterval.py function: actual_target**
+- This function used pass by reference for `data`. AND the `data` was changed.
+
+#### fix the bug in variable.py
+
+i used to delete all of the interval that has a flight who can not be detected (the actual time is later than one hour later, the target time is ealier than recent time)
+
+now i only delete interval when the undetectable one is at the begin side of the interval 
+
+when it is at the end side of the interval, i change the interval information.
+
+#### fix the bug in outputdata.py
+the code in function new_data.py used to rearch the right place in `data` was wrong
