@@ -274,35 +274,6 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # Fix variables in fix_set
         x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
 
-        # interval_pr = [value for index, value in enumerate(interval_set_total) if index in fix_set]
-        # print(interval_pr, "interval_pr")
-        # print(fix_set, "fix_set")
-        # print(len(fix_set), "fix_set")
-        # print(len(interval_pr), "before remove")
-        # for i in interval_pr:
-        #     print(second_interval_data['begin_interval'][i],
-        #           second_interval_data['end_interval'][i],
-        #           second_interval_data['registration'][i],
-        #           second_interval_data['begin_callsign'][i],
-        #           second_interval_data['end_callsign'][i])
-
-        # 打印出固定的interval以及他们的gate
-        # temp_list = []
-        # temp_i1 = []
-        # # temp_i2 = []
-        # for i in range(len(x)):
-        #     if sum(x[i]) == 1:
-        #         for temp in range(len(x[i])):
-        #             if x[i][temp] == 1:
-        #                 temp_list.append(temp)
-        #                 temp_i1.append(interval_data['begin_callsign'][interval_set_total[i]])
-        #                 # temp_i2.append(interval_data['registration'][interval_set_total[i]])
-        #                 print(interval_data['begin_callsign'][interval_set_total[i]], temp)
-        # print(len(temp_i1), 'x list', len(temp_list), "x gate")
-        # # print(temp_i2, "x list")
-        # # print(len(temp_list), "x gate")
-        # print(len(interval_set_total))
-
         # 优化
         # Objective
         target_matrix = matrix.target_re(gate_dict, interval_data, interval_set, gate_set, genernate, taxiingtime,

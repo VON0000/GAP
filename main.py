@@ -4,11 +4,11 @@ import GenernateSolution
 import reallocation
 
 
-part = 5
+part = 3
 delta = 5
 seuil = 28
 regulation = 3
-quarter = 96
+quarter = 0
 
 if __name__ == '__main__':
     # Specify the folder path
@@ -25,7 +25,7 @@ if __name__ == '__main__':
                                                                                part, delta)
 
             # Reallocate through iteration
-            # re_solution = reallocation.reallocation(filename, seuil, part, delta, genernate_solution, regulation,
-            #                                         pattern)
+            re_solution = reallocation.reallocation(filename, seuil, part, delta, genernate_solution, regulation,
+                                                    pattern)
 
             # Add new flights

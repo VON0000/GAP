@@ -123,6 +123,8 @@ class GetInterval:
                             interval_data['interval'][-1] = 30 * 60
                             interval_data['end_interval'][-1] = (interval_data['begin_interval'][-1]
                                                                  + interval_data['interval'][-1])
+                            interval_pattern[-1] = [pattern[sorted_indices[i]], 0]
+                            interval_flight[-1] = [sorted_indices[i]]
                     else:
                         interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
                                                             interval_data, ldt)
