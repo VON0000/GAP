@@ -182,13 +182,6 @@ class GetInterval:
                 interval_pattern.extend(temp_interval_pattern)
                 interval_flight.extend(temp_interval_flight)
                 sample = num
-        delete_set = ([i for i, val in enumerate(interval_data['begin_interval']) if int(val) >= 86400])
-        for key in interval_data:
-            interval_data[key] = [interval_data[key][i] for i in range(len(interval_data[key])) if i not in delete_set]
-        # print(interval_data)
-        interval_pattern = [interval_pattern[i] for i in range(len(interval_pattern)) if i not in delete_set]
-        interval_flight = [interval_flight[i] for i in range(len(interval_flight)) if i not in delete_set]
-        # print(interval_pattern)
         minute = 60
         for i in range(len(interval_pattern)):
             if interval_pattern[i][1] == 1:
