@@ -17,12 +17,16 @@ class SpecialVariable:
         temp_2 = []
         temp_3 = []
         temp_4 = []
+        temp_5 = []
+        temp_6 = []
         for i in range(len(gate_choose)):
             index = interval_set[i]
             temp_1.append(interval_data['begin_callsign'][index])
             temp_2.append(interval_data['registration'][index])
             temp_3.append(gate_choose[i])
             temp_4.append(interval_data['end_callsign'][index])
+            temp_5.append(interval_data['begin_interval'][index])
+            temp_6.append(interval_data['end_interval'][index])
         my_key = ['begin_callsign', 'registration', 'gate', 'end_callsign']
         default_value = []
         gate_dict = dict.fromkeys(my_key, default_value)
@@ -30,6 +34,8 @@ class SpecialVariable:
         gate_dict['registration'] = temp_2
         gate_dict['gate'] = temp_3
         gate_dict['end_callsign'] = temp_4
+        gate_dict['begin_interval'] = temp_5
+        gate_dict['end_interval'] = temp_6
         return gate_dict
 
 
