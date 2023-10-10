@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import copy
 
@@ -63,6 +65,18 @@ class GetInterval:
         # print(interval_data['begin_interval'])
         return interval_data
 
+    @staticmethod
+    def clear(sorted_indices, data):
+        judgment = None
+        for index in sorted_indices:
+            if data["departure"][index] == "ZBTJ" and judgment != "de":
+                judgment = "de"
+            elif data["departure"][index] != "ZBTJ" and judgment != "ar":
+                judgment = "ar"
+            else:
+                print("error", data["registration"][index], data['data'][index])
+                # sys.exit(1)
+
     def get_interval(self, data, departure_set, num, pattern, tot, ldt):
         """
 
@@ -75,9 +89,8 @@ class GetInterval:
             else:
                 zbtj_time.append(ldt[i])
         sorted_indices = [i for i, _ in sorted(enumerate(zbtj_time), key=lambda x: x[1])]
-        # print(zbtj_time)
         sorted_indices = sorted_indices + num[0]
-        # print(sorted_indices)
+        self.clear(sorted_indices, data)
         h = 60 * 60
         i = 0
         my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',
@@ -116,10 +129,6 @@ class GetInterval:
                         if interval_time >= h * (5 + 5 + 15 + 15) / 60:
                             pass
                         else:
-                            # interval_data = self.interval_value(data, i, self.longtime_arrivee, sorted_indices,
-                            #                                     interval_data, ldt)
-                            # interval_pattern.append([pattern[sorted_indices[i]], 0])
-                            # interval_flight.append([sorted_indices[i]])
                             interval_data['interval'][-1] = 30 * 60
                             interval_data['end_interval'][-1] = (interval_data['begin_interval'][-1]
                                                                  + interval_data['interval'][-1])
@@ -140,7 +149,6 @@ class GetInterval:
                                                         interval_data, ldt)
                     interval_pattern.append([pattern[sorted_indices[i]], 0])
                     interval_flight.append([sorted_indices[i]])
-                    # print(interval_data)
                 i = i + 2
         # print(interval_data)
         return interval_data, interval_pattern, interval_flight
