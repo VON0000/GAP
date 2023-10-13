@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 import copy
 
@@ -90,7 +88,7 @@ class GetInterval:
                 zbtj_time.append(ldt[i])
         sorted_indices = [i for i, _ in sorted(enumerate(zbtj_time), key=lambda x: x[1])]
         sorted_indices = sorted_indices + num[0]
-        self.clear(sorted_indices, data)
+        # self.clear(sorted_indices, data)  # check the data
         h = 60 * 60
         i = 0
         my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',

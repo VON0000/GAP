@@ -1,4 +1,5 @@
 import sys
+
 import xlwt
 import pandas as pd
 import variable
@@ -171,11 +172,10 @@ class ToCsv:
             if (data.loc[j, 'callsign'] == front_part
                     and data.loc[j, 'registration'] == registration
                     and data.loc[j, 'departure'] == 'ZBTJ'):
-                new_value = gate_dict['end_interval'][i] * 30  # TODO: check this
+                new_value = gate_dict['end_interval'][i] * 30 + 5 * 60
                 data.loc[j, 'ATOT'] = new_value
                 break
         return data
-
 
     @staticmethod
     def new_data(data, front_part, gate_set, gate_dict, i, registration, last_two_chars):
@@ -224,29 +224,29 @@ class ToCsv:
         out_name = ['./results/gate_5_taxi_15/', name, '.csv']
         output_file_path = ''.join(out_name)
 
-        data = pd.read_csv(filename)
+        data = pd.read_csv(output_file_path)
 
-        # 指定要更改的列名
-        column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
-
-        if len(pattern) != len(data[column_name_to_change]):
-            print('the length of pattern is not equal to the length of data',
-                  len(pattern), len(data[column_name_to_change]))
-            sys.exit(1)
-
-        # 使用 for 循环遍历每一行并修改指定列的值
-        for index, row in data.iterrows():
-            if pattern[index] == 2:
-                new_value = '16L'
-            else:
-                new_value = '16R'
-            data.loc[index, column_name_to_change] = new_value
-
-        # 指定要更改的列名
-        column_name_to_change = 'Parking'  # 将 'column_name' 替换为实际的列名
-
-        # 读取原始 CSV 文件并修改指定列的数据
-        data[column_name_to_change] = None
+        # # 指定要更改的列名
+        # column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
+        #
+        # if len(pattern) != len(data[column_name_to_change]):
+        #     print('the length of pattern is not equal to the length of data',
+        #           len(pattern), len(data[column_name_to_change]))
+        #     sys.exit(1)
+        #
+        # # 使用 for 循环遍历每一行并修改指定列的值
+        # for index, row in data.iterrows():
+        #     if pattern[index] == 2:
+        #         new_value = '16L'
+        #     else:
+        #         new_value = '16R'
+        #     data.loc[index, column_name_to_change] = new_value
+        #
+        # # 指定要更改的列名
+        # column_name_to_change = 'Parking'  # 将 'column_name' 替换为实际的列名
+        #
+        # # 读取原始 CSV 文件并修改指定列的数据
+        # data[column_name_to_change] = None
 
         for i in range(len(gate_dict['gate'])):
             call_sign1 = gate_dict['begin_callsign'][i]
