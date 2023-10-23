@@ -215,7 +215,6 @@ class GetInterval:
                 arrivee_time.append(int(ldt[i]))
         h = 60 * 60
         pattern = [0] * n
-        # print(departure_set)
         for i in departure_set:
             pattern[i] = 1
         for i in range(24):
@@ -227,5 +226,4 @@ class GetInterval:
                     pattern[arrivee_set[index]] = 3
                 else:
                     pattern[arrivee_set[index]] = 2
-        # print(pattern)
         return pattern
