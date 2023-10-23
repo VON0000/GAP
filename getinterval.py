@@ -60,7 +60,6 @@ class GetInterval:
         interval_data['begin_callsign'].append(data['callsign'][sorted_indices[i]])
         interval_data['end_callsign'].append(data['callsign'][sorted_indices[i]])
         interval_data['wingspan'].append(data['Wingspan'][sorted_indices[i]])
-        # print(interval_data['begin_interval'])
         return interval_data
 
     @staticmethod
@@ -88,13 +87,10 @@ class GetInterval:
                 zbtj_time.append(ldt[i])
         sorted_indices = [i for i, _ in sorted(enumerate(zbtj_time), key=lambda x: x[1])]
         sorted_indices = sorted_indices + num[0]
-        # self.clear(sorted_indices, data)  # check the data
         h = 60 * 60
         i = 0
-        my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',
-                  'end_callsign', 'wingspan']
-        my_values = [[], [], [], [], [], [], [], []]
-        interval_data = {k: v for k, v in zip(my_key, my_values)}
+        interval_data = {'interval': [], 'begin_interval': [], 'end_interval': [], 'airline': [], 'registration': [],
+                         'begin_callsign': [], 'end_callsign': [], 'wingspan': []}
         interval_pattern = []
         interval_flight = []
         while i < len(sorted_indices):
@@ -103,7 +99,6 @@ class GetInterval:
                                                     interval_data, tot)
                 interval_pattern.append([0, pattern[sorted_indices[i]]])
                 interval_flight.append([sorted_indices[i]])
-                # print(interval_data)
                 i = i + 1
             else:
                 if i + 1 < len(sorted_indices):
@@ -165,11 +160,8 @@ class GetInterval:
         for i in range(0, n):
             if data['departure'][i] == 'ZBTJ':
                 departure_set.append(i)
-        # print(departure_set)
-        my_key = ['interval', 'begin_interval', 'end_interval', 'airline', 'registration', 'begin_callsign',
-                  'end_callsign', 'wingspan']
-        default_value = []
-        interval_data = dict.fromkeys(my_key, default_value)
+        interval_data = {'interval': [], 'begin_interval': [], 'end_interval': [], 'airline': [], 'registration': [],
+                         'begin_callsign': [], 'end_callsign': [], 'wingspan': []}
         interval_pattern = []
         interval_flight = []
         sample = []
