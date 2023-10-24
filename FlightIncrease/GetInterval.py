@@ -51,6 +51,7 @@ class IntervalType:
 class GetInterval:
     def __init__(self, filename: str):
         self.data = self.get_data(filename)
+        self.interval = self.get_interval()
 
     @staticmethod
     def get_data(filename) -> dict:
@@ -76,20 +77,41 @@ class GetInterval:
                 interval_instance = IntervalType(
                     "longtime_departure", self.data, [flight_list[i]]
                 )
+                interval.append(interval_instance)
                 i = i + 1
             else:
                 if i + 1 < len(flight_list):
-                    ...
+                    interval_time = (
+                        self.data["ATOT"][flight_list[i + 1]]
+                        - self.data["ALDT"][flight_list[i]]
+                    )
                     if interval_time <= HOUR:
-                        ...
+                        interval_instance = IntervalType(
+                            "shorttime", self.data, [flight_list[i], flight_list[i + 1]]
+                        )
                         if interval_time >= HOUR * (5 + 5 + 15 + 15) / 60:
                             pass
                         else:
-                            ...
+                            interval_instance.interval = 30 * MINUTE
+                            interval_instance.end_interval = (
+                                interval_instance.begin_interval
+                                + interval_instance.interval
+                            )
+                        interval.append(interval_instance)
                     else:
-                        ...
+                        interval_instance = IntervalType(
+                            "longtime_arrivee", self.data, [flight_list[i]]
+                        )
+                        interval.append(interval_instance)
+                        interval_instance = IntervalType(
+                            "longtime_departure", self.data, [flight_list[i + 1]]
+                        )
+                        interval.append(interval_instance)
                 else:
-                    ...
+                    interval_instance = IntervalType(
+                        "longtime_arrivee", self.data, [flight_list[i]]
+                    )
+                    interval.append(interval_instance)
                 i = i + 2
 
         return interval
@@ -110,7 +132,7 @@ class GetInterval:
         sorted_list = sorted(enumerated_list, key=lambda x: x[1])
         sorted_indices = [x[0] for x in sorted_list]
 
-        sorted_flight_list = sorted_list + flight_list[0]
+        sorted_flight_list = sorted_indices + flight_list[0]
         return sorted_flight_list
 
     def get_interval(self) -> list:
@@ -127,8 +149,7 @@ class GetInterval:
                 break
             else:
                 sample = i
-                interval.append(self.get_interval_one(i))
-            ...
+                interval.extend(self.get_interval_one(i))
         return interval
 
     def increase_flight(self) -> list:
