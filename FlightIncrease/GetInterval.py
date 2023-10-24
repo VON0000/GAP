@@ -9,14 +9,22 @@ MINUTE = 60
 
 class IntervalType:
     def __init__(self, interval_type: str, data: dict, index_list: List[int]):
-        # todo: add attributes
-
+        interval_info = None
         if interval_type == "longtime_arrivee":
-            self.interval_info = self.longtime_arrivee(data, index_list)
+            interval_info = self.longtime_arrivee(data, index_list)
         if interval_type == "longtime_departure":
-            self.interval_info = self.longtime_departure(data, index_list)
+            interval_info = self.longtime_departure(data, index_list)
         if interval_type == "shorttime":
-            self.interval_info = self.shorttime(data, index_list)
+            interval_info = self.shorttime(data, index_list)
+
+        self.interval = interval_info[0]
+        self.begin_interval = interval_info[1]
+        self.end_interval = interval_info[2]
+        self.airline = data["airline"][index_list[0]]
+        self.registration = data["registration"][index_list[0]]
+        self.begin_callsign = data["callsign"][index_list[0]]
+        self.end_callsign = data["callsign"][index_list[-1]]
+        self.wingspan = data["wingspan"][index_list[0]]
 
     @staticmethod
     def longtime_arrivee(data: dict, index_list: list):
