@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+__pycache__
 *.py[cod]
 *$py.class
 
@@ -138,6 +139,3 @@ config_server/
 # configuration files
 config.yaml
 schema.json
-
-
-data/
