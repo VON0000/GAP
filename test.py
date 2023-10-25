@@ -39,6 +39,8 @@ def test_flight_list_sorted():
 def test_get_interval():
     instance = GetInterval(filename="./data/test.csv")
     inst_list = instance.get_interval()
+    assert len(inst_list) == 35
     for i in inst_list:
         assert i.begin_interval < i.end_interval
         assert i.interval >= 900
+
