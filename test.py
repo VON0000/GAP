@@ -3,12 +3,13 @@ from FlightIncrease.GetInterval import GetInterval
 HOUR = 60 * 60
 
 
-def test_get_interval():
+def test_get_data():
     instance = GetInterval(filename="./data/test.csv")
-    inst_list = instance.get_interval()
-    for i in inst_list:
-        assert i.begin_interval < i.end_interval
-        assert i.interval >= 900
+    for i in range(len(instance.data["callsign"])):
+        if instance.data["callsign"][i][-2:] == "ar":
+            assert instance.data["arrivee"][i] == "ZBTJ"
+        else:
+            assert instance.data["departure"][i] == "ZBTJ"
 
 
 def test_get_interval_one():
@@ -35,10 +36,9 @@ def test_flight_list_sorted():
             )
 
 
-def test_get_data():
+def test_get_interval():
     instance = GetInterval(filename="./data/test.csv")
-    for i in range(len(instance.data["callsign"])):
-        if instance.data["callsign"][i][-2:] == "ar":
-            assert instance.data["arrivee"][i] == "ZBTJ"
-        else:
-            assert instance.data["departure"][i] == "ZBTJ"
+    inst_list = instance.get_interval()
+    for i in inst_list:
+        assert i.begin_interval < i.end_interval
+        assert i.interval >= 900
