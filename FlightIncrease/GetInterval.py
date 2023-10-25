@@ -85,35 +85,33 @@ class GetInterval:
                     "longtime_arrivee", self.data, [flight_list[i]]
                 )
                 interval.append(interval_instance)
-            else:
-                interval_time = (
-                    self.data["ATOT"][flight_list[i + 1]]
-                    - self.data["ALDT"][flight_list[i]]
+                break
+            interval_time = (
+                self.data["ATOT"][flight_list[i + 1]]
+                - self.data["ALDT"][flight_list[i]]
+            )
+            if interval_time <= HOUR:
+                interval_instance = IntervalType(
+                    "shorttime", self.data, [flight_list[i], flight_list[i + 1]]
                 )
-                if interval_time <= HOUR:
-                    interval_instance = IntervalType(
-                        "shorttime", self.data, [flight_list[i], flight_list[i + 1]]
-                    )
-                    if interval_time >= HOUR * (5 + 5 + 15 + 15) / 60:
-                        pass
-                    else:
-                        interval_instance.interval = 30 * MINUTE
-                        interval_instance.end_interval = (
-                            interval_instance.begin_interval
-                            + interval_instance.interval
-                        )
-                    interval.append(interval_instance)
+                if interval_time >= HOUR * (5 + 5 + 15 + 15) / 60:
+                    pass
                 else:
-                    interval_instance = IntervalType(
-                        "longtime_arrivee", self.data, [flight_list[i]]
+                    interval_instance.interval = 30 * MINUTE
+                    interval_instance.end_interval = (
+                        interval_instance.begin_interval + interval_instance.interval
                     )
-                    interval.append(interval_instance)
-                    interval_instance = IntervalType(
-                        "longtime_departure", self.data, [flight_list[i + 1]]
-                    )
-                    interval.append(interval_instance)
+                interval.append(interval_instance)
+            else:
+                interval_instance = IntervalType(
+                    "longtime_arrivee", self.data, [flight_list[i]]
+                )
+                interval.append(interval_instance)
+                interval_instance = IntervalType(
+                    "longtime_departure", self.data, [flight_list[i + 1]]
+                )
+                interval.append(interval_instance)
             i = i + 2
-
         return interval
 
     def flight_list_sorted(self, registration: str) -> list:
@@ -146,7 +144,7 @@ class GetInterval:
         sample = ""
         for i in self.data["registration"]:
             if i == sample:
-                break
+                continue
             else:
                 sample = i
                 interval.extend(self._get_interval_one(i))
