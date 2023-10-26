@@ -156,11 +156,15 @@ class IncreaseFlight:
         self.interval = interval
         ...
 
-    def get_gate_size(self) -> List[int]:
+    @staticmethod
+    def get_gate_size() -> dict:
         """
-        获取每个停机坪的大小
+        从“E:/pycharm/GAP/data/wingsizelimit.xls”获取每个停机坪的大小
         """
-        ...
+        data = pd.read_excel("./data/wingsizelimit.xls", sheet_name=None)
+        sheet_data = data["sheet1"]
+        wingsize = sheet_data.to_dict(orient="list")
+        return wingsize
 
     def find_suitable_gate(self, index) -> IntervalType:
         """
