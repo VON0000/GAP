@@ -137,7 +137,7 @@ class GetInterval:
         """
         使用data中的数据，计算每个航班的停靠间隔
         首先选出同属于一个飞机执飞的航班，然后计算这些航班之间的停靠间隔
-        保存形式为类的列表，每个类中包含一个航班的信息
+        保存形式为类的列表，每个类中包含一个停靠间隔的信息
         :return: interval
         """
         interval = []
@@ -152,17 +152,32 @@ class GetInterval:
 
 
 class IncreaseFlight:
-    def __init__(self):
+    def __init__(self, interval: list):
+        self.interval = interval
+        ...
+
+    def get_gate_size(self) -> List[int]:
+        """
+        获取每个停机坪的大小
+        """
+        ...
+
+    def find_suitable_gate(self, index) -> IntervalType:
+        """
+        找到一个能停靠的停机坪
+        """
         ...
 
     def increase_flight(self) -> list:
         """
         通过循环尝试将停靠间隔塞进去
+        :return: interval list 能增加的停靠间隔
         """
         ...
 
-    def output(self):
-        """
-        将结果输出到csv文件中
-        """
-        ...
+
+def output():
+    """
+    将结果输出到csv文件中
+    """
+    ...
