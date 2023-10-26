@@ -1,4 +1,4 @@
-from FlightIncrease.GetInterval import GetInterval
+from FlightIncrease.GetInterval import GetInterval, IncreaseFlight
 
 HOUR = 60 * 60
 
@@ -44,3 +44,11 @@ def test_get_interval():
         assert i.begin_interval < i.end_interval
         assert i.interval >= 900
 
+
+def test_get_gate_size():
+    interval_inst = GetInterval(filename="./data/test.csv")
+    increase_inst = IncreaseFlight(interval_inst.interval)
+    gate_size = increase_inst.get_gate_size()
+    for g in gate_size["size_limit"]:
+        assert g >= 24.9
+        assert g <= 80
