@@ -1,51 +1,10 @@
-from typing import List
-
 import numpy as np
 import pandas as pd
 
+from FlightIncrease.IntervalType import IntervalType
+
 HOUR = 60 * 60
 MINUTE = 60
-
-
-class IntervalType:
-    def __init__(self, interval_type: str, data: dict, index_list: List[int]):
-        interval_info = None
-        if interval_type == "longtime_arrivee":
-            interval_info = self.longtime_arrivee(data, index_list)
-        if interval_type == "longtime_departure":
-            interval_info = self.longtime_departure(data, index_list)
-        if interval_type == "shorttime":
-            interval_info = self.shorttime(data, index_list)
-
-        self.interval = interval_info[0]
-        self.begin_interval = interval_info[1]
-        self.end_interval = interval_info[2]
-        self.airline = data["Airline"][index_list[0]]
-        self.registration = data["registration"][index_list[0]]
-        self.begin_callsign = data["callsign"][index_list[0]]
-        self.end_callsign = data["callsign"][index_list[-1]]
-        self.wingspan = data["Wingspan"][index_list[0]]
-
-    @staticmethod
-    def longtime_arrivee(data: dict, index_list: list):
-        begin_interval = data["ALDT"][index_list[0]] + 5 * MINUTE
-        end_interval = data["ALDT"][index_list[0]] + 20 * MINUTE
-        interval = end_interval - begin_interval
-        return interval, begin_interval, end_interval
-
-    @staticmethod
-    def longtime_departure(data: dict, index_list: list):
-        begin_interval = data["ATOT"][index_list[0]] - 20 * MINUTE
-        end_interval = data["ATOT"][index_list[0]] - 5 * MINUTE
-        interval = end_interval - begin_interval
-        return interval, begin_interval, end_interval
-
-    @staticmethod
-    def shorttime(data: dict, index_list: list):
-        begin_interval = data["ALDT"][index_list[0]] + 5 * MINUTE
-        end_interval = data["ATOT"][index_list[1]] - 5 * MINUTE
-        interval = end_interval - begin_interval
-        return interval, begin_interval, end_interval
 
 
 class GetInterval:
@@ -151,10 +110,9 @@ class GetInterval:
         return interval
 
 
-class IncreaseFlight:
-    def __init__(self, interval: list):
-        self.interval = interval
-        ...
+class GetWingSpan:
+    def __init__(self):
+        self.gatesize = self.get_gate_size()
 
     @staticmethod
     def get_gate_size() -> dict:
@@ -163,21 +121,48 @@ class IncreaseFlight:
         """
         data = pd.read_excel("./data/wingsizelimit.xls", sheet_name=None)
         sheet_data = data["sheet1"]
-        wingsize = sheet_data.to_dict(orient="list")
-        return wingsize
+        gatesize = sheet_data.to_dict(orient="list")
+        return gatesize
 
-    def find_suitable_gate(self, index) -> IntervalType:
+
+class IncreaseFlight:
+    def __init__(self, interval: list):
+        self.interval = interval
+        ...
+
+    def find_size(self, inst: IntervalType) -> list:
         """
-        找到一个能停靠的停机坪
+        根据当前interval实例的wingspan，找到合适的停机坪
         """
         ...
 
-    def increase_flight(self) -> list:
+    def find_conflict(self, gate: str) -> bool:
+        """
+        检查当前停机坪是否有与添加interval冲突的interval
+        """
+        ...
+
+    def find_suitable_gate(self, inst: IntervalType, gatesize: dict) -> IntervalType:
+        """
+        找到一个能停靠的停机坪
+        """
+        for i in range(len(gatesize["size_limit"])):
+            if inst.wingspan <= gatesize["size_limit"][i]:
+                if not self.find_conflict(gatesize["gate"][i]):
+                    inst.gate = gatesize["gate"][i]
+                    return inst
+        ...
+
+    def increase_flight(self, gatesize: dict) -> list:
         """
         通过循环尝试将停靠间隔塞进去
         :return: interval list 能增加的停靠间隔
         """
-        ...
+        increase_list = []
+        for inst in self.interval:
+            self.find_suitable_gate(inst, gatesize)
+
+        return increase_list
 
 
 def output():
