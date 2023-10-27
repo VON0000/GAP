@@ -1,4 +1,5 @@
-from FlightIncrease.GetInterval import GetInterval, IncreaseFlight, GetWingSpan
+from FlightIncrease.GetInterval import GetInterval
+from FlightIncrease.GetWingSpan import GetWingSpan
 
 HOUR = 60 * 60
 
