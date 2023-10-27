@@ -43,3 +43,4 @@ class IntervalType:
         self.begin_callsign = data["callsign"][index_list[0]]
         self.end_callsign = data["callsign"][index_list[-1]]
         self.wingspan = data["Wingspan"][index_list[0]]
+        self.gate = data["Parking"][index_list[0]]
