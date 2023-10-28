@@ -4,7 +4,7 @@ from typing import Union
 
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
-from FlightIncrease.IntervalType import IntervalType
+from FlightIncrease.IntervalType import IntervalBase
 
 
 def _is_overlapping(time1, time2) -> bool:
@@ -21,7 +21,7 @@ def _is_overlapping(time1, time2) -> bool:
 
 
 def _conflict_half(
-    aug_inst: IntervalType, inst: IntervalType, gate: str, flag: bool
+    aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
 ) -> bool:
     """
     False 为没有冲突
@@ -36,7 +36,7 @@ def _conflict_half(
 
 
 def _conflict_all(
-    aug_inst: IntervalType, inst: IntervalType, gate: str, flag: bool
+    aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
 ) -> bool:
     """
     False 为没有冲突
@@ -58,7 +58,7 @@ class IncreaseFlight:
         self.gatesize = inst_wingspan.gatesize
         self.increase_list = self.increase_flight()
 
-    def find_conflict(self, aug_inst: IntervalType, gate: str) -> bool:
+    def find_conflict(self, aug_inst: IntervalBase, gate: str) -> bool:
         """
         检查当前停机坪是否有与添加interval冲突的interval
         False 为没有冲突
@@ -77,7 +77,7 @@ class IncreaseFlight:
             counter = counter + 1
         return flag
 
-    def find_suitable_gate(self, inst: IntervalType) -> Union[IntervalType, None]:
+    def find_suitable_gate(self, inst: IntervalBase) -> Union[IntervalBase, None]:
         """
         找到一个能停靠的停机坪
         """
