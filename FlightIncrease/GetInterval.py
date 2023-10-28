@@ -7,21 +7,21 @@ HOUR = 60 * 60
 MINUTE = 60
 
 
+def get_data(filename) -> dict:
+    data = pd.read_csv(filename)
+    data = data.to_dict(orient="list")
+    for i in range(len(data["data"])):
+        if data["arrivee"][i] == "ZBTJ":
+            data["callsign"][i] = data["callsign"][i] + " ar"
+        else:
+            data["callsign"][i] = data["callsign"][i] + " de"
+    return data
+
+
 class GetInterval:
     def __init__(self, filename: str):
-        self.data = self.get_data(filename)
+        self.data = get_data(filename)
         self.interval = self.get_interval()
-
-    @staticmethod
-    def get_data(filename) -> dict:
-        data = pd.read_csv(filename)
-        data = data.to_dict(orient="list")
-        for i in range(len(data["data"])):
-            if data["arrivee"][i] == "ZBTJ":
-                data["callsign"][i] = data["callsign"][i] + " ar"
-            else:
-                data["callsign"][i] = data["callsign"][i] + " de"
-        return data
 
     def _get_interval_one(self, registration: str) -> list:
         """
