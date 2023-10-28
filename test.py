@@ -1,6 +1,6 @@
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
-from FlightIncrease.IncreaseFlight import _is_overlapping, _conflict_half
+from FlightIncrease.IncreaseFlight import _is_overlapping, _conflict_half, _conflict_all
 from FlightIncrease.IntervalType import IntervalBase
 
 HOUR = 60 * 60
@@ -88,16 +88,32 @@ def test_conflict_half():
     assert _conflict_half(inst_2, inst_5, "414L", False) == False
 
 
-def test_find_conflict():
-    ...
+def test_conflict_all():
+    inst_1 = IntervalBase(
+        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414"]
+    )
+    inst_2 = IntervalBase(
+        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R"]
+    )
+    inst_3 = IntervalBase(
+        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L"]
+    )
+    inst_4 = IntervalBase(
+        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414"]
+    )
+    inst_5 = IntervalBase(
+        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415"]
+    )
 
+    # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
+    assert _conflict_all(inst_1, inst_2, "414", False) == True
+    assert _conflict_all(inst_1, inst_3, "414", False) == True
 
-def test_find_suitable_gate():
-    ...
+    # Test Case 2: Non-overlapping intervals with dependent gate (414L 414L)
+    assert _conflict_all(inst_1, inst_4, "414", False) == False
 
-
-def test_increase_flight():
-    ...
+    # Test Case 4: Overlapping intervals but different gate
+    assert _conflict_all(inst_1, inst_5, "414", False) == False
 
 
 def test_is_overlapping():
