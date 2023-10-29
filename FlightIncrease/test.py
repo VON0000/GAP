@@ -1,8 +1,14 @@
 import numpy as np
 
+from FlightIncrease import OutPut
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
-from FlightIncrease.IncreaseFlight import _is_overlapping, _conflict_half, _conflict_all
+from FlightIncrease.IncreaseFlight import (
+    _is_overlapping,
+    _conflict_half,
+    _conflict_all,
+    IncreaseFlight,
+)
 from FlightIncrease.IntervalType import IntervalBase
 
 HOUR = 60 * 60
@@ -152,3 +158,8 @@ def test_is_overlapping():
 
     # 一个时间段包含另一个时间段
     assert _is_overlapping((1, 10), (3, 7)) == True
+
+
+def test_all():
+    increase_list = IncreaseFlight(filename="../data/mock.csv").increase_list
+    OutPut(increase_list, filename="../data/mock.csv")
