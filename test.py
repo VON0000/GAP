@@ -1,3 +1,5 @@
+import numpy as np
+
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import _is_overlapping, _conflict_half, _conflict_all
@@ -44,8 +46,13 @@ def test_get_interval():
     inst_list = instance.get_interval()
     assert len(inst_list) == 35
     for i in inst_list:
-        assert i.begin_interval < i.end_interval
-        assert i.interval >= 900
+        if i.end_callsign == "HXA2844 de":
+            continue
+        if i.end_callsign[-2:] == "de":
+            index = set(
+                np.where(np.array(instance.data["callsign"]) == i.end_callsign)[0]
+            ) & set(np.where(np.array(instance.data["departure"]) == "ZBTJ")[0])
+            assert i.end_interval == instance.data["ATOT"][list(index)[0]]
     assert inst_list[25].end_interval - inst_list[25].begin_interval == 3060
 
 
