@@ -66,10 +66,10 @@ class IncreaseFlight:
         """
         flag = False
         counter = 0
-        while not flag:
+        while not flag and counter < len(self.interval):
             inst = self.interval[counter]
             # 414
-            if not (re.search("L", gate) or re.search("R", gate)):
+            if not (("L" in gate) or ("R" in gate)):
                 flag = _conflict_all(aug_inst, inst, gate, flag)
             # 414L 414R
             else:
