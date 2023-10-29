@@ -15,7 +15,7 @@ HOUR = 60 * 60
 
 
 def test_get_data():
-    instance = GetInterval(filename="../data/mock.csv")
+    instance = GetInterval(filename="../data/mock_231029.csv")
     for i in range(len(instance.data["callsign"])):
         if instance.data["callsign"][i][-2:] == "ar":
             assert instance.data["arrivee"][i] == "ZBTJ"
@@ -24,7 +24,7 @@ def test_get_data():
 
 
 def test_get_interval_one():
-    instance = GetInterval(filename="../data/mock.csv")
+    instance = GetInterval(filename="../data/mock_231029.csv")
     for r in instance.data["registration"]:
         inst_list = instance._get_interval_one(r)
         for i in inst_list:
@@ -32,7 +32,7 @@ def test_get_interval_one():
 
 
 def test_flight_list_sorted():
-    instance = GetInterval(filename="../data/mock.csv")
+    instance = GetInterval(filename="../data/mock_231029.csv")
     flight_list = instance.flight_list_sorted("B9987")
     for i in range(len(flight_list) - 1):
         if instance.data["departure"][flight_list[i]] == "ZBTJ":
@@ -48,7 +48,7 @@ def test_flight_list_sorted():
 
 
 def test_get_interval():
-    instance = GetInterval(filename="../data/mock.csv")
+    instance = GetInterval(filename="../data/mock_231029.csv")
     inst_list = instance.get_interval()
     assert len(inst_list) == 35
     for i in inst_list:
@@ -161,5 +161,5 @@ def test_is_overlapping():
 
 
 def test_all():
-    increase_list = IncreaseFlight(filename="../data/mock.csv").increase_list
-    OutPut(increase_list, filename="../data/mock.csv")
+    increase_list = IncreaseFlight(filename="../data/mock_231029.csv").increase_list
+    OutPut(increase_list, filename="../data/mock_231029.csv")

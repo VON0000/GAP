@@ -33,9 +33,9 @@ def data_init() -> dict:
     return data
 
 
-def _build_element(c: IntervalBase, data: dict, callsign_list: List[str]) -> dict:
+def _build_element(c: IntervalBase, data: dict, callsign_list: List[str], filename: str) -> dict:
     for cl in callsign_list:
-        data["data"].append("None")
+        data["data"].append("".join(find_numbers(filename)))
         data["callsign"].append("NEW" + cl[:-2].rstrip())
 
         if cl[-2:] == "de":
@@ -57,17 +57,17 @@ def _build_element(c: IntervalBase, data: dict, callsign_list: List[str]) -> dic
         data["Airline"].append("None")
         data["QFU"].append("None")
         data["Parking"].append(c.gate)
-        data["registration"].append("None")
+        data["registration"].append("NEW" + c.registration)
     return data
 
 
-def _build_data(increase_list: List[IntervalBase]) -> dict:
+def _build_data(increase_list: List[IntervalBase], filename: str) -> dict:
     data_dict = data_init()
     for c in increase_list:
         if c.begin_callsign != c.end_callsign:
-            data_dict = _build_element(c, data_dict, [c.begin_callsign, c.end_callsign])
+            data_dict = _build_element(c, data_dict, [c.begin_callsign, c.end_callsign], filename)
         else:
-            data_dict = _build_element(c, data_dict, [c.begin_callsign])
+            data_dict = _build_element(c, data_dict, [c.begin_callsign], filename)
     return data_dict
 
 
@@ -86,6 +86,6 @@ class OutPut:
         out_name = ["../results/IncreaseFlight/"] + name
         output_file_path = "".join(out_name)
 
-        data = _build_data(increase_list)
+        data = _build_data(increase_list, filename)
         data = pd.DataFrame(data)
         data.to_csv(output_file_path, index=False)
