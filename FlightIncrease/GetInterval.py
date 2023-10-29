@@ -107,4 +107,7 @@ class GetInterval:
             else:
                 sample = i
                 interval.extend(self._get_interval_one(i))
+        for u in interval:
+            if u.end_callsign[-2:] == "de":
+                u.end_interval = u.end_interval + 5 * MINUTE
         return interval

@@ -46,6 +46,7 @@ def test_get_interval():
     for i in inst_list:
         assert i.begin_interval < i.end_interval
         assert i.interval >= 900
+    assert inst_list[25].end_interval - inst_list[25].begin_interval == 3060
 
 
 def test_get_gate_size():
