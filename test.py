@@ -48,11 +48,18 @@ def test_get_interval():
     for i in inst_list:
         if i.end_callsign == "HXA2844 de":
             continue
+        # test: Verify when turning data time to interval time, the end_interval is equal to ATOT
         if i.end_callsign[-2:] == "de":
             index = set(
                 np.where(np.array(instance.data["callsign"]) == i.end_callsign)[0]
             ) & set(np.where(np.array(instance.data["departure"]) == "ZBTJ")[0])
             assert i.end_interval == instance.data["ATOT"][list(index)[0]]
+        # test: Verify when turning data time to interval time, the begin_interval is equal to ALDT + 5 * 60
+        if i.begin_callsign[-2:] == "ar":
+            index = set(
+                np.where(np.array(instance.data["callsign"]) == i.begin_callsign)[0]
+            ) & set(np.where(np.array(instance.data["arrivee"]) == "ZBTJ")[0])
+            assert i.begin_interval == instance.data["ALDT"][list(index)[0]] + 5 * 60
     assert inst_list[25].end_interval - inst_list[25].begin_interval == 3060
 
 
