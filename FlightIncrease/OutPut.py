@@ -1,4 +1,5 @@
 import random
+import re
 from typing import List
 
 import pandas as pd
@@ -70,13 +71,19 @@ def _build_data(increase_list: List[IntervalBase]) -> dict:
     return data_dict
 
 
+def find_numbers(text: str) -> List[str]:
+    numbers = re.findall(r"\d+", text)
+    return numbers
+
+
 class OutPut:
     def __init__(self, increase_list: List[IntervalBase], filename: str):
         self.to_csv(increase_list, filename)
 
     @staticmethod
     def to_csv(increase_list: List[IntervalBase], filename: str):
-        out_name = ["../results/IncreaseFlight/", filename]
+        name = find_numbers(filename) + [".csv"]
+        out_name = ["../results/IncreaseFlight/"] + name
         output_file_path = "".join(out_name)
 
         data = _build_data(increase_list)
