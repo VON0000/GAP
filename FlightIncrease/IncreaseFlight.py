@@ -1,3 +1,4 @@
+import copy
 import random
 import re
 from typing import Union
@@ -97,9 +98,11 @@ class IncreaseFlight:
         通过循环尝试将停靠间隔塞进去
         :return: interval list 能增加的停靠间隔
         """
+        original_interval = copy.deepcopy(self.interval)
         increase_list = []
-        for inst in self.interval:
+        for inst in original_interval:
             new_inst = self.find_suitable_gate(inst)
             if new_inst is not None:
                 increase_list.append(new_inst)
+                self.interval.append(new_inst)
         return increase_list
