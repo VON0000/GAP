@@ -15,7 +15,7 @@ class IntervalBase(metaclass=abc.ABCMeta):
         self.begin_callsign = info_list[5]
         self.end_callsign = info_list[6]
         self.wingspan = info_list[7]
-        self.gate = info_list[8]
+        self.gate = str(info_list[8])
 
 
 def _longtime_arrivee(data: dict, index_list: list):
