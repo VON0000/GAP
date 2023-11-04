@@ -5,8 +5,7 @@ from FlightIncrease.IncreaseFlight import IncreaseFlight
 from FlightIncrease.OutPut import OutPut
 
 if __name__ == "__main__":
-    folder_path = "../data/results/gate_5_taxi_15"
-    # folder_path = './data/error-in-data/buffer'
+    folder_path = "../results/gate_5_taxi_15"
 
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)

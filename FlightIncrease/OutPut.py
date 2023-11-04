@@ -33,7 +33,9 @@ def data_init() -> dict:
     return data
 
 
-def _build_element(c: IntervalBase, data: dict, callsign_list: List[str], filename: str) -> dict:
+def _build_element(
+    c: IntervalBase, data: dict, callsign_list: List[str], filename: str
+) -> dict:
     for cl in callsign_list:
         data["data"].append("".join(find_numbers(filename)))
         data["callsign"].append("NEW" + cl[:-2].rstrip())
@@ -65,7 +67,9 @@ def _build_data(increase_list: List[IntervalBase], filename: str) -> dict:
     data_dict = data_init()
     for c in increase_list:
         if c.begin_callsign != c.end_callsign:
-            data_dict = _build_element(c, data_dict, [c.begin_callsign, c.end_callsign], filename)
+            data_dict = _build_element(
+                c, data_dict, [c.begin_callsign, c.end_callsign], filename
+            )
         else:
             data_dict = _build_element(c, data_dict, [c.begin_callsign], filename)
     return data_dict
@@ -82,7 +86,7 @@ class OutPut:
 
     @staticmethod
     def to_csv(increase_list: List[IntervalBase], filename: str):
-        name = find_numbers(filename) + [".csv"]
+        name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
         out_name = ["../results/IncreaseFlight/"] + name
         output_file_path = "".join(out_name)
 
