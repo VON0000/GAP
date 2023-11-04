@@ -7,8 +7,36 @@ def get_airline_info(name: str) -> dict:
     df = data["Feuil1"].astype(str)
     airline_info = {row[0]: list(row[1:]) for _, row in df.iterrows()}
     for i in airline_info:
-        airline_info[i] = [x.split('.')[0] if x.endswith('.0') else x for x in airline_info[i] if x != 'nan']
+        airline_info[i] = [
+            x.split(".")[0] if x.endswith(".0") else x
+            for x in airline_info[i]
+            if x != "nan"
+        ]
     return airline_info
+
+
+def get_group_dict() -> dict:
+    group_dict = {}
+    group_dict["cargo"] = list(
+        set(
+            value for sublist in get_airline_info("cargo").values() for value in sublist
+        )
+    )
+    group_dict["domestic"] = list(
+        set(
+            value
+            for sublist in get_airline_info("domestic").values()
+            for value in sublist
+        )
+    )
+    group_dict["international"] = list(
+        set(
+            value
+            for sublist in get_airline_info("international").values()
+            for value in sublist
+        )
+    )
+    return group_dict
 
 
 class AirlineType:
