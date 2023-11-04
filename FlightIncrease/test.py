@@ -1,6 +1,7 @@
 import numpy as np
 
 from FlightIncrease import OutPut
+from FlightIncrease.AirlineType import get_airline_info
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import (
@@ -158,6 +159,11 @@ def test_is_overlapping():
 
     # 一个时间段包含另一个时间段
     assert _is_overlapping((1, 10), (3, 7)) == True
+
+
+def test_get_airline_info():
+    airline_info = get_airline_info("cargo")
+    print(airline_info)
 
 
 def test_all():
