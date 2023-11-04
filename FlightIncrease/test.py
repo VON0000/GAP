@@ -1,7 +1,7 @@
 import numpy as np
 
 from FlightIncrease import OutPut
-from FlightIncrease.AirlineType import get_airline_info
+from FlightIncrease.AirlineType import get_airline_info, AirlineType
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import (
@@ -163,9 +163,113 @@ def test_is_overlapping():
 
 def test_get_airline_info():
     airline_info = get_airline_info("cargo")
-    print(airline_info)
+    assert list(airline_info.keys()) == [
+        "AirBridgeCargoAirlines",
+        "AVIC",
+        "AisaMedical",
+        "ChinaCargoAirlines",
+        "ChinaPost",
+        "DeerJet",
+        "GOMEHoldings",
+        "LonghaoAirlines",
+        "MinshengFinancialLeasing",
+        "MLLIN",
+        "private",
+        "SHUNFENG",
+        "Taixiang",
+        "TianjinAirCargo",
+        "VistaJet",
+        "YalianBusinessJet",
+        "YangtzeRiverExpress",
+    ]
+
+
+def test_get_type():
+    airline = AirlineType("AirChina")
+    assert airline.type == "domestic"
+
+    airline = AirlineType("YangtzeRiverExpress")
+    assert airline.type == "cargo"
+
+    airline = AirlineType("AirAsiaX")
+    assert airline.type == "international"
+
+
+def test_get_available_gate():
+    airline = AirlineType("AirChina")
+    assert airline.available_gate == [
+        "107",
+        "108",
+        "109",
+        "117",
+        "118",
+        "201",
+        "202",
+        "203",
+    ]
+
+    airline = AirlineType("YangtzeRiverExpress")
+    assert airline.available_gate == [
+        "874",
+        "875",
+        "876",
+        "877",
+        "878",
+        "879",
+        "884",
+        "885",
+        "886",
+        "887",
+        "888",
+        "889",
+        "890",
+        "891",
+        "892",
+        "893",
+        "894",
+        "895",
+        "896",
+        "897",
+        "898",
+        "899",
+        "901",
+        "902",
+        "903",
+        "904",
+        "905",
+        "906",
+        "907",
+        "908",
+        "909",
+        "910",
+        "911",
+        "912",
+        "913",
+        "914",
+        "915",
+        "916",
+        "921",
+        "922",
+        "923",
+        "924",
+        "925",
+        "886L",
+        "886R",
+        "887L",
+        "887R",
+        "898L",
+        "898R",
+        "899L",
+        "899R",
+        "910R",
+        "911R",
+        "912R",
+    ]
+
+    airline = AirlineType("AirAsiaX")
+    assert airline.available_gate == ["101", "102", "103", "104", "105", "106"]
 
 
 def test_all():
-    increase_list = IncreaseFlight(filename="../data/mock_231029.csv").increase_list
-    OutPut(increase_list, filename="../data/mock_231029.csv")
+    increase_list = IncreaseFlight(filename="../data\\mock_231029.csv").increase_list
+    OutPut(increase_list, filename="../data\\mock_231029.csv")
