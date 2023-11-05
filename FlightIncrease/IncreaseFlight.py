@@ -3,6 +3,7 @@ import random
 import re
 from typing import Union
 
+from FlightIncrease.AirlineType import AirlineType, get_group_dict
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IntervalType import IntervalBase
@@ -87,6 +88,9 @@ class IncreaseFlight:
             if inst.wingspan <= self.gatesize["size_limit"][i]:
                 if not self.find_conflict(inst, self.gatesize["gate"][i]):
                     available_gate.append(self.gatesize["gate"][i])
+        airline_type = AirlineType(inst.airline).type
+        group_dict = get_group_dict()
+        available_gate = list(set(available_gate) & set(group_dict[airline_type]))
         if len(available_gate) == 0:
             return None
         else:
