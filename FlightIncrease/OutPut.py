@@ -4,6 +4,7 @@ from typing import List
 
 import pandas as pd
 
+from FlightIncrease.AirlineType import AirlineType
 from FlightIncrease.IntervalType import IntervalBase
 
 
@@ -56,7 +57,7 @@ def _build_element(
 
         data["Type"].append("None")
         data["Wingspan"].append(c.wingspan)
-        data["Airline"].append("None")
+        data["Airline"].append(AirlineType(c.airline).type)
         data["QFU"].append("None")
         data["Parking"].append(c.gate)
         data["registration"].append("NEW" + c.registration)

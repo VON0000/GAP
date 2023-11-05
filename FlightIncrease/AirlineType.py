@@ -66,6 +66,7 @@ class AirlineType:
         elif self.airline in international.keys():
             return "international"
         else:
+            print(self.airline)
             raise ValueError("AirlineType.get_type: airline not found")
 
     def get_available_gate(self) -> list:
