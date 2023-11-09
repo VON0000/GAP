@@ -84,13 +84,12 @@ class IncreaseFlight:
         找到一个能停靠的停机坪
         """
         available_gate = []
-        for i in range(len(self.gatesize["size_limit"])):
-            if inst.wingspan <= self.gatesize["size_limit"][i]:
-                if not self.find_conflict(inst, self.gatesize["gate"][i]):
-                    available_gate.append(self.gatesize["gate"][i])
-        airline_type = AirlineType(inst.airline).type
-        group_dict = get_group_dict()
-        available_gate = list(set(available_gate) & set(group_dict[airline_type]))
+        gate = AirlineType(inst.airline).available_gate
+        for g in gate:
+            idx = self.gatesize["gate"].index(g)
+            if inst.wingspan <= self.gatesize["size_limit"][idx]:
+                if not self.find_conflict(inst, self.gatesize["gate"][idx]):
+                    available_gate.append(g)
         if len(available_gate) == 0:
             return None
         else:
