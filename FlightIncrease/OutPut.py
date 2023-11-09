@@ -88,7 +88,7 @@ class OutPut:
     @staticmethod
     def to_csv(increase_list: List[IntervalBase], filename: str):
         name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
-        out_name = ["../results/IncreaseFlight_type/"] + name
+        out_name = ["../results/IncreaseFlight_airline/"] + name
         output_file_path = "".join(out_name)
 
         data = _build_data(increase_list, filename)
