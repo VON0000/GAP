@@ -9,10 +9,10 @@ import GenernateSolution
 import reallocation
 
 
-part = 5
+part = 3
 delta = 5
 seuil = 28
-regulation = 1
+regulation = 4 
 quarter = 0
 
 if __name__ == '__main__':
@@ -25,7 +25,7 @@ if __name__ == '__main__':
             filename = os.path.join(folder_path, filename)
             # filename = "./data/error-in-data/gaptraffic-2017-08-03-new.csv"
             results = GenernateSolution.generante_solution(filename, regulation, seuil, quarter, part, delta)
-            # genernate_solution = results[0]
-            # pattern = results[1]
-            # re_solution = reallocation.reallocation(filename, seuil, part, delta, genernate_solution, regulation,
-            #                                         pattern)
+            genernate_solution = results[0]
+            pattern = results[1]
+            re_solution = reallocation.reallocation(filename, seuil, part, delta, genernate_solution, regulation,
+                                                    pattern)
