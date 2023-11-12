@@ -1,40 +1,129 @@
 # Gate Allocation Problem (GAP)
 
-### interval
-数据中给出的是当天的航班数据。同一架飞机执飞的前后航班之间的停留时间为停靠在停机位的时间间隔。 
-因此我们需要将航班数据转化为停机坪的停靠间隔。
+### Interval
 
-为了最大化近机位的使用，我们将长时间停靠（停靠时间大于一小时）的飞机占用间隔切分。上一班航班
-降落后，预留20分钟的停靠间隔供航后服务，随后将飞机拖拽到远机位，在下一班航班起飞前，再预留20
-分钟停靠间隔供航前服务。这两个20分钟为需要计算的停靠间隔。
+The data provided includes daily flight information. The time interval between the landing of a prior flight and the
+departure of the subsequent flight operated by the same aircraft is considered as the gate occupancy interval. Thus, we
+need to transform the flight data into intervals for gate occupancy.
 
-对于某一架飞机来说
-- 如果一天当中执飞的第一班航班为从天津机场起飞，**起飞时间前30分钟到起飞前10分钟**为进入计算的interval
-- 如果一天当中执飞的最后一班航班为到天津机场降落，**降落时间后10分钟到降落后30分钟**为进入计算的interval
-- 对于前序航班为天津机场降落，后序航班为天津机场起飞的情况
-  - 如果停靠间隔**大于**1小时，**前序航班降落时间后10分钟到30分钟**和**后序航班起飞时间前30分钟到10分钟**为进入计算的interval
-  - 如果停靠间隔**小于1**小时，**前序航班降落时间后10分钟到后序航班起飞时间前10分钟**为进入计算的interval
+To maximize the utilization of gates closer to the terminal, we segment the gate occupancy intervals for long-staying
+aircraft (those with gate occupancy times greater than one hour). After the previous flight lands, a 20-minute interval
+is reserved for post-flight services, following which the aircraft is towed to a remote gate. A 20-minute interval for
+pre-flight services is again reserved before the next flight takes off. These two 20-minute segments constitute the gate
+occupancy intervals to be calculated.
 
-### optimization
-##### 变量
-interval
+*For a specific aircraft*:
 
-##### 限制条件
-- 满足不同停机位对航空公司和飞机翼展的限制（航空公司为软约束，即所有远机位所有航空公司都能使用，但是cost很大）
-- 每个interval有且仅有一个停机位
-- 每个停机位同时只能被一个interval占用
-- dependent gate (e.g. 414/414R/414L，如果414被占用，414R和414L不能被其他interval占用）
+- If the first flight of the day departs from Tianjin Airport, the interval for consideration is **30 minutes before
+  departure to 10 minutes before departure**.
+- If the last flight of the day lands at Tianjin Airport, the interval for consideration is **10 minutes after landing
+  to 30 minutes after landing**.
+- For situations where a previous flight lands at Tianjin Airport and a subsequent flight departs from the same airport:
+    - If the gate occupancy interval is **greater than** 1 hour, then the intervals **10 minutes after the prior
+      flight's landing to 30 minutes after**, and **30 minutes before the subsequent flight's departure to 10 minutes
+      before**, are the intervals to be calculated.
+    - If the gate occupancy interval is **less than 1 hour**, then **10 minutes after the prior flight's landing to 10
+      minutes before the subsequent flight's departure** is the interval to be calculated.
 
-##### 优化目标
-- 初次分配：尽量使用近机位 滑行时间尽可能小
-- 再分配：尽量减少停机坪更换 尽量使用近机位 滑行时间尽可能小
+### Optimization
 
-### iteration
-考虑到预计起降时间和实际起降时间的差异，初始计算时，所有时间带入预计起降时间；随后每**15分钟**更新 
-接下来**60分钟**内为实际起降时间，同时接下来**30分钟**内的interval分配的停机坪与上一次保存相同。
+#### Variables：
 
-### * local search
-减少无法分配的interval的数量
+Interval
+
+#### Constraints：
+
+- Accommodate various gate restrictions for different airlines and wingspans (soft constraint for airlines, meaning all
+  airlines can use remote gates but at a high cost).
+- Each interval must have exactly one gate allocated.
+- Each gate can only be occupied by one interval at a time.
+- Dependent gates (e.g., 414/414R/414L; if gate 414 is occupied, neither 414R nor 414L can be occupied by other
+  intervals).
+
+#### Objectives：
+
+- Initial Allocation: Prefer closer gates and minimize taxi time.
+- Re-allocation: Minimize changes to gate assignments while still preferring closer gates and minimizing taxi time.
+
+### Iteration
+
+Given the discrepancies between the estimated and actual take-off and landing times, initial calculations are based on
+estimated times. Subsequently, every **15 minutes**, the actual take-off and landing times for the upcoming **60 minutes
+** are updated. Additionally, the gate assignments for intervals in the next **30 minutes** remain the same as those
+last saved.
 
 
 
+---
+
+:grey_exclamation:*not be used in this branch*
+
+###    * :-1: ~~Local Search~~ *
+
+~~*Reduce the number of intervals that cannot be allocated.*~~
+
+
+
+---
+
+### update in 2023/9/15
+
+#### change the parking interval of each flight
+
+A regarder dans données : dt = min(ATOT - ALDT) pour le même avion ?
+
+- ~~Si dt <= 30 : on prend Taxi_T = 5, Gate_T = 10~~
+
+- Si 40 <= dt : on prend Taxi_T = 5, Gate_T = 15
+
+A l'instant t :
+LDT = TLDT si t + 1h < ALDT ; ALDT sinon
+TOT0 = TTOT si t + 1h < ATOT ; ATOT sinon
+
+:collision:il est possible que TOT0 < LDT => TOT = max(TOT0, LDT + 40m)
+
+Règles
+
+- Si même avion :
+    - Si TOT - LDT < 1h
+        - ARRDEP même parking sur LDT + 5 -> TOT - 5
+    - Sinon
+        - ARR : LDT + 5 -> LDT + 5 + Gate_T
+        - DEP : TOT - 5 - Gate_T -> TOT - 5
+
+---
+
+### update in 2023/9/24
+
+#### :question: question
+
+- :heavy_check_mark:extend those intervals which are less than 40 mins to 40 mins
+    - but when we meet the situation like TLDT - ATOT less than 40 mins and ALDT - ATOT more than 60 mins,
+      will it cause the problem that the fixed intervals will be changed ?
+
+    - :bulb:maybe not, the new interval was covered by the old interval which was longer. and the interval will not
+      be fixed before the TLDT change to ATOT.
+- ignore the departure set and focus on the arriving set
+    - but if there is actual time less than 30 mins, it will cause the problem that we miss the departure set forever.
+
+---
+
+### update in 2023/9/28
+
+#### fix the stupid bug related to pass-by-value and pass-by-reference.:upside_down_face:
+
+*~~Shameful!!!~~* :clown_face:
+
+- **getinterval.py function: actual_target**
+- This function used pass by reference for `data`. AND the `data` was changed.
+
+#### fix the bug in variable.py
+
+i used to delete all of the interval that has a flight who can not be detected (the actual time is later than one hour later, the target time is ealier than recent time)
+
+now i only delete interval when the undetectable one is at the begin side of the interval 
+
+when it is at the end side of the interval, i change the interval information.
+
+#### fix the bug in outputdata.py
+the code in function new_data.py used to rearch the right place in `data` was wrong
