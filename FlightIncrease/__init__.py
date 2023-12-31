@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # 文件拼接
     folder_path1 = "../results/gate_5_taxi_15/"
-    folder_path2 = "../results/IncreaseFlight_airline/"
-    output_path = "../results/ConcatenatedFiles_airline/"
+    folder_path2 = "../results/IncreaseFlight_airline_rate_" + str(rate) + "/"
+    output_path = "../results/ConcatenatedFiles_airline_rate_" + str(rate) + "/"
 
     concatenate_files_with_same_number(folder_path1, folder_path2, output_path)
