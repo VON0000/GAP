@@ -107,9 +107,33 @@ class IncreaseFlight:
         increase_list = []
         while len(increase_list) < n * self.rate:
             inst = random.choice(original_interval)
+            idx = original_interval.index(inst)
             original_interval.remove(inst)
             new_inst = self.find_suitable_gate(inst)
             if new_inst is not None:
-                increase_list.append(new_inst)
-                self.interval.append(new_inst)
+                if new_inst.end_callsign != new_inst.end_callsign:
+                    increase_list.append(new_inst)
+                    self.interval.append(new_inst)
+                else:
+                    new_inst_neighbor = self._get_neighbor_flight(idx, inst, original_interval)
+                    if new_inst_neighbor is not None:
+                        increase_list.append(new_inst)
+                        self.interval.append(new_inst)
+                        increase_list.append(new_inst_neighbor)
+                        self.interval.append(new_inst_neighbor)
         return increase_list
+
+    def _get_neighbor_flight(self, idx, inst, original_interval) -> Union[IntervalBase, None]:
+        # find the inst before(de) or after(ar) the inst
+        # if the inst and the inst_neighbor have the same registration, find another gate for the inst_neighbor
+        inst_type = inst.begin_callsign[-2:].rstrip
+        if inst_type == "ar":
+            inst_neighbor = original_interval[idx]
+        else:
+            inst_neighbor = original_interval[idx - 1]
+        if inst.registration == inst_neighbor.registration:
+            new_inst_neighbor = self.find_suitable_gate(inst)
+            if new_inst_neighbor is not None:
+                return new_inst_neighbor
+        return None
+
