@@ -1,3 +1,4 @@
+import os
 import random
 import re
 from typing import List
@@ -35,7 +36,7 @@ def data_init() -> dict:
 
 
 def _build_element(
-    c: IntervalBase, data: dict, callsign_list: List[str], filename: str
+        c: IntervalBase, data: dict, callsign_list: List[str], filename: str
 ) -> dict:
     for cl in callsign_list:
         data["data"].append("".join(find_numbers(filename)))
@@ -85,12 +86,24 @@ class OutPut:
     def __init__(self, increase_list: List[IntervalBase], filename: str, rate: float = 1):
         self.to_csv(increase_list, filename, rate)
 
-    @staticmethod
-    def to_csv(increase_list: List[IntervalBase], filename: str, rate: float):
+    def to_csv(self, increase_list: List[IntervalBase], filename: str, rate: float):
         name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
-        out_name = ["../results/IncreaseFlight_airline_rate_" + str(rate) + "/"] + name
+        out_path = "../results/IncreaseFlight_airline_rate_" + str(rate) + "/"
+        self.create_directory(out_path)
+        out_name = [out_path] + name
         output_file_path = "".join(out_name)
 
         data = _build_data(increase_list, filename)
         data = pd.DataFrame(data)
         data.to_csv(output_file_path, index=False)
+
+    @staticmethod
+    def create_directory(path):
+        try:
+            # 如果文件夹不存在，则创建它
+            if not os.path.exists(path):
+                os.makedirs(path)
+                print(f"Directory '{path}' was created.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
