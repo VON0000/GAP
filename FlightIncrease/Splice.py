@@ -45,9 +45,10 @@ def concatenate_files_with_same_number(folder1, folder2, output_folder):
                 )
 
 
-# 使用函数
-folder_path1 = "../results/gate_5_taxi_15/"
-folder_path2 = "../results/IncreaseFlight_airline/"
-output_path = "../results/ConcatenatedFiles_airline/"
+if __name__ == "__main__":
+    # 使用函数
+    folder_path1 = "../results/gate_5_taxi_15/"
+    folder_path2 = "../results/IncreaseFlight_airline/"
+    output_path = "../results/ConcatenatedFiles_airline/"
 
-concatenate_files_with_same_number(folder_path1, folder_path2, output_path)
+    concatenate_files_with_same_number(folder_path1, folder_path2, output_path)

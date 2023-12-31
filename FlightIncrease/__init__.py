@@ -3,6 +3,7 @@ import re
 
 from FlightIncrease.IncreaseFlight import IncreaseFlight
 from FlightIncrease.OutPut import OutPut
+from FlightIncrease.Splice import concatenate_files_with_same_number
 
 if __name__ == "__main__":
     folder_path = "../results/gate_5_taxi_15"
@@ -15,3 +16,9 @@ if __name__ == "__main__":
             increase_list = IncreaseFlight(filename).increase_list
             OutPut(increase_list, filename)
 
+    # 文件拼接
+    folder_path1 = "../results/gate_5_taxi_15/"
+    folder_path2 = "../results/IncreaseFlight_airline/"
+    output_path = "../results/ConcatenatedFiles_airline/"
+
+    concatenate_files_with_same_number(folder_path1, folder_path2, output_path)
