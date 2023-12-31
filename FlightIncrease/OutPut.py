@@ -44,22 +44,22 @@ def _build_element(
 
         if cl[-2:] == "de":
             data["departure"].append("ZBTJ")
-            data["arrivee"].append("None")
+            data["arrivee"].append("Default")
             data["ATOT"].append(c.end_interval)
             data["ALDT"].append(random.randint(c.end_interval, 100000))
         else:
-            data["departure"].append("None")
+            data["departure"].append("Default")
             data["arrivee"].append("ZBTJ")
             data["ATOT"].append(random.randint(0, c.begin_interval - 5 * 60))
             data["ALDT"].append(c.begin_interval - 5 * 60)
 
-        data["TTOT"].append("None")
-        data["TLDT"].append("None")
+        data["TTOT"].append("Default")
+        data["TLDT"].append("Default")
 
-        data["Type"].append("None")
+        data["Type"].append("Default")
         data["Wingspan"].append(c.wingspan)
-        data["Airline"].append(AirlineType(c.airline).type)
-        data["QFU"].append("None")
+        data["Airline"].append(c.airline)
+        data["QFU"].append("Default")
         data["Parking"].append(c.gate)
         data["registration"].append("NEW" + c.registration)
     return data
