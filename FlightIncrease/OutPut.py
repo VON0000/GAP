@@ -82,13 +82,13 @@ def find_numbers(text: str) -> List[str]:
 
 
 class OutPut:
-    def __init__(self, increase_list: List[IntervalBase], filename: str):
-        self.to_csv(increase_list, filename)
+    def __init__(self, increase_list: List[IntervalBase], filename: str, rate: float = 1):
+        self.to_csv(increase_list, filename, rate)
 
     @staticmethod
-    def to_csv(increase_list: List[IntervalBase], filename: str):
+    def to_csv(increase_list: List[IntervalBase], filename: str, rate: float):
         name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
-        out_name = ["../results/IncreaseFlight_airline/"] + name
+        out_name = ["../results/IncreaseFlight_airline_rate_" + str(rate) + "/"] + name
         output_file_path = "".join(out_name)
 
         data = _build_data(increase_list, filename)

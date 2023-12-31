@@ -23,7 +23,7 @@ def _is_overlapping(time1, time2) -> bool:
 
 
 def _conflict_half(
-    aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
+        aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
 ) -> bool:
     """
     False 为没有冲突
@@ -38,7 +38,7 @@ def _conflict_half(
 
 
 def _conflict_all(
-    aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
+        aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
 ) -> bool:
     """
     False 为没有冲突
@@ -53,9 +53,10 @@ def _conflict_all(
 
 
 class IncreaseFlight:
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, rate: float = 1):
         inst_interval = GetInterval(filename)
         inst_wingspan = GetWingSpan()
+        self.rate = rate
         self.interval = inst_interval.interval
         self.gatesize = inst_wingspan.gatesize
         self.increase_list = self.increase_flight()
@@ -103,7 +104,10 @@ class IncreaseFlight:
         """
         original_interval = copy.deepcopy(self.interval)
         increase_list = []
-        for inst in original_interval:
+
+        while len(increase_list) < len(original_interval) * self.rate:
+            inst = random.choice(original_interval)
+            original_interval.remove(inst)
             new_inst = self.find_suitable_gate(inst)
             if new_inst is not None:
                 increase_list.append(new_inst)
