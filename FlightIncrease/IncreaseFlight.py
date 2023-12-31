@@ -103,9 +103,9 @@ class IncreaseFlight:
         :return: interval list 能增加的停靠间隔
         """
         original_interval = copy.deepcopy(self.interval)
+        n = len(self.interval)  # the number of original flights
         increase_list = []
-
-        while len(increase_list) < len(original_interval) * self.rate:
+        while len(increase_list) < n * self.rate:
             inst = random.choice(original_interval)
             original_interval.remove(inst)
             new_inst = self.find_suitable_gate(inst)
