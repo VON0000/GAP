@@ -1,9 +1,9 @@
 import copy
 import random
 import re
-from typing import Union
+from typing import Union, Tuple
 
-from FlightIncrease.AirlineType import AirlineType, get_group_dict
+from FlightIncrease.AirlineType import AirlineType
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IntervalType import IntervalBase
@@ -111,29 +111,36 @@ class IncreaseFlight:
             original_interval.remove(inst)
             new_inst = self.find_suitable_gate(inst)
             if new_inst is not None:
-                if new_inst.end_callsign != new_inst.end_callsign:
-                    increase_list.append(new_inst)
-                    self.interval.append(new_inst)
-                else:
-                    new_inst_neighbor = self._get_neighbor_flight(idx, inst, original_interval)
-                    if new_inst_neighbor is not None:
-                        increase_list.append(new_inst)
-                        self.interval.append(new_inst)
-                        increase_list.append(new_inst_neighbor)
-                        self.interval.append(new_inst_neighbor)
+                increase_list.append(new_inst)
+                self.interval.append(new_inst)
+                ...  # TODO: add the neighbor flight
         return increase_list
 
-    def _get_neighbor_flight(self, idx, inst, original_interval) -> Union[IntervalBase, None]:
-        # find the inst before(de) or after(ar) the inst
+    def _get_neighbor_flight(self, inst: IntervalBase, idx: int, original_interval: list) -> Tuple[list, list]:
+        # find another inst before(de) or after(ar) the inst
         # if the inst and the inst_neighbor have the same registration, find another gate for the inst_neighbor
-        inst_type = inst.begin_callsign[-2:].rstrip
-        if inst_type == "ar":
-            inst_neighbor = original_interval[idx]
-        else:
-            inst_neighbor = original_interval[idx - 1]
-        if inst.registration == inst_neighbor.registration:
-            new_inst_neighbor = self.find_suitable_gate(inst)
-            if new_inst_neighbor is not None:
-                return new_inst_neighbor
-        return None
+        inst_type = inst.begin_callsign[-2:].rstrip()
 
+        # the first flight of instances is departure
+        if inst_type == "de" and idx == 0:
+            return ...
+
+        # the last flight of instances is arrival
+        if inst_type == "ar" and idx == len(original_interval):
+            return ...
+
+        inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
+
+        # the inst is at the beginning or the end of the group, it has no neighbor
+        if inst.registration != inst_neighbor.registration:
+            return ...
+
+        # the inst is in the middle of the group, it has a neighbor
+        new_inst_neighbor = self.find_suitable_gate(inst_neighbor)
+
+        # the inst_neighbor has no suitable gate
+        if new_inst_neighbor is None:
+            return ...
+
+        # the inst_neighbor has a suitable gate
+        return ...
