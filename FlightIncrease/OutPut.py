@@ -84,7 +84,8 @@ def find_numbers(text: str) -> List[str]:
 
 class OutPut:
     def __init__(self, increase_list: List[IntervalBase], filename: str, rate: float = 1):
-        self.to_csv(increase_list, filename, rate)
+        increase_list_sorted_by_registration = sorted(increase_list, key=lambda inst: inst.registration)
+        self.to_csv(increase_list_sorted_by_registration, filename, rate)
 
     def to_csv(self, increase_list: List[IntervalBase], filename: str, rate: float):
         name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
