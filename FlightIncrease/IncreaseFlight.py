@@ -138,6 +138,7 @@ class IncreaseFlight:
 
         # the inst is in the middle of the group, it has a neighbor
         new_inst_neighbor = self.find_suitable_gate(inst_neighbor)
+        original_interval.remove(inst_neighbor)
 
         # the inst_neighbor has no suitable gate
         if new_inst_neighbor is None:
