@@ -1,7 +1,10 @@
 import copy
 import random
 import re
+import sys
 from typing import Union
+
+import loguru
 
 from FlightIncrease.AirlineType import AirlineType
 from FlightIncrease.GetInterval import GetInterval
@@ -117,7 +120,11 @@ class IncreaseFlight:
                 self.interval.extend(add_list)
         return increase_list
 
+    @loguru.logger.catch
     def _get_neighbor_flight(self, new_inst: IntervalBase, idx: int, original_interval: list) -> list:
+        if new_inst.begin_callsign != new_inst.end_callsign:
+            return [new_inst]
+
         # find another inst before(de) or after(ar) the inst
         # if the inst and the inst_neighbor have the same registration, find another gate for the inst_neighbor
         inst_type = new_inst.begin_callsign[-2:].rstrip()
@@ -135,6 +142,14 @@ class IncreaseFlight:
         # the inst is at the beginning or the end of the group, it has no neighbor
         if new_inst.registration != inst_neighbor.registration:
             return [new_inst]
+
+        inst_neighbor_type = inst_neighbor.begin_callsign[-2:].rstrip()
+        # Dealing with extreme scenarios:
+        # before this iteration, the inst in the middle has already been deleted, like(de ar de) => (de de)
+        # In this iteration, one of the "de" has been chosen.
+        # We deleted it and remain the other one.
+        if inst_neighbor_type == inst_type:
+            return []
 
         # the inst is in the middle of the group, it has a neighbor
         new_inst_neighbor = self.find_suitable_gate(inst_neighbor)
