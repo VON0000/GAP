@@ -14,7 +14,7 @@ if __name__ == "__main__":
         match_pn = re.search(r"PN", filename, re.M | re.I)
         if match_pn is None and filename.endswith(".csv") and match_process is None:
             filename = os.path.join(folder_path, filename)
-            increase_list = IncreaseFlight(filename, rate).increase_list
+            increase_list = IncreaseFlight(filename, rate).increase_flight()
             OutPut(increase_list, filename, rate)
 
     # 文件拼接
