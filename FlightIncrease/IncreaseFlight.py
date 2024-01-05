@@ -147,16 +147,6 @@ class IncreaseFlight:
         # if the inst and the inst_neighbor have the same registration, find another gate for the inst_neighbor
         inst_type = new_inst.begin_callsign[-2:].rstrip()
 
-        # the first flight of instances is departure
-        if inst_type == "de" and idx == 0:
-            return [new_inst]
-
-        # the last flight of instances is arrival
-        if inst_type == "ar" and idx == len(original_interval):
-            return [new_inst]
-
-        inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
-
         min_inst, max_inst = self._get_index_range(new_inst, ref_idx, ref_original_interval)
 
         # the inst is at the beginning or the end of the group, it has no neighbor
@@ -164,6 +154,16 @@ class IncreaseFlight:
             return [new_inst]
         if inst_type == "ar" and max_inst.begin_interval == new_inst.begin_interval:
             return [new_inst]
+
+        # the first flight of instances is departure, and it is not the first one of the group
+        if inst_type == "de" and idx == 0:
+            return []
+
+        # the last flight of instances is arrival, and it is not the last one of the group
+        if inst_type == "ar" and idx == len(original_interval):
+            return []
+
+        inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
 
         # the inst is in the middle of the group, it has no neighbor
         if new_inst.registration != inst_neighbor.registration:
