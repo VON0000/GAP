@@ -132,6 +132,9 @@ class IncreaseFlight:
                 add_list = self._get_neighbor_flight(new_inst, idx, ref_idx, original_interval, ref_original_interval)
                 increase_list.extend(add_list)
                 self.interval.extend(add_list)
+
+            if len(original_interval) == 0:
+                break
         return increase_list
 
     @loguru.logger.catch
