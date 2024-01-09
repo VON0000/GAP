@@ -16,6 +16,7 @@ class Optimization:
                Maximize the utilization of nearby parking stands
                Minimize the sum of taxiing time
     """
+
     # TODO:改 dependent gate 限制条件
     @staticmethod
     def dependent_gate():
@@ -36,8 +37,17 @@ class Optimization:
 
     @staticmethod
     def find_numbers(text):
-        numbers = re.findall(r'\d+', text)
-        return numbers
+
+        # 检查字符串是否包含路径分隔符 "\"
+        # check if the string contains path separator "\"
+        is_path = "\\" in text
+
+        if is_path:
+            found_number = re.findall(r'\d+', text.split('\\')[-1])
+        else:
+            found_number = re.findall(r'\d+', text)
+
+        return found_number
 
     @staticmethod
     def part_4(i, j, counter, a, b, model, x):
@@ -80,7 +90,7 @@ class Optimization:
                         model.addConstrs((x[i, 40 + g] + x[j, 57 + (g - 1) * 2 + 1] <= 1 for g in range(6)),
                                          name=" ".join(["constraint", str(counter)]))
                         model.addConstrs((x[i, 40 + g] + x[j, 57 + (g - 1) * 2 + 2] <= 1 for g in range(6)),
-                                         name=" ".join(["constraint", str(counter+1)]))
+                                         name=" ".join(["constraint", str(counter + 1)]))
                         counter += 2
         if part == 4:
             for i in range(n):
@@ -146,7 +156,7 @@ class Optimization:
             obj = None
             gate_choose = None
             pass
-        return optim_time*1000, gate_choose, obj, status
+        return optim_time * 1000, gate_choose, obj, status
 
     @staticmethod
     def objective(x, n, m, target_matrix, model):

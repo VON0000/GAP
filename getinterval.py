@@ -1,3 +1,4 @@
+import loguru
 import numpy as np
 import copy
 
@@ -74,6 +75,7 @@ class GetInterval:
                 print("error", data["registration"][index], data['data'][index])
                 # sys.exit(1)
 
+    @loguru.logger.catch
     def get_interval(self, data, departure_set, num, pattern, tot, ldt):
         """
 

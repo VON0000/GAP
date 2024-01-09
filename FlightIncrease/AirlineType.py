@@ -16,26 +16,23 @@ def get_airline_info(name: str) -> dict:
 
 
 def get_group_dict() -> dict:
-    group_dict = {}
-    group_dict["cargo"] = list(
+    group_dict = {"cargo": list(
         set(
             value for sublist in get_airline_info("cargo").values() for value in sublist
         )
-    )
-    group_dict["domestic"] = list(
+    ), "domestic": list(
         set(
             value
             for sublist in get_airline_info("domestic").values()
             for value in sublist
         )
-    )
-    group_dict["international"] = list(
+    ), "international": list(
         set(
             value
             for sublist in get_airline_info("international").values()
             for value in sublist
         )
-    )
+    )}
     return group_dict
 
 

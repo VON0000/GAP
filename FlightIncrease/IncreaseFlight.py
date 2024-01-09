@@ -3,7 +3,9 @@ import random
 import re
 from typing import Union
 
-from FlightIncrease.AirlineType import AirlineType, get_group_dict
+import loguru
+
+from FlightIncrease.AirlineType import AirlineType
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IntervalType import IntervalBase
@@ -23,7 +25,7 @@ def _is_overlapping(time1, time2) -> bool:
 
 
 def _conflict_half(
-    aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
+        aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
 ) -> bool:
     """
     False 为没有冲突
@@ -38,7 +40,7 @@ def _conflict_half(
 
 
 def _conflict_all(
-    aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
+        aug_inst: IntervalBase, inst: IntervalBase, gate: str, flag: bool
 ) -> bool:
     """
     False 为没有冲突
@@ -53,12 +55,12 @@ def _conflict_all(
 
 
 class IncreaseFlight:
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, rate: float = 1):
         inst_interval = GetInterval(filename)
         inst_wingspan = GetWingSpan()
+        self.rate = rate
         self.interval = inst_interval.interval
         self.gatesize = inst_wingspan.gatesize
-        self.increase_list = self.increase_flight()
 
     def find_conflict(self, aug_inst: IntervalBase, gate: str) -> bool:
         """
@@ -102,10 +104,107 @@ class IncreaseFlight:
         :return: interval list 能增加的停靠间隔
         """
         original_interval = copy.deepcopy(self.interval)
+        ref_original_interval = copy.deepcopy(self.interval)
+
+        # the mapping between the original interval and the ref_original_interval
+        mapping = {ref_original_interval[i]: (original_interval[i], ref_original_interval[i]) for i in
+                   range(len(ref_original_interval))}
+
+        n = len(self.interval)  # the number of original flights
         increase_list = []
-        for inst in original_interval:
+        while len(increase_list) < n * self.rate:
+            inst = random.choice(original_interval)
+
+            # find the index of the inst in the original_interval(delete)
+            idx = original_interval.index(inst)
+
+            # find the index of the inst in the ref_original_interval(keep)
+            ref_idx = None
+            for index, obj in enumerate(ref_original_interval):
+                if obj is mapping[ref_original_interval[original_interval.index(inst)]][1]:
+                    ref_idx = index
+                    break
+
+            original_interval.remove(inst)
             new_inst = self.find_suitable_gate(inst)
             if new_inst is not None:
-                increase_list.append(new_inst)
-                self.interval.append(new_inst)
+                # add the neighbor flight(if available) and the new inst
+                add_list = self._get_neighbor_flight(new_inst, idx, ref_idx, original_interval, ref_original_interval)
+                increase_list.extend(add_list)
+                self.interval.extend(add_list)
+
+            if len(original_interval) == 0:
+                break
         return increase_list
+
+    @loguru.logger.catch
+    def _get_neighbor_flight(self, new_inst: IntervalBase, idx: int, ref_idx: int, original_interval: list,
+                             ref_original_interval: list) -> list:
+        if new_inst.begin_callsign != new_inst.end_callsign:
+            return [new_inst]
+
+        # find another inst before(de) or after(ar) the inst
+        # if the inst and the inst_neighbor have the same registration, find another gate for the inst_neighbor
+        inst_type = new_inst.begin_callsign[-2:].rstrip()
+
+        min_inst, max_inst = self._get_index_range(new_inst, ref_idx, ref_original_interval)
+
+        # the inst is at the beginning or the end of the group, it has no neighbor
+        if inst_type == "de" and min_inst.begin_interval == new_inst.begin_interval:
+            return [new_inst]
+        if inst_type == "ar" and max_inst.begin_interval == new_inst.begin_interval:
+            return [new_inst]
+
+        # the first flight of instances is departure, and it is not the first one of the group
+        if inst_type == "de" and idx == 0:
+            return []
+
+        # the last flight of instances is arrival, and it is not the last one of the group
+        if inst_type == "ar" and idx == len(original_interval):
+            return []
+
+        inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
+
+        # the inst is in the middle of the group, it has no neighbor
+        if new_inst.registration != inst_neighbor.registration:
+            return []
+
+        inst_neighbor_type = inst_neighbor.begin_callsign[-2:].rstrip()
+        # Dealing with extreme scenarios:
+        # before this iteration, the inst in the middle has already been deleted, like(de ar de) => (de de)
+        # In this iteration, one of the "de" has been chosen.
+        # We deleted it and remain the other one.
+        if inst_neighbor_type == inst_type:
+            return []
+
+        # the inst is in the middle of the group, it has a neighbor
+        new_inst_neighbor = self.find_suitable_gate(inst_neighbor)
+        original_interval.remove(inst_neighbor)
+
+        # the inst_neighbor has no suitable gate
+        if new_inst_neighbor is None:
+            return []
+
+        # the inst_neighbor has a suitable gate
+        return [new_inst, new_inst_neighbor]
+
+    def _get_index_range(self, new_inst: IntervalBase, ref_idx: int, ref_original_interval: list) -> tuple:
+        min_inst = self._get_min_idx(new_inst, ref_idx, ref_original_interval)
+        max_inst = self._get_max_idx(new_inst, ref_idx, ref_original_interval)
+        return min_inst, max_inst
+
+    def _get_min_idx(self, new_inst: IntervalBase, ref_idx: int, ref_original_interval: list) -> IntervalBase:
+        # the first instances of the group
+        min_idx = ref_idx - 1
+        next_inst = ref_original_interval[min_idx]
+        if new_inst.registration == next_inst.registration and min_idx > 0:
+            return self._get_min_idx(new_inst, min_idx, ref_original_interval)
+        return ref_original_interval[min_idx + 1]
+
+    def _get_max_idx(self, new_inst: IntervalBase, ref_idx: int, ref_original_interval: list) -> IntervalBase:
+        # the last instances of the group
+        max_idx = ref_idx + 1
+        next_inst = ref_original_interval[max_idx]
+        if new_inst.registration == next_inst.registration and max_idx < (len(ref_original_interval) - 1):
+            return self._get_max_idx(new_inst, max_idx, ref_original_interval)
+        return ref_original_interval[max_idx - 1]

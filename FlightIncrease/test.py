@@ -1,3 +1,4 @@
+import loguru
 import numpy as np
 
 from FlightIncrease import OutPut
@@ -38,13 +39,13 @@ def test_flight_list_sorted():
     for i in range(len(flight_list) - 1):
         if instance.data["departure"][flight_list[i]] == "ZBTJ":
             assert (
-                instance.data["ATOT"][flight_list[i]]
-                <= instance.data["ALDT"][flight_list[i + 1]]
+                    instance.data["ATOT"][flight_list[i]]
+                    <= instance.data["ALDT"][flight_list[i + 1]]
             )
         else:
             assert (
-                instance.data["ALDT"][flight_list[i]]
-                <= instance.data["ATOT"][flight_list[i + 1]]
+                    instance.data["ALDT"][flight_list[i]]
+                    <= instance.data["ATOT"][flight_list[i + 1]]
             )
 
 
@@ -485,6 +486,33 @@ def test_get_group_dict():
     }
 
 
+@loguru.logger.catch()
+def test_get_index_range():
+    inst_1 = IntervalBase(
+        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414"]
+    )
+    inst_2 = IntervalBase(
+        [900, 1200, 2100, "CA1", "B9987", "B9986 de", "B9986 ar", 24.9, "414R"]
+    )
+    inst_3 = IntervalBase(
+        [900, 1200, 2100, "CA2", "B9987", "B9987 de", "B9987 ar", 24.9, "414L"]
+    )
+    inst_4 = IntervalBase(
+        [900, 0, 900, "CA3", "B9987", "B9988 de", "B9988 ar", 24.9, "414"]
+    )
+    inst_5 = IntervalBase(
+        [900, 1200, 2100, "CA4", "B9987", "B9989 de", "B9989 ar", 24.9, "415"]
+    )
+    inst_6 = IntervalBase(
+        [900, 1200, 2100, "CA5", "B9990", "B9989 de", "B9989 ar", 24.9, "415L"]
+    )
+
+    instance_list = [inst_1, inst_2, inst_3, inst_4, inst_5, inst_6]
+    min_inst, max_inst = IncreaseFlight(filename="../data\\mock_231029.csv")._get_index_range(inst_3, 2, instance_list)
+    assert min_inst.airline == inst_2.airline
+    assert max_inst.airline == inst_5.airline
+
+
 def test_all():
-    increase_list = IncreaseFlight(filename="../data\\mock_231029.csv").increase_list
+    increase_list = IncreaseFlight(filename="../data\\mock_231029.csv").increase_flight()
     OutPut(increase_list, filename="../data\\mock_231029.csv")

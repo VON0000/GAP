@@ -1,3 +1,4 @@
+import os
 import random
 import re
 from typing import List
@@ -35,7 +36,7 @@ def data_init() -> dict:
 
 
 def _build_element(
-    c: IntervalBase, data: dict, callsign_list: List[str], filename: str
+        c: IntervalBase, data: dict, callsign_list: List[str], filename: str
 ) -> dict:
     for cl in callsign_list:
         data["data"].append("".join(find_numbers(filename)))
@@ -43,22 +44,22 @@ def _build_element(
 
         if cl[-2:] == "de":
             data["departure"].append("ZBTJ")
-            data["arrivee"].append("None")
+            data["arrivee"].append("Default")
             data["ATOT"].append(c.end_interval)
             data["ALDT"].append(random.randint(c.end_interval, 100000))
         else:
-            data["departure"].append("None")
+            data["departure"].append("Default")
             data["arrivee"].append("ZBTJ")
             data["ATOT"].append(random.randint(0, c.begin_interval - 5 * 60))
             data["ALDT"].append(c.begin_interval - 5 * 60)
 
-        data["TTOT"].append("None")
-        data["TLDT"].append("None")
+        data["TTOT"].append("Default")
+        data["TLDT"].append("Default")
 
-        data["Type"].append("None")
+        data["Type"].append("Default")
         data["Wingspan"].append(c.wingspan)
-        data["Airline"].append(AirlineType(c.airline).type)
-        data["QFU"].append("None")
+        data["Airline"].append(c.airline)
+        data["QFU"].append("Default")
         data["Parking"].append(c.gate)
         data["registration"].append("NEW" + c.registration)
     return data
@@ -82,15 +83,28 @@ def find_numbers(text: str) -> List[str]:
 
 
 class OutPut:
-    def __init__(self, increase_list: List[IntervalBase], filename: str):
-        self.to_csv(increase_list, filename)
+    def __init__(self, increase_list: List[IntervalBase], filename: str, rate: float = 1):
+        increase_list_sorted_by_registration = sorted(increase_list, key=lambda inst: inst.registration)
+        self.to_csv(increase_list_sorted_by_registration, filename, rate)
 
-    @staticmethod
-    def to_csv(increase_list: List[IntervalBase], filename: str):
+    def to_csv(self, increase_list: List[IntervalBase], filename: str, rate: float):
         name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
-        out_name = ["../results/IncreaseFlight_airline/"] + name
+        out_path = "../results/IncreaseFlight_airline_rate_" + str(rate) + "/"
+        self.create_directory(out_path)
+        out_name = [out_path] + name
         output_file_path = "".join(out_name)
 
         data = _build_data(increase_list, filename)
         data = pd.DataFrame(data)
         data.to_csv(output_file_path, index=False)
+
+    @staticmethod
+    def create_directory(path):
+        try:
+            # 如果文件夹不存在，则创建它
+            if not os.path.exists(path):
+                os.makedirs(path)
+                print(f"Directory '{path}' was created.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
