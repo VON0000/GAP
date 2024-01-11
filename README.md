@@ -127,3 +127,32 @@ when it is at the end side of the interval, i change the interval information.
 
 #### fix the bug in outputdata.py
 the code in function new_data.py used to rearch the right place in `data` was wrong
+
+---
+
+### update in 2023/10/23
+
+#### refactor the code
+
+---
+
+### update in 2024/01/04
+
+#### increase flight in pair
+
+---
+
+### update in 2024/01/11
+
+[//]: # ()
+[//]: # (- 保留Target时间，机型)
+
+[//]: # (- 对于所有到达航班 实际降落时间是否会引起报道冲突 &#40;根据飞机机型加滑行时间 &#40;1.5/2 min&#41;&#41; （如果ALDT后延 其他所有时间同样后延） )
+
+[//]: # (- 最大延误时间是多少)
+
+### the new rules
+- keep the target time and aircraft type
+- for all arriving flights, will the actual landing time cause a reporting conflict (according to the aircraft type plus
+  taxi time (1.5/2 min)) (if ALDT is postponed, all other times are postponed in the same way)
+- what is the maximum delay time
