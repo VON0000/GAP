@@ -5,7 +5,6 @@ from typing import List
 
 import pandas as pd
 
-from FlightIncrease.AirlineType import AirlineType
 from FlightIncrease.IntervalType import IntervalBase
 
 
@@ -107,4 +106,3 @@ class OutPut:
                 print(f"Directory '{path}' was created.")
         except Exception as e:
             print(f"An error occurred: {e}")
-
