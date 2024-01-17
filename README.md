@@ -1,6 +1,7 @@
 # Gate Allocation Problem (GAP)
 
-### Interval
+### basic rules
+#### Interval
 
 The data provided includes daily flight information. The time interval between the landing of a prior flight and the
 departure of the subsequent flight operated by the same aircraft is considered as the gate occupancy interval. Thus, we
@@ -25,13 +26,13 @@ occupancy intervals to be calculated.
     - If the gate occupancy interval is **less than 1 hour**, then **10 minutes after the prior flight's landing to 10
       minutes before the subsequent flight's departure** is the interval to be calculated.
 
-### Optimization
+#### Optimization
 
-#### Variables：
+##### Variables：
 
 Interval
 
-#### Constraints：
+##### Constraints：
 
 - Accommodate various gate restrictions for different airlines and wingspans (soft constraint for airlines, meaning all
   airlines can use remote gates but at a high cost).
@@ -40,12 +41,12 @@ Interval
 - Dependent gates (e.g., 414/414R/414L; if gate 414 is occupied, neither 414R nor 414L can be occupied by other
   intervals).
 
-#### Objectives：
+##### Objectives：
 
 - Initial Allocation: Prefer closer gates and minimize taxi time.
 - Re-allocation: Minimize changes to gate assignments while still preferring closer gates and minimizing taxi time.
 
-### Iteration
+#### Iteration
 
 Given the discrepancies between the estimated and actual take-off and landing times, initial calculations are based on
 estimated times. Subsequently, every **15 minutes**, the actual take-off and landing times for the upcoming **60 minutes
@@ -58,7 +59,7 @@ last saved.
 
 :grey_exclamation:*not be used in this branch*
 
-###    * :-1: ~~Local Search~~ *
+####    * :-1: ~~Local Search~~ *
 
 ~~*Reduce the number of intervals that cannot be allocated.*~~
 
@@ -144,14 +145,14 @@ the code in function new_data.py used to rearch the right place in `data` was wr
 
 ### update in 2024/01/11
 
-[//]: # ()
+[//]: #
 [//]: # (- 保留Target时间，机型)
 
 [//]: # (- 对于所有到达航班 实际降落时间是否会引起报道冲突 &#40;根据飞机机型加滑行时间 &#40;1.5/2 min&#41;&#41; （如果ALDT后延 其他所有时间同样后延） )
 
 [//]: # (- 最大延误时间是多少)
 
-### the new rules
+#### the new rules
 - keep the target time and aircraft type
 - for all arriving flights, will the actual landing time cause a reporting conflict (according to the aircraft type plus
   taxi time (1.5/2 min)) (if ALDT is postponed, all other times are postponed in the same way)
