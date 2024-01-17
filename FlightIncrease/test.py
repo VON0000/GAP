@@ -81,19 +81,19 @@ def test_get_gate_size():
 
 def test_conflict_half():
     inst_1 = IntervalBase(
-        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414"]
+        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737"]
     )
     inst_2 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R"]
+        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737"]
     )
     inst_3 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L"]
+        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737"]
     )
     inst_4 = IntervalBase(
-        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414L"]
+        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414L", "B737"]
     )
     inst_5 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415"]
+        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415", "B737"]
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
@@ -113,19 +113,19 @@ def test_conflict_half():
 
 def test_conflict_all():
     inst_1 = IntervalBase(
-        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414"]
+        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737"]
     )
     inst_2 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R"]
+        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737"]
     )
     inst_3 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L"]
+        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737"]
     )
     inst_4 = IntervalBase(
-        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414"]
+        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414", "B737"]
     )
     inst_5 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415"]
+        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415", "B737"]
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
@@ -489,22 +489,22 @@ def test_get_group_dict():
 @loguru.logger.catch()
 def test_get_index_range():
     inst_1 = IntervalBase(
-        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414"]
+        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737"]
     )
     inst_2 = IntervalBase(
-        [900, 1200, 2100, "CA1", "B9987", "B9986 de", "B9986 ar", 24.9, "414R"]
+        [900, 1200, 2100, "CA1", "B9987", "B9986 de", "B9986 ar", 24.9, "414R", "B737"]
     )
     inst_3 = IntervalBase(
-        [900, 1200, 2100, "CA2", "B9987", "B9987 de", "B9987 ar", 24.9, "414L"]
+        [900, 1200, 2100, "CA2", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737"]
     )
     inst_4 = IntervalBase(
-        [900, 0, 900, "CA3", "B9987", "B9988 de", "B9988 ar", 24.9, "414"]
+        [900, 0, 900, "CA3", "B9987", "B9988 de", "B9988 ar", 24.9, "414", "B737"]
     )
     inst_5 = IntervalBase(
-        [900, 1200, 2100, "CA4", "B9987", "B9989 de", "B9989 ar", 24.9, "415"]
+        [900, 1200, 2100, "CA4", "B9987", "B9989 de", "B9989 ar", 24.9, "415", "B737"]
     )
     inst_6 = IntervalBase(
-        [900, 1200, 2100, "CA5", "B9990", "B9989 de", "B9989 ar", 24.9, "415L"]
+        [900, 1200, 2100, "CA5", "B9990", "B9989 de", "B9989 ar", 24.9, "415L", "B737"]
     )
 
     instance_list = [inst_1, inst_2, inst_3, inst_4, inst_5, inst_6]
