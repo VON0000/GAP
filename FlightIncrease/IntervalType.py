@@ -20,7 +20,7 @@ class IntervalBase(metaclass=abc.ABCMeta):
             if str(info_list[8]).endswith(".0")
             else str(info_list[8])
         )
-        self.aircraft_type = info_list[9]
+        self.aircraft_model = info_list[9]
 
 
 def _longtime_arrivee(data: dict, index_list: list):
