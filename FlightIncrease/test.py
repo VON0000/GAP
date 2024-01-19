@@ -2,6 +2,7 @@ import loguru
 import numpy as np
 
 from FlightIncrease import OutPut
+from FlightIncrease.AircraftModel import AircraftModel
 from FlightIncrease.AirlineType import get_airline_info, AirlineType, get_group_dict
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
@@ -512,6 +513,29 @@ def test_get_index_range():
     min_inst, max_inst = IncreaseFlight(original_list)._get_index_range(inst_3, 2, instance_list)
     assert min_inst.airline == inst_2.airline
     assert max_inst.airline == inst_5.airline
+
+
+def test_aircraft_model():
+    # Test cases for "RH" (assuming it represents another type, e.g., Heavy)
+    model = "A330"
+    assert AircraftModel(model).aircraft_type == "H"
+
+    model = "B747"
+    assert AircraftModel(model).aircraft_type == "H"
+
+    # Test cases for "TM" (assuming it represents another type)
+    model = "AT42"
+    assert AircraftModel(model).aircraft_type == "M"
+
+    model = "DH8C"
+    assert AircraftModel(model).aircraft_type == "M"
+
+    # Test cases for "TL" (assuming it represents another type)
+    model = "B190"
+    assert AircraftModel(model).aircraft_type == "L"
+
+    model = "SW4"
+    assert AircraftModel(model).aircraft_type == "L"
 
 
 def test_all():

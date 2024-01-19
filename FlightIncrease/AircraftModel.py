@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def get_aircraft_model() -> dict:
     filename = "../data/acft_types/acft_types.csv"
 
@@ -16,26 +19,20 @@ def get_aircraft_model() -> dict:
     return aircraft_model
 
 
-def get_model_inst_list() -> list:
-    aircraft_model = get_aircraft_model()
-    model_inst_list = []
-    for i in range(len(aircraft_model["model"])):
-        model_inst_list.append(
-            AircraftModel(
-                aircraft_model["model"][i],
-                aircraft_model["engine_type"][i],
-                aircraft_model["aircraft_type"][i],
-            )
-        )
-    return model_inst_list
-
-
 class AircraftModel:
-    def __init__(self, model: str, engine_type: str, aircraft_type: str):
+    aircraft_model = get_aircraft_model()
+
+    def __init__(self, model: str):
         self.model = model
-        self.engine_type = engine_type
-        self.aircraft_type = aircraft_type
+        self.engine_type = self._get_engine_type()
+        self.aircraft_type = self._get_aircraft_type()
 
+    def _get_engine_type(self, ) -> str:
+        index = np.where(np.array(AircraftModel.aircraft_model["model"]) == self.model)[0][0]
+        engine_type = AircraftModel.aircraft_model["engine_type"][index]
+        return engine_type
 
-if __name__ == "__main__":
-    get_model_inst_list()
+    def _get_aircraft_type(self) -> str:
+        index = np.where(np.array(AircraftModel.aircraft_model["model"]) == self.model)[0][0]
+        aircraft_type = AircraftModel.aircraft_model["aircraft_type"][index]
+        return aircraft_type
