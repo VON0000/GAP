@@ -508,11 +508,13 @@ def test_get_index_range():
     )
 
     instance_list = [inst_1, inst_2, inst_3, inst_4, inst_5, inst_6]
-    min_inst, max_inst = IncreaseFlight(filename="../data\\mock_231029.csv")._get_index_range(inst_3, 2, instance_list)
+    original_list = GetInterval(filename="../data\\mock_231029.csv").interval
+    min_inst, max_inst = IncreaseFlight(original_list)._get_index_range(inst_3, 2, instance_list)
     assert min_inst.airline == inst_2.airline
     assert max_inst.airline == inst_5.airline
 
 
 def test_all():
-    increase_list = IncreaseFlight(filename="../data\\mock_231029.csv").increase_flight()
+    original_list = GetInterval(filename="../data\\mock_231029.csv").interval
+    increase_list = IncreaseFlight(original_list).increase_flight()
     OutPut(increase_list, filename="../data\\mock_231029.csv")

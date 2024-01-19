@@ -6,7 +6,6 @@ from typing import Union
 import loguru
 
 from FlightIncrease.AirlineType import AirlineType
-from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IntervalType import IntervalBase
 
@@ -55,11 +54,10 @@ def _conflict_all(
 
 
 class IncreaseFlight:
-    def __init__(self, filename: str, rate: float = 1):
-        inst_interval = GetInterval(filename)
+    def __init__(self, original_list: list, rate: float = 1):
         inst_wingspan = GetWingSpan()
         self.rate = rate
-        self.interval = inst_interval.interval
+        self.interval = copy.deepcopy(original_list)
         self.gatesize = inst_wingspan.gatesize
 
     def find_conflict(self, aug_inst: IntervalBase, gate: str) -> bool:
