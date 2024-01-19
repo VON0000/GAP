@@ -6,6 +6,7 @@ from typing import Union
 import loguru
 
 from FlightIncrease.AirlineType import AirlineType
+from FlightIncrease.DelayTime import get_delay_time
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IntervalType import IntervalBase
 
@@ -102,7 +103,7 @@ class IncreaseFlight:
         :return: interval list 能增加的停靠间隔
         """
         original_interval = copy.deepcopy(self.interval)
-        ref_original_interval = copy.deepcopy(self.interval)
+        ref_original_interval = copy.deepcopy(self.interval)  # fixed
 
         # the mapping between the original interval and the ref_original_interval
         mapping = {ref_original_interval[i]: (original_interval[i], ref_original_interval[i]) for i in
@@ -128,6 +129,10 @@ class IncreaseFlight:
             if new_inst is not None:
                 # add the neighbor flight(if available) and the new inst
                 add_list = self._get_neighbor_flight(new_inst, idx, ref_idx, original_interval, ref_original_interval)
+
+                # consider turbulence
+                add_list = get_delay_time(add_list, self.interval)
+
                 increase_list.extend(add_list)
                 self.interval.extend(add_list)
 
