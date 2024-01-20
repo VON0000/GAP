@@ -16,16 +16,16 @@ def delay_time(add_list: list, exist_interval: list) -> list:
         if (add_list[0].begin_callsign == add_list[0].end_callsign) and (inst_type == "de"):
             return add_list
 
-        # consider turbulence
+        find_insertion_location(useful_interval, inst=add_list[0])
 
-        return ...
+        return add_list
 
     for al in add_list:
         inst_type = al.begin_callsign[-2:].rstrip()
         if inst_type == "de":
             continue
 
-        # consider turbulence
+        find_insertion_location(useful_interval, inst=al)
 
     return add_list
 
