@@ -4,6 +4,7 @@ import numpy as np
 from FlightIncrease import OutPut
 from FlightIncrease.AircraftModel import AircraftModel
 from FlightIncrease.AirlineType import get_airline_info, AirlineType, get_group_dict
+from FlightIncrease.DelayTime import get_wake_turbulence
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import (
@@ -536,6 +537,29 @@ def test_aircraft_model():
 
     model = "SW4"
     assert AircraftModel(model).aircraft_type == "L"
+
+
+def test_wake_turbulence():
+    # Dummy data for the first 9 elements in the info_list
+    dummy_data = [0, 0, 0, "airline", "registration", "begin_callsign", "end_callsign", 0, "gate"]
+
+    # Test case 1: Front aircraft is Light
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["B190"]), IntervalBase(dummy_data + ["SW4"])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["Y12"]), IntervalBase(dummy_data + ["GLEX"])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["MA60"]), IntervalBase(dummy_data + ["EA30"])) == 60
+
+    # Test case 2: Front aircraft is Medium
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["FK70"]), IntervalBase(dummy_data + ["BA31"])) == 120
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["GLEX"]), IntervalBase(dummy_data + ["CL35"])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["LJ60"]), IntervalBase(dummy_data + ["CONC"])) == 60
+
+    # Test case 3: Front aircraft is Heavy
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["A340"]), IntervalBase(dummy_data + ["BE10"])) == 180
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["A330"]), IntervalBase(dummy_data + ["BE02"])) == 90
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["A30B"]), IntervalBase(dummy_data + ["B77W"])) == 90
+
+
+# Run the tests
 
 
 def test_all():

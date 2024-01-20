@@ -6,7 +6,7 @@ from typing import Union
 import loguru
 
 from FlightIncrease.AirlineType import AirlineType
-from FlightIncrease.DelayTime import get_delay_time
+from FlightIncrease.DelayTime import delay_time
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IntervalType import IntervalBase
 
@@ -131,7 +131,7 @@ class IncreaseFlight:
                 add_list = self._get_neighbor_flight(new_inst, idx, ref_idx, original_interval, ref_original_interval)
 
                 # consider turbulence
-                add_list = get_delay_time(add_list, self.interval)
+                add_list = delay_time(add_list, self.interval)
 
                 increase_list.extend(add_list)
                 self.interval.extend(add_list)
