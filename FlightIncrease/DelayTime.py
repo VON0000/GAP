@@ -31,11 +31,17 @@ def delay_time(add_list: list, exist_interval: list) -> list:
 
 
 def find_insertion_location(useful_interval: List[IntervalBase], inst: IntervalBase) -> IntervalBase:
+    """
+    事实上，先按照在这个instance之前的interval更新，后按照在这个instance之后的interval更新，不会产生错误。更新的时间一定是按照最晚的来的。
+    In fact, updating according to the interval before this instance and then updating according to the interval after
+    this instance will not produce an error. The update time is always based on the latest.
+    """
     before_inst_list = [instance for instance in useful_interval if instance.begin_interval <= inst.begin_interval]
     before_conflict = False
     for bi in before_inst_list:
         wake_turbulence = get_wake_turbulence(bi, inst)
         if bi.begin_interval <= inst.begin_interval < bi.begin_interval + wake_turbulence:
+            # update the delay time of the instance
             inst.begin_interval = bi.begin_interval + wake_turbulence
             before_conflict = True
 
@@ -44,6 +50,7 @@ def find_insertion_location(useful_interval: List[IntervalBase], inst: IntervalB
     for ai in after_inst_list:
         wake_turbulence = get_wake_turbulence(inst, ai)
         if inst.begin_interval <= ai.begin_interval < inst.begin_interval + wake_turbulence:
+            # update the delay time of the instance
             wake_turbulence = get_wake_turbulence(ai, inst)
             inst.begin_interval = ai.begin_interval + wake_turbulence
             after_conflict = True
