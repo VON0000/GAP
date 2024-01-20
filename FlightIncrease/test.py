@@ -1,10 +1,12 @@
+from copy import deepcopy
+
 import loguru
 import numpy as np
 
 from FlightIncrease import OutPut
 from FlightIncrease.AircraftModel import AircraftModel
 from FlightIncrease.AirlineType import get_airline_info, AirlineType, get_group_dict
-from FlightIncrease.DelayTime import get_wake_turbulence
+from FlightIncrease.DelayTime import get_wake_turbulence, find_insertion_location
 from FlightIncrease.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import (
@@ -559,7 +561,26 @@ def test_wake_turbulence():
     assert get_wake_turbulence(IntervalBase(dummy_data + ["A30B"]), IntervalBase(dummy_data + ["B77W"])) == 90
 
 
-# Run the tests
+def test_find_insertion_location():
+    # 构建一些 IntervalBase 实例
+    dummy_data = [0, 13000, 24000, "airline", "registration", "begin_callsign", "end_callsign", 0, "gate"]
+    inst1 = IntervalBase(dummy_data + ["B190"])  # 轻型飞机, 开始时间为 10
+    inst2 = IntervalBase([0, 27340, 34530] + dummy_data[3:] + ["FK70"])  # 中型飞机, 开始时间为 20
+    inst3 = IntervalBase([0, 34670, 43450] + dummy_data[3:] + ["A340"])  # 重型飞机, 开始时间为 30
+
+    useful_interval = [inst1, inst2, inst3]
+
+    # 测试用例 1: 无冲突情况
+    test_inst = IntervalBase([0, 54560, 66750] + dummy_data[3:] + ["LJ60"])  # 插入时间在所有飞机之后
+    origin_test_inst = deepcopy(test_inst)
+    assert find_insertion_location(useful_interval, test_inst).begin_interval == origin_test_inst.begin_interval
+
+    # 测试用例 2: 有冲突情况
+    test_inst_conflict = IntervalBase([0, 13000, 24000] + dummy_data[3:] + ["A330"])  # 插入时间和 inst1 冲突
+    origin_test_inst_conflict = deepcopy(test_inst_conflict)
+    # 应该返回一个调整后的 inst，不是 test_inst_conflict
+    assert find_insertion_location(useful_interval,
+                                   test_inst_conflict).begin_interval != origin_test_inst_conflict.begin_interval
 
 
 def test_all():
