@@ -1,7 +1,12 @@
+from typing import List
+
 from FlightIncrease.IntervalType import IntervalBase
+from FlightIncrease.AircraftModel import AircraftModel
 
 
 def delay_time(add_list: list, exist_interval: list) -> list:
+    useful_interval = [instance for instance in exist_interval if instance.begin_callsign[-2:].rstrip() == "ar"]
+
     if len(add_list) == 0:
         return []
 
@@ -25,5 +30,38 @@ def delay_time(add_list: list, exist_interval: list) -> list:
     return add_list
 
 
-def consider_wake_turbulence(inst: IntervalBase, exist_interval: list):
-    return ...
+def find_insertion_location(useful_interval: List[IntervalBase], inst: IntervalBase) -> IntervalBase:
+    before_inst_list = [instance for instance in useful_interval if instance.begin_interval <= inst.begin_interval]
+    before_conflict = False
+    for bi in before_inst_list:
+        wake_turbulence = get_wake_turbulence(bi, inst)
+        if bi.begin_interval <= inst.begin_interval < bi.begin_interval + wake_turbulence:
+            inst.begin_interval = bi.begin_interval + wake_turbulence
+            before_conflict = True
+
+    after_inst_list = [instance for instance in useful_interval if instance.begin_interval > inst.begin_interval]
+    after_conflict = False
+    for ai in after_inst_list:
+        wake_turbulence = get_wake_turbulence(inst, ai)
+        if inst.begin_interval <= ai.begin_interval < inst.begin_interval + wake_turbulence:
+            wake_turbulence = get_wake_turbulence(ai, inst)
+            inst.begin_interval = ai.begin_interval + wake_turbulence
+            after_conflict = True
+
+    if after_conflict or before_conflict:
+        return find_insertion_location(useful_interval, inst)
+
+    return inst
+
+
+def get_wake_turbulence(front_inst: IntervalBase, end_inst: IntervalBase):
+    if AircraftModel(front_inst.aircraft_model).aircraft_type == "L":
+        return 60
+    if AircraftModel(front_inst.aircraft_model).aircraft_type == "M":
+        if AircraftModel(end_inst.aircraft_model).aircraft_type == "L":
+            return 120
+        return 60
+    if AircraftModel(front_inst.aircraft_model).aircraft_type == "H":
+        if AircraftModel(end_inst.aircraft_model).aircraft_type == "L":
+            return 180
+        return 90
