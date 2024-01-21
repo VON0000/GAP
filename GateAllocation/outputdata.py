@@ -1,5 +1,3 @@
-import sys
-
 import xlwt
 import pandas as pd
 import variable
