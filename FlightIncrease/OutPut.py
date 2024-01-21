@@ -93,7 +93,7 @@ class OutPut:
 
     def to_csv(self, increase_list: List[IntervalBase], filename: str, rate: float):
         name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
-        out_path = "../results/IncreaseFlight_airline_rate_" + str(rate) + "/"
+        out_path = "../results/IncreaseFlight_airline_with_delay_rate_" + str(rate) + "/"
         self.create_directory(out_path)
         out_name = [out_path] + name
         output_file_path = "".join(out_name)
