@@ -18,6 +18,8 @@ from FlightIncrease.IncreaseFlight import (
 from FlightIncrease.IntervalType import IntervalBase
 
 HOUR = 60 * 60
+TIME_DICT = {"ar": {"TTOT": [], "TLDT": [], "ATOT": [], "ALDT": []},
+             "de": {"TTOT": [], "TLDT": [], "ATOT": [], "ALDT": []}}
 
 
 def test_get_data():
@@ -85,19 +87,19 @@ def test_get_gate_size():
 
 def test_conflict_half():
     inst_1 = IntervalBase(
-        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737"]
+        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737", TIME_DICT]
     )
     inst_2 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737"]
+        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT]
     )
     inst_3 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737"]
+        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT]
     )
     inst_4 = IntervalBase(
-        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414L", "B737"]
+        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414L", "B737", TIME_DICT]
     )
     inst_5 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415", "B737"]
+        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415", "B737", TIME_DICT]
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
@@ -117,19 +119,19 @@ def test_conflict_half():
 
 def test_conflict_all():
     inst_1 = IntervalBase(
-        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737"]
+        [900, 1800, 2700, "CA", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737", TIME_DICT]
     )
     inst_2 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737"]
+        [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT]
     )
     inst_3 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737"]
+        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT]
     )
     inst_4 = IntervalBase(
-        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414", "B737"]
+        [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414", "B737", TIME_DICT]
     )
     inst_5 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415", "B737"]
+        [900, 1200, 2100, "CA", "B9989", "B9989 de", "B9989 ar", 24.9, "415", "B737", TIME_DICT]
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
@@ -493,22 +495,22 @@ def test_get_group_dict():
 @loguru.logger.catch()
 def test_get_index_range():
     inst_1 = IntervalBase(
-        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737"]
+        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737", TIME_DICT]
     )
     inst_2 = IntervalBase(
-        [900, 1200, 2100, "CA1", "B9987", "B9986 de", "B9986 ar", 24.9, "414R", "B737"]
+        [900, 1200, 2100, "CA1", "B9987", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT]
     )
     inst_3 = IntervalBase(
-        [900, 1200, 2100, "CA2", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737"]
+        [900, 1200, 2100, "CA2", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT]
     )
     inst_4 = IntervalBase(
-        [900, 0, 900, "CA3", "B9987", "B9988 de", "B9988 ar", 24.9, "414", "B737"]
+        [900, 0, 900, "CA3", "B9987", "B9988 de", "B9988 ar", 24.9, "414", "B737", TIME_DICT]
     )
     inst_5 = IntervalBase(
-        [900, 1200, 2100, "CA4", "B9987", "B9989 de", "B9989 ar", 24.9, "415", "B737"]
+        [900, 1200, 2100, "CA4", "B9987", "B9989 de", "B9989 ar", 24.9, "415", "B737", TIME_DICT]
     )
     inst_6 = IntervalBase(
-        [900, 1200, 2100, "CA5", "B9990", "B9989 de", "B9989 ar", 24.9, "415L", "B737"]
+        [900, 1200, 2100, "CA5", "B9990", "B9989 de", "B9989 ar", 24.9, "415L", "B737", TIME_DICT]
     )
 
     instance_list = [inst_1, inst_2, inst_3, inst_4, inst_5, inst_6]
@@ -546,37 +548,46 @@ def test_wake_turbulence():
     dummy_data = [0, 0, 0, "airline", "registration", "begin_callsign", "end_callsign", 0, "gate"]
 
     # Test case 1: Front aircraft is Light
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["B190"]), IntervalBase(dummy_data + ["SW4"])) == 60
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["Y12"]), IntervalBase(dummy_data + ["GLEX"])) == 60
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["MA60"]), IntervalBase(dummy_data + ["EA30"])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["B190", TIME_DICT]),
+                               IntervalBase(dummy_data + ["SW4", TIME_DICT])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["Y12", TIME_DICT]),
+                               IntervalBase(dummy_data + ["GLEX", TIME_DICT])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["MA60", TIME_DICT]),
+                               IntervalBase(dummy_data + ["EA30", TIME_DICT])) == 60
 
     # Test case 2: Front aircraft is Medium
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["FK70"]), IntervalBase(dummy_data + ["BA31"])) == 120
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["GLEX"]), IntervalBase(dummy_data + ["CL35"])) == 60
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["LJ60"]), IntervalBase(dummy_data + ["CONC"])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["FK70", TIME_DICT]),
+                               IntervalBase(dummy_data + ["BA31", TIME_DICT])) == 120
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["GLEX", TIME_DICT]),
+                               IntervalBase(dummy_data + ["CL35", TIME_DICT])) == 60
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["LJ60", TIME_DICT]),
+                               IntervalBase(dummy_data + ["CONC", TIME_DICT])) == 60
 
     # Test case 3: Front aircraft is Heavy
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["A340"]), IntervalBase(dummy_data + ["BE10"])) == 180
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["A330"]), IntervalBase(dummy_data + ["BE02"])) == 90
-    assert get_wake_turbulence(IntervalBase(dummy_data + ["A30B"]), IntervalBase(dummy_data + ["B77W"])) == 90
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["A340", TIME_DICT]),
+                               IntervalBase(dummy_data + ["BE10", TIME_DICT])) == 180
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["A330", TIME_DICT]),
+                               IntervalBase(dummy_data + ["BE02", TIME_DICT])) == 90
+    assert get_wake_turbulence(IntervalBase(dummy_data + ["A30B", TIME_DICT]),
+                               IntervalBase(dummy_data + ["B77W", TIME_DICT])) == 90
 
 
 def test_find_insertion_location():
     # 构建一些 IntervalBase 实例
     dummy_data = [0, 13000, 24000, "airline", "registration", "begin_callsign", "end_callsign", 0, "gate"]
-    inst1 = IntervalBase(dummy_data + ["B190"])  # 轻型飞机, 开始时间为 10
-    inst2 = IntervalBase([0, 27340, 34530] + dummy_data[3:] + ["FK70"])  # 中型飞机, 开始时间为 20
-    inst3 = IntervalBase([0, 34670, 43450] + dummy_data[3:] + ["A340"])  # 重型飞机, 开始时间为 30
+    inst1 = IntervalBase(dummy_data + ["B190", TIME_DICT])  # 轻型飞机, 开始时间为 10
+    inst2 = IntervalBase([0, 27340, 34530] + dummy_data[3:] + ["FK70", TIME_DICT])  # 中型飞机, 开始时间为 20
+    inst3 = IntervalBase([0, 34670, 43450] + dummy_data[3:] + ["A340", TIME_DICT])  # 重型飞机, 开始时间为 30
 
     useful_interval = [inst1, inst2, inst3]
 
     # 测试用例 1: 无冲突情况
-    test_inst = IntervalBase([0, 54560, 66750] + dummy_data[3:] + ["LJ60"])  # 插入时间在所有飞机之后
+    test_inst = IntervalBase([0, 54560, 66750] + dummy_data[3:] + ["LJ60", TIME_DICT])  # 插入时间在所有飞机之后
     origin_test_inst = deepcopy(test_inst)
     assert find_insertion_location(useful_interval, test_inst).begin_interval == origin_test_inst.begin_interval
 
     # 测试用例 2: 有冲突情况
-    test_inst_conflict = IntervalBase([0, 13000, 24000] + dummy_data[3:] + ["A330"])  # 插入时间和 inst1 冲突
+    test_inst_conflict = IntervalBase([0, 13000, 24000] + dummy_data[3:] + ["A330", TIME_DICT])  # 插入时间和 inst1 冲突
     origin_test_inst_conflict = deepcopy(test_inst_conflict)
     # 应该返回一个调整后的 inst，不是 test_inst_conflict
     assert find_insertion_location(useful_interval,
