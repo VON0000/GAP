@@ -1,5 +1,4 @@
 import os
-import random
 import re
 from typing import List
 
@@ -44,16 +43,22 @@ def _build_element(
         if cl[-2:] == "de":
             data["departure"].append("ZBTJ")
             data["arrivee"].append("Default")
+
             data["ATOT"].append(c.end_interval)
-            data["ALDT"].append(random.randint(c.end_interval, 100000))
+            data["ALDT"].append(c.time_dict["de"]["ALDT"])
+
+            data["TTOT"].append(c.time_dict["de"]["TTOT"])
+            data["TLDT"].append(c.time_dict["de"]["TLDT"])
         else:
             data["departure"].append("Default")
             data["arrivee"].append("ZBTJ")
-            data["ATOT"].append(random.randint(0, c.begin_interval - 5 * 60))
+
+            delta_time = c.begin_interval - 5 * 60 - c.time_dict["ar"]["ALDT"]
+            data["ATOT"].append(c.time_dict["ar"]["ATOT"] + delta_time)
             data["ALDT"].append(c.begin_interval - 5 * 60)
 
-        data["TTOT"].append("Default")
-        data["TLDT"].append("Default")
+            data["TTOT"].append(c.time_dict["ar"]["TTOT"] + delta_time)
+            data["TLDT"].append(c.time_dict["ar"]["TLDT"] + delta_time)
 
         data["Type"].append("Default")
         data["Wingspan"].append(c.wingspan)

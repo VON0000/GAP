@@ -18,8 +18,8 @@ from FlightIncrease.IncreaseFlight import (
 from FlightIncrease.IntervalType import IntervalBase
 
 HOUR = 60 * 60
-TIME_DICT = {"ar": {"TTOT": [], "TLDT": [], "ATOT": [], "ALDT": []},
-             "de": {"TTOT": [], "TLDT": [], "ATOT": [], "ALDT": []}}
+TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
+             "de": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0}}
 
 
 def test_get_data():

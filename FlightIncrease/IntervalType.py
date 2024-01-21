@@ -47,22 +47,22 @@ def _shorttime(data: dict, index_list: list):
 
 def _get_info_list(interval_type: str, data: dict, index_list: List[int]):
     interval_info = None
-    time_dict = {"ar": {"TTOT": [], "TLDT": [], "ATOT": [], "ALDT": []},
-                 "de": {"TTOT": [], "TLDT": [], "ATOT": [], "ALDT": []}}
+    time_dict = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
+                 "de": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0}}
     if interval_type == "longtime_arrivee":
         interval_info = _longtime_arrivee(data, index_list)
-        time_dict = {"ar": {"TTOT": [data["TTOT"][index_list[0]]], "TLDT": [data["TLDT"][index_list[0]]],
-                            "ATOT": [data["ATOT"][index_list[0]]], "ALDT": data["ALDT"][index_list[0]]}, "de": {}}
+        time_dict = {"ar": {"TTOT": data["TTOT"][index_list[0]], "TLDT": data["TLDT"][index_list[0]],
+                            "ATOT": data["ATOT"][index_list[0]], "ALDT": data["ALDT"][index_list[0]]}, "de": {}}
     if interval_type == "longtime_departure":
         interval_info = _longtime_departure(data, index_list)
-        time_dict = {"de": {"TTOT": [data["TTOT"][index_list[0]]], "TLDT": [data["TLDT"][index_list[0]]],
-                            "ATOT": [data["ATOT"][index_list[0]]], "ALDT": [data["ALDT"][index_list[0]]]}, "ar": {}}
+        time_dict = {"de": {"TTOT": data["TTOT"][index_list[0]], "TLDT": data["TLDT"][index_list[0]],
+                            "ATOT": data["ATOT"][index_list[0]], "ALDT": data["ALDT"][index_list[0]]}, "ar": {}}
     if interval_type == "shorttime":
         interval_info = _shorttime(data, index_list)
-        time_dict = {"ar": {"TTOT": [data["TTOT"][index_list[0]]], "TLDT": [data["TLDT"][index_list[0]]],
-                            "ATOT": [data["ATOT"][index_list[0]]], "ALDT": [data["ALDT"][index_list[0]]]},
-                     "de": {"TTOT": [data["TTOT"][index_list[1]]], "TLDT": [data["TLDT"][index_list[1]]],
-                            "ATOT": [data["ATOT"][index_list[1]]], "ALDT": [data["ALDT"][index_list[1]]]}}
+        time_dict = {"ar": {"TTOT": data["TTOT"][index_list[0]], "TLDT": data["TLDT"][index_list[0]],
+                            "ATOT": data["ATOT"][index_list[0]], "ALDT": data["ALDT"][index_list[0]]},
+                     "de": {"TTOT": data["TTOT"][index_list[1]], "TLDT": data["TLDT"][index_list[1]],
+                            "ATOT": data["ATOT"][index_list[1]], "ALDT": data["ALDT"][index_list[1]]}}
 
     info_list = [
         interval_info[0],
