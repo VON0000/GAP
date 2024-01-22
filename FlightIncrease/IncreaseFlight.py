@@ -97,6 +97,13 @@ class IncreaseFlight:
             inst.gate = random.choice(available_gate)
             return inst
 
+    def find_suitable_gate_total(self, add_list: list) -> list:
+        for al in add_list:
+            al = self.find_suitable_gate(al)
+            if al is None:
+                return []
+        return add_list
+
     def increase_flight(self) -> list:
         """
         通过循环尝试将停靠间隔塞进去
@@ -125,38 +132,40 @@ class IncreaseFlight:
                     break
 
             original_interval.remove(inst)
-            new_inst = self.find_suitable_gate(inst)
-            if new_inst is not None:
-                # add the neighbor flight(if available) and the new inst
-                add_list = self._get_neighbor_flight(new_inst, idx, ref_idx, original_interval, ref_original_interval)
 
-                # consider turbulence
-                add_list = delay_time(add_list, self.interval)
+            # add the neighbor flight(if available) and the new inst
+            add_list = self._get_neighbor_flight(inst, idx, ref_idx, original_interval, ref_original_interval)
 
-                increase_list.extend(add_list)
-                self.interval.extend(add_list)
+            # consider turbulence
+            add_list = delay_time(add_list, self.interval)
+
+            # find_suitable_gate again
+            add_list = self.find_suitable_gate_total(add_list)
+
+            increase_list.extend(add_list)
+            self.interval.extend(add_list)
 
             if len(original_interval) == 0:
                 break
         return increase_list
 
     @loguru.logger.catch
-    def _get_neighbor_flight(self, new_inst: IntervalBase, idx: int, ref_idx: int, original_interval: list,
+    def _get_neighbor_flight(self, inst: IntervalBase, idx: int, ref_idx: int, original_interval: list,
                              ref_original_interval: list) -> list:
-        if new_inst.begin_callsign != new_inst.end_callsign:
-            return [new_inst]
+        if inst.begin_callsign != inst.end_callsign:
+            return [inst]
 
         # find another inst before(de) or after(ar) the inst
         # if the inst and the inst_neighbor have the same registration, find another gate for the inst_neighbor
-        inst_type = new_inst.begin_callsign[-2:].rstrip()
+        inst_type = inst.begin_callsign[-2:].rstrip()
 
-        min_inst, max_inst = self._get_index_range(new_inst, ref_idx, ref_original_interval)
+        min_inst, max_inst = self._get_index_range(inst, ref_idx, ref_original_interval)
 
         # the inst is at the beginning or the end of the group, it has no neighbor
-        if inst_type == "de" and min_inst.begin_interval == new_inst.begin_interval:
-            return [new_inst]
-        if inst_type == "ar" and max_inst.begin_interval == new_inst.begin_interval:
-            return [new_inst]
+        if inst_type == "de" and min_inst.begin_interval == inst.begin_interval:
+            return [inst]
+        if inst_type == "ar" and max_inst.begin_interval == inst.begin_interval:
+            return [inst]
 
         # the first flight of instances is departure, and it is not the first one of the group
         if inst_type == "de" and idx == 0:
@@ -169,7 +178,7 @@ class IncreaseFlight:
         inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
 
         # the inst is in the middle of the group, it has no neighbor
-        if new_inst.registration != inst_neighbor.registration:
+        if inst.registration != inst_neighbor.registration:
             return []
 
         inst_neighbor_type = inst_neighbor.begin_callsign[-2:].rstrip()
@@ -180,16 +189,10 @@ class IncreaseFlight:
         if inst_neighbor_type == inst_type:
             return []
 
-        # the inst is in the middle of the group, it has a neighbor
-        new_inst_neighbor = self.find_suitable_gate(inst_neighbor)
         original_interval.remove(inst_neighbor)
 
-        # the inst_neighbor has no suitable gate
-        if new_inst_neighbor is None:
-            return []
-
         # the inst_neighbor has a suitable gate
-        return [new_inst, new_inst_neighbor]
+        return [inst, inst_neighbor]
 
     def _get_index_range(self, new_inst: IntervalBase, ref_idx: int, ref_original_interval: list) -> tuple:
         min_inst = self._get_min_idx(new_inst, ref_idx, ref_original_interval)
