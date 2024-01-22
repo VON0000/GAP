@@ -29,6 +29,7 @@ def data_init() -> dict:
         "QFU": [],
         "Parking": [],
         "registration": [],
+        "delay": [],
     }
     return data
 
@@ -41,6 +42,7 @@ def _build_element(
         data["callsign"].append("NEW" + cl[:-2].rstrip())
 
         if cl[-2:] == "de":
+            delta_time = 0
             data["departure"].append("ZBTJ")
             data["arrivee"].append("Default")
 
@@ -66,6 +68,7 @@ def _build_element(
         data["QFU"].append("Default")
         data["Parking"].append(c.gate)
         data["registration"].append("NEW" + c.registration)
+        data["delay"].append(delta_time)
     return data
 
 
