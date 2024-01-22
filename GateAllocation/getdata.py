@@ -23,9 +23,9 @@ def load_airlinsgate():
 
     :return: the available gates for each airline
     """
-    airlines_data = pd.read_csv("../data/airlinesgate.csv", header=0, usecols=["airlines"])
+    airlines_data = pd.read_csv("./data/airlinesgate.csv", header=0, usecols=["airlines"])
     airlines = {}
-    with open("../data/airlinesgate.csv", 'r') as gate:
+    with open("./data/airlinesgate.csv", 'r') as gate:
         lines = gate.readlines()
         counter = 0
         gate_data = []
