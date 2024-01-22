@@ -2,9 +2,9 @@ import math
 import sys
 import os
 sys.path.append("..")
-import getdata
-from getinterval import GetInterval
-from optimization import Optimization
+from GateAllocation import getdata
+from GateAllocation.getinterval import GetInterval
+from GateAllocation.optimization import Optimization
 import numpy as np
 import matplotlib.pyplot as plt
 import re

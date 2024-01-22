@@ -1,11 +1,9 @@
 import os
-import random
 import re
 from typing import List
 
 import pandas as pd
 
-from FlightIncrease.AirlineType import AirlineType
 from FlightIncrease.IntervalType import IntervalBase
 
 
@@ -31,6 +29,7 @@ def data_init() -> dict:
         "QFU": [],
         "Parking": [],
         "registration": [],
+        "delay": [],
     }
     return data
 
@@ -43,18 +42,25 @@ def _build_element(
         data["callsign"].append("NEW" + cl[:-2].rstrip())
 
         if cl[-2:] == "de":
+            delta_time = 0
             data["departure"].append("ZBTJ")
             data["arrivee"].append("Default")
+
             data["ATOT"].append(c.end_interval)
-            data["ALDT"].append(random.randint(c.end_interval, 100000))
+            data["ALDT"].append(c.time_dict["de"]["ALDT"])
+
+            data["TTOT"].append(c.time_dict["de"]["TTOT"])
+            data["TLDT"].append(c.time_dict["de"]["TLDT"])
         else:
             data["departure"].append("Default")
             data["arrivee"].append("ZBTJ")
-            data["ATOT"].append(random.randint(0, c.begin_interval - 5 * 60))
+
+            delta_time = c.begin_interval - 5 * 60 - c.time_dict["ar"]["ALDT"]
+            data["ATOT"].append(c.time_dict["ar"]["ATOT"] + delta_time)
             data["ALDT"].append(c.begin_interval - 5 * 60)
 
-        data["TTOT"].append("Default")
-        data["TLDT"].append("Default")
+            data["TTOT"].append(c.time_dict["ar"]["TTOT"] + delta_time)
+            data["TLDT"].append(c.time_dict["ar"]["TLDT"] + delta_time)
 
         data["Type"].append("Default")
         data["Wingspan"].append(c.wingspan)
@@ -62,6 +68,7 @@ def _build_element(
         data["QFU"].append("Default")
         data["Parking"].append(c.gate)
         data["registration"].append("NEW" + c.registration)
+        data["delay"].append(delta_time)
     return data
 
 
@@ -89,7 +96,7 @@ class OutPut:
 
     def to_csv(self, increase_list: List[IntervalBase], filename: str, rate: float):
         name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
-        out_path = "../results/IncreaseFlight_airline_rate_" + str(rate) + "/"
+        out_path = "../results/IncreaseFlight_airline_with_delay_rate_" + str(rate) + "/"
         self.create_directory(out_path)
         out_name = [out_path] + name
         output_file_path = "".join(out_name)
@@ -107,4 +114,3 @@ class OutPut:
                 print(f"Directory '{path}' was created.")
         except Exception as e:
             print(f"An error occurred: {e}")
-
