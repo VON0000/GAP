@@ -1,3 +1,5 @@
+import sys
+
 import xlwt
 import pandas as pd
 import variable
@@ -220,7 +222,7 @@ class ToCsv:
 
         name = '_'.join(name)
         # out_name = ['./results/gate_5_taxi_15/', name, '.csv']
-        out_name = ['./results/OptimizeIncreasedFlight_rate_1/', name, '.csv']
+        out_name = ['./results/OptimizeIncreasedFlight_with_delay_rate_1/', name, '.csv']
         output_file_path = ''.join(out_name)
 
         # data = pd.read_csv(filename)
