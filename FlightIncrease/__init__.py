@@ -9,7 +9,7 @@ from FlightIncrease.GetInterval import GetInterval
 if __name__ == "__main__":
     folder_path = "../results/gate_5_taxi_15"
 
-    rate = 1  # the proportion of increased flights
+    rate = 0.5  # the proportion of increased flights
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
         match_pn = re.search(r"PN", filename, re.M | re.I)
