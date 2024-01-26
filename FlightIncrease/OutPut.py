@@ -62,7 +62,7 @@ def _build_element(
             data["TTOT"].append(c.time_dict["ar"]["TTOT"] + delta_time)
             data["TLDT"].append(c.time_dict["ar"]["TLDT"] + delta_time)
 
-        data["Type"].append("Default")
+        data["Type"].append(c.aircraft_model)
         data["Wingspan"].append(c.wingspan)
         data["Airline"].append(c.airline)
         data["QFU"].append("Default")
