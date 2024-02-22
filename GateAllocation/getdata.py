@@ -1,6 +1,8 @@
 # 读取数据
 import pandas as pd
 
+# from GateAllocation.SansMinTaxi import delete_taxiing_time
+
 
 def load_wingsize():
     """
@@ -11,10 +13,7 @@ def load_wingsize():
     sheet_data = data['sheet1']
     wingsize = {}
     for i in sheet_data.index:
-        # print(sheet_data['gate'][i], end=' ')
-        # print(sheet_data['size_limit'][i])
         wingsize[str(sheet_data['gate'][i])] = sheet_data['size_limit'][i]
-    # print(wingsize)
     return wingsize
 
 
@@ -48,7 +47,6 @@ def load_airlinsgate():
             airlines[airlines_data['airlines'][i]] = gate_data[i+1]
         else:
             airlines[airlines_data['airlines'][i]] = temp
-    # print(airlines)
     return airlines
 
 
@@ -78,7 +76,6 @@ def load_taxitime(regulation):
     """
     data = pd.read_excel("./data/mintaxitime.xlsx", sheet_name=None, header=2)
     sheet_data = data['sheet1']
-    # print(sheet_data['DEP-16R'])
     taxitime = {}
     for i in sheet_data.index:
         if regulation == 1:
@@ -98,4 +95,6 @@ def load_taxitime(regulation):
     taxiingtime = {}
     for gate in gate_list:
         taxiingtime[str(gate)] = taxitime[str(gate)]
+
+    # taxiingtime = delete_taxiing_time(taxiingtime)
     return taxiingtime
