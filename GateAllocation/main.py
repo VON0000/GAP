@@ -6,7 +6,7 @@ import reallocation
 
 part = 3
 delta = 5
-seuil = 28
+seuil = 600
 regulation = 3
 quarter = 0
 
