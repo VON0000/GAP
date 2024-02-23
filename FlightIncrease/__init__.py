@@ -7,9 +7,14 @@ from FlightIncrease.Splice import concatenate_files_with_same_number
 from FlightIncrease.GetInterval import GetInterval
 
 if __name__ == "__main__":
-    folder_path = "../results/gate_5_taxi_15"
 
     rate = 0.5  # the proportion of increased flights
+
+    folder_path = "../results/Traffic_GAP_2Pistes"
+
+    folder_path2 = "../results/Traffic_IncreaseFlight_GAP_2Pistes_" + str(rate) + "/"
+    output_path = "../results/Traffic_ConcatenatedFiles_GAP_2Pistes_" + str(rate) + "/"
+
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
         match_pn = re.search(r"PN", filename, re.M | re.I)
@@ -17,12 +22,9 @@ if __name__ == "__main__":
             filename = os.path.join(folder_path, filename)
             original_list = GetInterval(filename).interval
             increase_list = IncreaseFlight(original_list, rate).increase_flight()
-            OutPut(increase_list, filename, rate)
+            OutPut(increase_list, filename, folder_path2)
             print(filename, "has been processed.")
 
     # 文件拼接
-    folder_path1 = "../results/gate_5_taxi_15/"
-    folder_path2 = "../results/IncreaseFlight_airline_with_delay_rate_" + str(rate) + "/"
-    output_path = "../results/ConcatenatedFiles_airline_with_delay_rate_" + str(rate) + "/"
 
-    concatenate_files_with_same_number(folder_path1, folder_path2, output_path)
+    concatenate_files_with_same_number(folder_path, folder_path2, output_path)

@@ -4,8 +4,6 @@ import variable
 from optimization import Optimization
 from taxiingtime_matrix import ReMatrix
 import numpy as np
-# import localsearch
-# import plot
 from outputdata import ToCsv
 from outputdata import ProcessToCsv
 
@@ -81,39 +79,6 @@ class ReallocationInterval(ReGetInterval):
             else:
                 pass
         return gate_set
-
-
-# class IfInfeasible(ReallocationInterval):
-#     def fix_information(self, data, quarter, seuil, delta, interval_flight, interval_data, minutes=None):
-#         print(minutes, "minutes")
-#         half_h = minutes * 60
-#         q = 15 * 60
-#         n = len(data['data'])
-#         flight_list = []  # 计算需要固定的航班序列
-#         departure = np.array(data['departure'])
-#         departure_set = np.where(departure == 'ZBTJ')[0]
-#         for i in range(n):
-#             if i in departure_set:
-#                 if data['ATOT'][i] <= quarter * q + half_h:
-#                     flight_list.append(i)
-#             else:
-#                 if data['ALDT'][i] <= quarter * q + half_h:
-#                     flight_list.append(i)
-#         # print(interval_flight)
-#         fix_info = []  # 需要固定的间隔信息
-#         fix_set = []
-#         for i in range(len(interval_flight)):
-#             inter = list(set(flight_list) & set(interval_flight[i]))  # 判断此间隔是否需要固定
-#             if len(inter) != 0:
-#                 fix_set.append(i)
-#                 fix_info.append([interval_data['begin_callsign'][i], interval_data['registration'][i]])
-#         return fix_info
-
-
-# class ReOptimization(Optimization):
-#     @staticmethod
-#     def objective(x, n, m, target_matrix, model):
-#         return model
 
 
 def find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix):
@@ -235,7 +200,6 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         second_interval_data = interval[0]
         interval_pattern = interval[1]
         interval_flight = interval[2]
-        # print(second_interval_data['begin_callsign'])
 
         # Variables for the current quarter, including x
         variable_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data, quarter)
@@ -249,8 +213,8 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # Check if intervals are all greater than zero
         for i in range(len(interval_data['interval'])):
             assert interval_data['interval'][i] > 0, [interval_data['registration'][i],
-                                                       interval_data['begin_callsign'][i],
-                                                       interval_data['end_callsign'][i], '001']
+                                                      interval_data['begin_callsign'][i],
+                                                      interval_data['end_callsign'][i], '001']
 
         # The indices of fixed variables (quarter + 30 minutes) in the interval_set(x)
         total_fix_info = new_interval.fix_information(data, quarter, seuil, delta, interval_flight, interval_data)
@@ -263,10 +227,6 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
 
         # Gates for fixed intervals
         gate_fix = new_interval.gate_set(total_fix_info, gate_dict)
-
-        # write the fix_set to the Excel
-        # if quarter == 85:
-        #     to_csv.write_fix(gate_fix, fix_set, interval_data, sheetname, quarter, gate_set, interval_set)
 
         # Check if fixed part has conflicts
         fix_set, gate_fix = find_obstruction(fix_set, obstruction, interval_data, interval_set, quarter, gate_fix)
@@ -290,58 +250,6 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # Get results
         assert status != 3, "the model is infeasible"
         gate_dict = variable.SpecialVariable.get_aim_dict(gate_choose, interval_set, interval_data)
-
-        # if status != 3:
-        #     gate_dict = variable.SpecialVariable.get_aim_dict(gate_choose, interval_set, interval_data)
-
-        # if status == 3:
-        #     print("the model is infeasible")
-        #     sys.exit(1)
-        #     t = 30
-        #     if_interval = IfInfeasible()
-        #     delta_temp = 5
-        #     interval = if_interval.presolve(quarter, data, seuil, delta_temp)  # 计算当前quarter下的interval
-        #     second_interval_data = interval[0]
-        #
-        #     # 计算当前quarter下的variable
-        #     variable_set = variable.variable(second_interval_data, airline, wingsize, part, interval_flight, data,
-        #                                      quarter)
-        #     interval_data = variable_set[0]  # 所有interval的数据 每半分钟
-        #     interval_set = variable_set[1]
-        #     obstruction = variable.get_obstruction(interval_data, interval_set)
-        #     temp_x = variable_set[3]
-        #     gate_set = variable_set[2]
-        #
-        #     # 验证interval是否有小于零的情况
-        #     for i in range(len(interval_data['interval'])):
-        #         if interval_data['interval'][i] < 0:
-        #             print(interval_data['registration'][i],
-        #                   interval_data['begin_callsign'][i], interval_data['end_callsign'][i], '001')
-        #             sys.exit(1)
-        #
-        #     # 计算当前quarter后半小时？固定的variable
-        #     total_fix_info = if_interval.fix_information(data, quarter, seuil, delta_temp,
-        #                                                  interval_flight, interval_data, t)
-        #     total_fix_list = if_interval.fix_set(total_fix_info, interval_data)
-        #     fix_set = []
-        #     for i in total_fix_list:
-        #         if i in interval_set:
-        #             # 找到当前quarter、当前part下后半小时固定的variable fix_set是interval_set中的索引
-        #             fix_set.append(interval_set.index(i))
-        #     x = variable.actual_x(temp_x, gate_fix, fix_set, gate_set, interval_data, interval_set)  # 更新x
-        #     gate_dict = localsearch.local_search(x, obstruction, interval_set, interval_data, fix_set, gate_dict)
-        #     # outputdata.write_xls(gate_dict, 'before', gate_set, interval_data, interval_set)
-        #     gate_dict = localsearch.remote_allocation(gate_dict, wingsize, gate_set, interval_set, interval_data,
-        #                                               obstruction)
-        #     outputdata.write_xls(gate_dict, 'after', gate_set, interval_data, interval_set)
-        #
-
-        # make picture
-        # dic = plot.make_json(gate_dict, interval_data)
-        # flag = plot.dict2json(r'E:\pycharm\GAP\results\20230924\j_data.json', dic, quarter)
-        # to_csv.write_xls(gate_dict, sheetname, gate_set, interval_data, interval_set, quarter)
-        # print('flag:', flag)
-
         # 计数
         counter = change_times(old_gate_dic, gate_dict, counter)
         process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)

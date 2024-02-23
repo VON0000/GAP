@@ -123,8 +123,8 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/gate_5_taxi_15/', name, '.csv']
-        in_name = ['./results/gate_5_taxi_15/', name, '.csv']
+        out_name = ['./results/Traffic_GAP_2Pistes/', name, '.csv']
+        in_name = ['./results/Traffic_GAP_2Pistes/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
@@ -221,34 +221,13 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        # out_name = ['./results/gate_5_taxi_15/', name, '.csv']
-        out_name = ['./results/OptimizeIncreasedFlight_with_delay_rate_0.5/', name, '.csv']
+        out_name = ['./results/Traffic_Augmente_GAP_2Pistes/', name, '.csv']
         output_file_path = ''.join(out_name)
 
         # data = pd.read_csv(filename)
         data = pd.read_csv(output_file_path)
 
-        # # 指定要更改的列名
-        # column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
-        #
-        # if len(pattern) != len(data[column_name_to_change]):
-        #     print('the length of pattern is not equal to the length of data',
-        #           len(pattern), len(data[column_name_to_change]))
-        #     sys.exit(1)
-        #
-        # # 使用 for 循环遍历每一行并修改指定列的值
-        # for index, row in data.iterrows():
-        #     if pattern[index] == 2:
-        #         new_value = '16L'
-        #     else:
-        #         new_value = '16R'
-        #     data.loc[index, column_name_to_change] = new_value
-        #
-        # # 指定要更改的列名
-        # column_name_to_change = 'Parking'  # 将 'column_name' 替换为实际的列名
-        #
-        # # 读取原始 CSV 文件并修改指定列的数据
-        # data[column_name_to_change] = None
+        # data = for_new_file(pattern, data)
 
         for i in range(len(gate_dict['gate'])):
             call_sign1 = gate_dict['begin_callsign'][i]
@@ -288,10 +267,9 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/gate_5_taxi_15/', name, '_process.csv']
-        in_name = ['./results/gate_5_taxi_15/', name, '.csv']
+        out_name = ['./results/Traffic_GAP_2Pistes/', name, '_process.csv']
+        in_name = ['./results/Traffic_GAP_2Pistes/', name, '.csv']
         output_file_path = ''.join(out_name)
-        # input_file_path = in_name
         input_file_path = ''.join(in_name)
 
         data = pd.read_csv(input_file_path)
@@ -374,8 +352,8 @@ class ProcessToCsv(ToCsv):
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/gate_5_taxi_15/', name, '_process.csv']
-        in_name = ['./results/gate_5_taxi_15/', name, '_process.csv']
+        out_name = ['./results/Traffic_GAP_2Pistes/', name, '_process.csv']
+        in_name = ['./results/Traffic_GAP_2Pistes/', name, '_process.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
@@ -403,3 +381,28 @@ class ProcessToCsv(ToCsv):
                 data = self.new_data(data, front_part1, gate_set, gate_dict, i, registration, last_two_chars1, quarter)
                 data = self.new_data(data, front_part2, gate_set, gate_dict, i, registration, last_two_chars2, quarter)
         data.to_csv(output_file_path, index=False)
+
+
+def for_new_file(pattern, data):
+    # 指定要更改的列名
+    column_name_to_change = 'QFU'  # 将 'column_name' 替换为实际的列名
+
+    if len(pattern) != len(data[column_name_to_change]):
+        print('the length of pattern is not equal to the length of data',
+              len(pattern), len(data[column_name_to_change]))
+        sys.exit(1)
+
+    # 使用 for 循环遍历每一行并修改指定列的值
+    for index, row in data.iterrows():
+        if pattern[index] == 2:
+            new_value = '16L'
+        else:
+            new_value = '16R'
+        data.loc[index, column_name_to_change] = new_value
+
+    # 指定要更改的列名
+    column_name_to_change = 'Parking'  # 将 'column_name' 替换为实际的列名
+
+    # 读取原始 CSV 文件并修改指定列的数据
+    data[column_name_to_change] = None
+    return data

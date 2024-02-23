@@ -206,8 +206,6 @@ class GetInterval:
                 departure_set.append(i)
             else:
                 arrivee_set.append(i)
-        # departure_set = np.where(departure == 'ZBTJ')[0]
-        # arrivee_set = np.where(data['arrivee'] == 'ZBTJ')[0]
         departure_time = []
         arrivee_time = []
         for i in range(n):
