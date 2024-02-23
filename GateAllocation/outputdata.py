@@ -123,8 +123,8 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/Traffic_GAP_16R/', name, '.csv']
-        in_name = ['./results/Traffic_GAP_16R/', name, '.csv']
+        out_name = ['./results/Traffic_GAP_2Pistes/', name, '.csv']
+        in_name = ['./results/Traffic_GAP_2Pistes/', name, '.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
@@ -221,7 +221,7 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/Traffic_GAP_16R/', name, '.csv']
+        out_name = ['./results/Traffic_GAP_2Pistes/', name, '.csv']
         output_file_path = ''.join(out_name)
 
         # data = pd.read_csv(filename)
@@ -267,8 +267,8 @@ class ToCsv:
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/Traffic_GAP_16R/', name, '_process.csv']
-        in_name = ['./results/Traffic_GAP_16R/', name, '.csv']
+        out_name = ['./results/Traffic_GAP_2Pistes/', name, '_process.csv']
+        in_name = ['./results/Traffic_GAP_2Pistes/', name, '.csv']
         output_file_path = ''.join(out_name)
         input_file_path = ''.join(in_name)
 
@@ -352,8 +352,8 @@ class ProcessToCsv(ToCsv):
             name = sheetname + ['ZBTJ-PN', 'MIN']
 
         name = '_'.join(name)
-        out_name = ['./results/Traffic_GAP_16R/', name, '_process.csv']
-        in_name = ['./results/Traffic_GAP_16R/', name, '_process.csv']
+        out_name = ['./results/Traffic_GAP_2Pistes/', name, '_process.csv']
+        in_name = ['./results/Traffic_GAP_2Pistes/', name, '_process.csv']
         output_file_path = ''.join(out_name)
         # input_file_path = in_name
         input_file_path = ''.join(in_name)
