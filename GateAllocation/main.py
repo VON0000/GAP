@@ -8,12 +8,12 @@ part = 3
 delta = 5
 seuil = 0
 regulation = 3
-quarter = 0
+quarter = 100
 
 if __name__ == "__main__":
     # Specify the folder path
-    folder_path = "./data/error-in-data"
-    # folder_path = './results/ConcatenatedFiles_airline_with_delay_rate_0.5'
+    # folder_path = "./data/error-in-data"
+    folder_path = './results/Traffic_ConcatenatedFiles_GAP_2Pistes'
 
     # Iterate through the files in the folder
     for filename in os.listdir(folder_path):
