@@ -13,7 +13,7 @@ if __name__ == "__main__":
     folder_path = "../results/Traffic_GAP_2Pistes"
 
     folder_path2 = "../results/Traffic_IncreaseFlight_GAP_2Pistes_" + str(rate) + "/"
-    output_path = "../results/Traffic_Augmente_GAP_2Pistes_" + str(rate) + "/"
+    output_path = "../results/Traffic_ConcatenatedFiles_GAP_2Pistes_" + str(rate) + "/"
 
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
