@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-folder_path = '../Traffic_GAP_2Pistes/'
+folder_path = '../results/Traffic_GAP_2Pistes/'
 
 
 # 定义一个转换函数，尝试转换为整数，失败则保留原值
