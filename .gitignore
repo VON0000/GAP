@@ -139,3 +139,5 @@ config_server/
 # configuration files
 config.yaml
 schema.json
+
+dataReprocess/all_results/
