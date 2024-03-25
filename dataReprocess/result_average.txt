@@ -1,0 +1,15 @@
+Traffic;GAP;Runways;Airport;Mean
+Incr;MinTT;One;Norm;365;
+Incr;MinTT;Both;Norm;406;
+Incr;MinTT;mix;Norm;400;
+Curr;Basic;Both;Norm;407;
+Curr;MinTT;One;Norm;365;
+Curr;MinTT;Both;Norm;404;
+Curr;MinTT;mix;Norm;388;
+Incr;MinTT;One;P<>N;367;
+Incr;MinTT;Both;P<>N;406;
+Incr;MinTT;mix;P<>N;400;
+Curr;Basic;Both;P<>N;408;
+Curr;MinTT;One;P<>N;367;
+Curr;MinTT;Both;P<>N;404;
+Curr;MinTT;mix;P<>N;389;
