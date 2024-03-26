@@ -1,4 +1,4 @@
-from dataReprocess.calcuate_average_taxi_time import get_taxi_time, calculate_one_file
+from dataReprocess.calculate_average_taxi_time import get_taxi_time, calculate_one_file
 
 
 def test_calculate_one_file():
