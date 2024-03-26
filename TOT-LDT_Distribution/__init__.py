@@ -96,8 +96,6 @@ class GetNewInterval(GetInterval):
 
 def get_number_of_interval(filename: str, seuil: int, quarter: int, delta: int):
     # Initialize
-    optim_temp = Optimization()
-    sheetname = optim_temp.find_numbers(filename)
     generante_interval = GetNewInterval()
 
     # Import data

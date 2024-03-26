@@ -1,7 +1,7 @@
 import getdata
 from getinterval import GetInterval
 import variable
-from optimization import Optimization
+from optimization import Optimization, find_numbers
 from taxiingtime_matrix import ReMatrix
 import numpy as np
 from outputdata import ToCsv
@@ -183,7 +183,7 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
     matrix = ReMatrix()
     to_csv = ToCsv()
     process_to_csv = ProcessToCsv()
-    sheetname = optim_temp.find_numbers(filename)
+    sheetname = find_numbers(filename)
 
     # Import data
     airline = getdata.load_airlinsgate()

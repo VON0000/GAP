@@ -193,7 +193,7 @@ class GetInterval:
 
         Choose 16R or 16L for each aircraft
         """
-        # 1 dep_16R 2 arr_16L 3 dep_16R
+        # 1 dep_16R 2 arr_16L 3 arr_16R
         temp = self.actual_target(data, t_or_a)
         tot = temp[0]
         ldt = temp[1]

@@ -5,6 +5,19 @@ import time
 import re
 
 
+def find_numbers(text):
+    # 检查字符串是否包含路径分隔符 "\"
+    # check if the string contains path separator "\"
+    is_path = "\\" in text
+
+    if is_path:
+        found_number = re.findall(r'\d+', text.split('\\')[-1])
+    else:
+        found_number = re.findall(r'\d+', text)
+
+    return found_number
+
+
 class Optimization:
     """
     Optimization
@@ -34,20 +47,6 @@ class Optimization:
     def dependent_set():
         dependent_set = [40, 41, 42, 43, 44, 45, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67]
         return dependent_set
-
-    @staticmethod
-    def find_numbers(text):
-
-        # 检查字符串是否包含路径分隔符 "\"
-        # check if the string contains path separator "\"
-        is_path = "\\" in text
-
-        if is_path:
-            found_number = re.findall(r'\d+', text.split('\\')[-1])
-        else:
-            found_number = re.findall(r'\d+', text)
-
-        return found_number
 
     @staticmethod
     def part_4(i, j, counter, a, b, model, x):
@@ -145,7 +144,7 @@ class Optimization:
             for v in model.getVars():  # getVars获取所有变量
                 if v.x == 1:
                     # print("%s %g" % (v.varName, v.x))  # (v.varName,v.x)是（变量名字，优化结果）
-                    temp = self.find_numbers(v.varName)[1]
+                    temp = find_numbers(v.varName)[1]
                     gate_choose.append(int(temp))
             # print(gate_choose)
             # print("Obj: %g" % model.objVal)

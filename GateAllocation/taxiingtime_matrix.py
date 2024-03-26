@@ -1,4 +1,4 @@
-from variable import SpecialVariable
+from GateAllocation.variable import SpecialVariable
 
 
 class Matrix:
