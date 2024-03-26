@@ -101,15 +101,15 @@ def get_companyset(part):
     Airlines with overlapping use of parking stands
     """
     if part == 1:
-        data = pd.read_excel("./data/group/firstpart.xlsx", sheet_name=None, header=None)
+        data = pd.read_excel("../data/group/firstpart.xlsx", sheet_name=None, header=None)
     elif part == 2:
-        data = pd.read_excel("./data/group/secondpart.xlsx", sheet_name=None, header=None)
+        data = pd.read_excel("../data/group/secondpart.xlsx", sheet_name=None, header=None)
     elif part == 3:
-        data = pd.read_excel("./data/group/thirdpart.xlsx", sheet_name=None, header=None)
+        data = pd.read_excel("../data/group/thirdpart.xlsx", sheet_name=None, header=None)
     elif part == 4:
-        data = pd.read_excel("./data/group/fourthpart.xlsx", sheet_name=None, header=None)
+        data = pd.read_excel("../data/group/fourthpart.xlsx", sheet_name=None, header=None)
     else:
-        data = pd.read_excel("./data/group/fifthpart.xlsx", sheet_name=None, header=None)
+        data = pd.read_excel("../data/group/fifthpart.xlsx", sheet_name=None, header=None)
     sheet_data = data['Feuil1']
     company_set = sheet_data.iloc[:, 0]
     company_set = company_set.tolist()

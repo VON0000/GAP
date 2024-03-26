@@ -9,7 +9,7 @@ def load_wingsize():
 
     :return: the wing span limitations for each gate
     """
-    data = pd.read_excel("./data/wingsizelimit.xls", sheet_name=None)
+    data = pd.read_excel("../data/wingsizelimit.xls", sheet_name=None)
     sheet_data = data['sheet1']
     wingsize = {}
     for i in sheet_data.index:
@@ -22,9 +22,9 @@ def load_airlinsgate():
 
     :return: the available gates for each airline
     """
-    airlines_data = pd.read_csv("./data/airlinesgate.csv", header=0, usecols=["airlines"])
+    airlines_data = pd.read_csv("../data/airlinesgate.csv", header=0, usecols=["airlines"])
     airlines = {}
-    with open("./data/airlinesgate.csv", 'r') as gate:
+    with open("../data/airlinesgate.csv", 'r') as gate:
         lines = gate.readlines()
         counter = 0
         gate_data = []
@@ -74,7 +74,7 @@ def load_taxitime(regulation):
     :param regulation: PN or NP
     :return: the taxiing time of each gate
     """
-    data = pd.read_excel("./data/mintaxitime.xlsx", sheet_name=None, header=2)
+    data = pd.read_excel("../data/mintaxitime.xlsx", sheet_name=None, header=2)
     sheet_data = data['sheet1']
     taxitime = {}
     for i in sheet_data.index:
