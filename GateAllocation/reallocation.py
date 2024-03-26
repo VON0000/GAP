@@ -193,7 +193,7 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
 
     # Initial solution
     genernate = gate_dict
-
+    process_data = ProcessToCsv.read_process(sheetname, regulation)
     while quarter < 96:
         # Obtain all interval-related data
         interval = new_interval.presolve(quarter, data, seuil, delta)  # Intervals for the current quarter
@@ -252,10 +252,11 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         gate_dict = variable.SpecialVariable.get_aim_dict(gate_choose, interval_set, interval_data)
         # 计数
         counter = change_times(old_gate_dic, gate_dict, counter)
-        process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
+        process_data = process_to_csv.write_process(gate_dict, sheetname, gate_set, regulation, process_data, quarter)
         quarter += 1
         print(quarter)
 
+    process_to_csv.write_process_to_file(process_data, regulation, sheetname)
     remote_number = final_remote(gate_dict, airline, interval_data, gate_set)
     to_csv.write_final(gate_dict, sheetname, gate_set, pattern, regulation, filename, counter, remote_number)
     return gate_dict
