@@ -42,7 +42,7 @@ def test_get_interval_one():
 
 def test_flight_list_sorted():
     instance = GetInterval(filename="../data/mock_231029.csv", quarter=math.nan)
-    flight_list = instance.flight_list_sorted("B9987", quarter=math.nan)
+    flight_list = instance._flight_list_sorted("B9987", quarter=math.nan)
     for i in range(len(flight_list) - 1):
         if instance.data["departure"][flight_list[i]] == "ZBTJ":
             assert (

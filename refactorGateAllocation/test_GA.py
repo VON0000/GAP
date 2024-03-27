@@ -1,11 +1,11 @@
 import math
 
 from BasicFunction.GetInterval import GetInterval
-from refactorGateAllocation.GetTaxiingTime import GetTaxiingTime
+from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 
 
-def test_get_taxiing_time():
-    data = GetTaxiingTime("101", "MANEX").get_all_taxiing_time()
+def test_get_all_taxiing_time():
+    data = get_all_taxiing_time()
 
     # 414L 290 525 335 290 510 340 290 520 335 290 510 340
     assert data["414L"] == {
@@ -53,6 +53,19 @@ def test_get_taxiing_time():
             "ARR-16L": 365,
             "ARR-16R": 260
         }
+    }
+
+
+def test_get_taxiing_time():
+    assert GetTaxiingTime("414L", "PN_MANEX").taxiing_time == {
+        "DEP-16R": 290,
+        "ARR-16L": 520,
+        "ARR-16R": 335
+    }
+    assert GetTaxiingTime("117", "PN_MIN").taxiing_time == {
+        "DEP-16R": 490,
+        "ARR-16L": 365,
+        "ARR-16R": 260
     }
 
 

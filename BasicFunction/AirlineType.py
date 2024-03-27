@@ -37,38 +37,29 @@ def get_group_dict() -> dict:
 
 
 class AirlineType:
+    cargo = get_airline_info("cargo")
+    domestic = get_airline_info("domestic")
+    international = get_airline_info("international")
+    all_available = get_airline_info("airlinesgate")
+
     def __init__(self, airline: str):
         self.airline = airline
         self.type = self.get_type()
         self.available_gate = self.get_available_gate()
 
-    @classmethod
-    def get_airline_info(cls) -> tuple:
-        cargo = get_airline_info("cargo")
-        domestic = get_airline_info("domestic")
-        international = get_airline_info("international")
-        return cargo, domestic, international
-
-    @classmethod
-    def get_available_gate_info(cls) -> dict:
-        all_available = get_airline_info("airlinesgate")
-        return all_available
-
     def get_type(self) -> str:
-        cargo, domestic, international = self.get_airline_info()
-        if self.airline in cargo.keys():
+        if self.airline in AirlineType.cargo.keys():
             return "cargo"
-        elif self.airline in domestic.keys():
+        elif self.airline in AirlineType.domestic.keys():
             return "domestic"
-        elif self.airline in international.keys():
+        elif self.airline in AirlineType.international.keys():
             return "international"
         else:
             print(self.airline)
             raise ValueError("AirlineType.get_type: airline not found")
 
     def get_available_gate(self) -> list:
-        all_available = self.get_available_gate_info()
-        if self.airline in all_available.keys():
-            return all_available[self.airline]
+        if self.airline in AirlineType.all_available.keys():
+            return AirlineType.all_available[self.airline]
         else:
             return []
