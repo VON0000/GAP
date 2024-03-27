@@ -26,28 +26,28 @@ class IntervalBase(metaclass=abc.ABCMeta):
         self.time_dict = info_list[10]
 
 
-def _longtime_arrivee(data: dict, index_list: list, quarter: Union[int, float]):
+def _longtime_arrivee(data: dict, index_list: list, quarter: Union[int, float]) -> tuple:
     begin_interval = data[get_time_type(data, index_list[0], "ar", quarter)][index_list[0]] + 5 * MINUTE
     end_interval = data[get_time_type(data, index_list[0], "ar", quarter)][index_list[0]] + 20 * MINUTE
     interval = end_interval - begin_interval
     return interval, begin_interval, end_interval
 
 
-def _longtime_departure(data: dict, index_list: list, quarter: Union[int, float]):
+def _longtime_departure(data: dict, index_list: list, quarter: Union[int, float]) -> tuple:
     begin_interval = data[get_time_type(data, index_list[0], "de", quarter)][index_list[0]] - 20 * MINUTE
     end_interval = data[get_time_type(data, index_list[0], "de", quarter)][index_list[0]] - 5 * MINUTE
     interval = end_interval - begin_interval
     return interval, begin_interval, end_interval
 
 
-def _shorttime(data: dict, index_list: list, quarter: Union[int, float]):
+def _shorttime(data: dict, index_list: list, quarter: Union[int, float]) -> tuple:
     begin_interval = data[get_time_type(data, index_list[0], "ar", quarter)][index_list[0]] + 5 * MINUTE
     end_interval = data[get_time_type(data, index_list[1], "de", quarter)][index_list[1]] - 5 * MINUTE
     interval = end_interval - begin_interval
     return interval, begin_interval, end_interval
 
 
-def _get_info_list(interval_type: str, data: dict, index_list: List[int], quarter: Union[int, float]):
+def _get_info_list(interval_type: str, data: dict, index_list: List[int], quarter: Union[int, float]) -> list:
     interval_info = None
     time_dict = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
                  "de": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0}}
