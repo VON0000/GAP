@@ -7,7 +7,7 @@ from FlightIncrease import OutPut
 from FlightIncrease.AircraftModel import AircraftModel
 from FlightIncrease.AirlineType import get_airline_info, AirlineType, get_group_dict
 from FlightIncrease.DelayTime import get_wake_turbulence, find_insertion_location
-from FlightIncrease.GetInterval import GetInterval
+from BasicFunction.GetInterval import GetInterval
 from FlightIncrease.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import (
     _is_overlapping,
@@ -15,7 +15,7 @@ from FlightIncrease.IncreaseFlight import (
     _conflict_all,
     IncreaseFlight,
 )
-from FlightIncrease.IntervalType import IntervalBase
+from BasicFunction.IntervalType import IntervalBase
 
 HOUR = 60 * 60
 TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
@@ -597,4 +597,4 @@ def test_find_insertion_location():
 def test_all():
     original_list = GetInterval(filename="../data\\mock_231029.csv").interval
     increase_list = IncreaseFlight(original_list).increase_flight()
-    OutPut(increase_list, filename="../data\\mock_231029.csv")
+    OutPut(increase_list, filename="../data\\mock_231029.csv", out_path="../data\\mock_231029_result.csv")

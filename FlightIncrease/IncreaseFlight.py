@@ -8,7 +8,7 @@ import loguru
 from FlightIncrease.AirlineType import AirlineType
 from FlightIncrease.DelayTime import delay_time
 from FlightIncrease.GetWingSpan import GetWingSpan
-from FlightIncrease.IntervalType import IntervalBase
+from BasicFunction.IntervalType import IntervalBase
 
 
 def _is_overlapping(time1, time2) -> bool:

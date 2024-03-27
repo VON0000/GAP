@@ -4,7 +4,7 @@ import re
 from FlightIncrease.IncreaseFlight import IncreaseFlight
 from FlightIncrease.OutPut import OutPut
 from FlightIncrease.Splice import concatenate_files_with_same_number
-from FlightIncrease.GetInterval import GetInterval
+from BasicFunction.GetInterval import GetInterval
 
 if __name__ == "__main__":
 

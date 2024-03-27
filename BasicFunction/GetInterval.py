@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from FlightIncrease.IntervalType import IntervalType
+from BasicFunction.IntervalType import IntervalType
 
 HOUR = 60 * 60
 MINUTE = 60
