@@ -6,10 +6,10 @@ import numpy as np
 
 from FlightIncrease import OutPut
 from FlightIncrease.AircraftModel import AircraftModel
-from FlightIncrease.AirlineType import get_airline_info, AirlineType, get_group_dict
+from BasicFunction.AirlineType import get_airline_info, AirlineType, get_group_dict
 from FlightIncrease.DelayTime import get_wake_turbulence, find_insertion_location
 from BasicFunction.GetInterval import GetInterval
-from FlightIncrease.GetWingSpan import GetWingSpan
+from BasicFunction.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import (
     _is_overlapping,
     _conflict_half,

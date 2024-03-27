@@ -5,9 +5,9 @@ from typing import Union
 
 import loguru
 
-from FlightIncrease.AirlineType import AirlineType
+from BasicFunction.AirlineType import AirlineType
 from FlightIncrease.DelayTime import delay_time
-from FlightIncrease.GetWingSpan import GetWingSpan
+from BasicFunction.GetWingSpan import GetWingSpan
 from BasicFunction.IntervalType import IntervalBase
 
 

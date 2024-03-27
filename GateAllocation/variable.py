@@ -180,69 +180,6 @@ def variable(second_interval_data, airline, wingsize, part, interval_flight, dat
     return min_interval_data, interval_set, gate_set, x
 
 
-# def variable_infeasible(second_interval_data, airline, wingsize, part, quarter, interval_set_total, counter, pr_temp):
-#     h = 60 * 60
-#     company_set = get_companyset(part)
-#     temp = np.isin(second_interval_data['airline'], company_set)
-#     temp_set1 = np.where(temp)[0]
-#     temp_set2 = np.where(np.array(second_interval_data['begin_interval']) <= quarter * 15 * 60 + h)[0]
-#     interval_set = np.intersect1d(temp_set1, temp_set2)
-#     interval_set = list(interval_set)
-#
-#     if counter == 2:
-#         for i in pr_temp[1]:
-#             pr_temp[0].remove(i)
-#         for i in pr_temp[0]:
-#             interval_set.remove(i)
-#     # temp_set3 = np.where((quarter * 15 * 60 <= np.array(second_interval_data['end_interval'])) &
-#     #                      (np.array(second_interval_data['begin_interval']) <= quarter * 15 * 60 + h))[0]
-#     # interval_pr = np.intersect1d(temp_set1, temp_set3)
-#     # interval_pr = list(interval_pr)
-#     # print(len(interval_pr))
-#     # for i in range(37):
-#     #     interval_set.remove(interval_pr[i])
-#     n = len(interval_set)
-#     # print(n, "n")
-#     gate = list(wingsize.keys())
-#     gate_set = set().union(*[airline[key] for key in company_set])
-#     gate_set = sorted(gate_set, key=lambda y: gate.index(y))
-#     m = len(gate_set)
-#     x = [[0] * m for _ in range(n)]
-#     del_set = []
-#     for i in range(n):
-#         fit = select_infeasible(wingsize, i, second_interval_data, interval_set, airline, gate_set, interval_set_total)
-#         if len(fit) == 0:
-#             del_set.append(i)
-#         for j in fit:
-#             x[i][j] = 1
-#         # if interval_set[i] in interval_pr:
-#         #     print(second_interval_data['begin_interval'][interval_set[i]],
-#         #           second_interval_data['end_interval'][interval_set[i]],
-#         #           second_interval_data['registration'][interval_set[i]],
-#         #           second_interval_data['begin_callsign'][interval_set[i]],
-#         #           second_interval_data['end_callsign'][interval_set[i]], fit)
-#     if len(del_set) != 0:
-#         print(del_set, "del_set")
-#         sys.exit(1)
-#     # print(interval_set)
-#     min_interval_data = timetransform(second_interval_data)
-#     return min_interval_data, interval_set, gate_set, x
-#
-#
-# def select_infeasible(wingsize, i, interval_data, interval_set, airline, gate_set, interval_set_total):
-#     index = np.where(interval_set_total == interval_set[i])[0]
-#     index = interval_set_total[index[0]]
-#     wing_limit = np.where(list(wingsize.values()) >= interval_data['wingspan'][index])[0]
-#     temp = interval_data['airline'][index]
-#     company_limit = [i for i, item in enumerate(wingsize.keys()) if item in airline[temp]]
-#     intersection = set(wing_limit) & set(company_limit)
-#     intersection_gate = [item for i, item in enumerate(wingsize.keys()) if i in intersection]
-#     # 排序
-#     fit = [j for j, value in enumerate(gate_set) if value in intersection_gate]
-#     # print(fit)
-#     return fit
-
-
 def actual_x(x, gate_fix, fix_set, gate_set, interval_data, interval_set):
     # temp = []
     m = len(gate_set)
@@ -250,9 +187,6 @@ def actual_x(x, gate_fix, fix_set, gate_set, interval_data, interval_set):
     for i in range(len(fix_set)):
         x[fix_set[i]] = [0] * m
         x[fix_set[i]][gate_fix[i]] = 1
-        # temp.append(interval_data['registration'][interval_set[fix_set[i]]])
-    # print(fix_set)
-    # print(temp)
     return x
 
 
