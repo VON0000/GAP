@@ -1,3 +1,4 @@
+import math
 from typing import Union
 
 import numpy as np
@@ -31,7 +32,7 @@ class GetInterval:
         计算当前registration的停靠间隔
         """
         interval = []
-        flight_list = self.flight_list_sorted(registration, quarter)
+        flight_list = self._flight_list_sorted(registration, quarter)
         i = 0
 
         if self.data["departure"][flight_list[0]] == "ZBTJ":
@@ -76,7 +77,7 @@ class GetInterval:
             i = i + 2
         return interval
 
-    def flight_list_sorted(self, registration: str, quarter: Union[int, float]) -> list:
+    def _flight_list_sorted(self, registration: str, quarter: Union[int, float]) -> list:
         """
         对flight_list进行排序
         """
@@ -113,3 +114,10 @@ class GetInterval:
             if u.end_callsign[-2:] == "de":
                 u.end_interval = u.end_interval + 5 * MINUTE
         return interval
+
+    def transfer_second_to_half_minute(self):
+        for i in self.interval:
+            i.begin_interval = math.ceil(i.begin_interval / (MINUTE / 2))
+            i.end_interval = math.ceil(i.end_interval / (MINUTE / 2))
+            i.interval = math.ceil(i.interval / (MINUTE / 2))
+        return self.interval
