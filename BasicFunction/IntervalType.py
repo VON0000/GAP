@@ -1,7 +1,7 @@
 import abc
 from typing import List, Union
 
-from BasicFunction.GetTimeType import get_time_type
+from BasicFunction.GetData import get_time_type
 
 HOUR = 60 * 60
 MINUTE = 60

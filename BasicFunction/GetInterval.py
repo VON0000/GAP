@@ -3,7 +3,7 @@ from typing import Union
 
 import numpy as np
 
-from BasicFunction.GetTimeType import get_time_type
+from BasicFunction.GetData import get_time_type
 from BasicFunction.IntervalType import IntervalType
 
 HOUR = 60 * 60
