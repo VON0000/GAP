@@ -5,7 +5,7 @@ from refactorGateAllocation.GetTaxiingTime import GetTaxiingTime
 
 
 def test_get_taxiing_time():
-    data = GetTaxiingTime("101", "MANEX").get_taxiing_time()
+    data = GetTaxiingTime("101", "MANEX").get_all_taxiing_time()
 
     # 414L 290 525 335 290 510 340 290 520 335 290 510 340
     assert data["414L"] == {
