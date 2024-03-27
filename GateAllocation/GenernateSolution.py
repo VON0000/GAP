@@ -1,9 +1,9 @@
-import getdata
-from getinterval import GetInterval
-from taxiingtime_matrix import Matrix
-import variable
-from outputdata import ToCsv
-from optimization import Optimization
+import GateAllocation.getdata as getdata
+from GateAllocation.getinterval import GetInterval
+from GateAllocation.taxiingtime_matrix import Matrix
+import GateAllocation.variable as variable
+from GateAllocation.outputdata import ToCsv
+from GateAllocation.optimization import Optimization, find_numbers
 
 
 def generante_solution(filename: str, regulation: int, seuil: int, quarter: int, part: int, delta: int):
@@ -24,7 +24,7 @@ def generante_solution(filename: str, regulation: int, seuil: int, quarter: int,
     """
     # Initialize
     optim_temp = Optimization()
-    sheetname = optim_temp.find_numbers(filename)
+    sheetname = find_numbers(filename)
     generante_interval = GetInterval()
     matrix = Matrix()
     to_csv = ToCsv()
@@ -53,9 +53,10 @@ def generante_solution(filename: str, regulation: int, seuil: int, quarter: int,
     # Optimization
     result = optim_temp.optim(x, obstruction, target_matrix, part)
     gate_choose = result[1]
+    obj = result[2]
 
     # Result
     gate_dict = variable.SpecialVariable.get_aim_dict(gate_choose, interval_set, interval_data)
     # to_csv.write_other(gate_dict, filename, sheetname, gate_set, pattern, regulation)
     to_csv.write_process(gate_dict, sheetname, gate_set, regulation, quarter)
-    return gate_dict, pattern
+    return gate_dict, pattern, obj

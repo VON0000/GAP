@@ -112,13 +112,13 @@ class ToCsv:
         this one is to record other regulations
         """
         name = get_name(regulation, sheetname)
-        out_name = ['./results/Traffic_Augmente_GAP_2Pistes/', name, '.csv']
+        out_name = ['../results/Traffic_GAP_test/', name, '.csv']
         output_file_path = ''.join(out_name)
 
-        # data = pd.read_csv(filename)
-        data = pd.read_csv(output_file_path)
+        data = pd.read_csv(filename)
+        # data = pd.read_csv(output_file_path)
 
-        # data = for_new_file(pattern, data)
+        data = for_new_file(pattern, data)
 
         for i in range(len(gate_dict['gate'])):
             call_sign1 = gate_dict['begin_callsign'][i]

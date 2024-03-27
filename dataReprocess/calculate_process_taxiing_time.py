@@ -55,7 +55,7 @@ def calculate_one_file(filename: str, taxi_time: dict, switch: str, result_dict:
     for key in data:
         match_parking = re.search(r"parking", key, re.M | re.I)
         if match_parking is not None:
-            taxi_time_list.append(calculate_value(data, taxi_time, switch, qfu, key))
+            taxi_time_list.append(taxi_time_list_average(calculate_value(data, taxi_time, switch, qfu, key)))
 
     result_dict[filename] = [round(i - taxi_time_list[0]) for i in taxi_time_list]
 
@@ -75,6 +75,10 @@ def calculate_value(data: dict, taxi_time: dict, switch: str, qfu: list, key: st
         if data["arrivee"][i] != "ZBTJ":
             taxi_time_list.append(taxi_time[switch][gate]["DEP-16R"])
 
+    return taxi_time_list
+
+
+def taxi_time_list_average(taxi_time_list: list):
     return sum(taxi_time_list) / len(taxi_time_list)
 
 

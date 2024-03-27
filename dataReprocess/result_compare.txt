@@ -1,0 +1,10 @@
+gaptraffic-2017-08-03-new.csv: 13152980.0, 152980 
+gaptraffic-2017-08-06-new.csv: 13161630.0, 162270 
+gaptraffic-2017-08-14-new.csv: 13168295.0, 169400 
+gaptraffic-2017-08-17-new.csv: 16162550.0, 162550 
+gaptraffic-2017-08-19-new.csv: 17157405.0, 157405 
+gaptraffic-2018-07-18-new.csv: 21169005.0, 169005 
+gaptraffic-2018-07-29-new.csv: 16163275.0, 163275 
+gaptraffic-2018-09-29-new.csv: 19162770.0, 162770 
+gaptraffic-2019-02-01-new.csv: 30166605.0, 166605 
+gaptraffic-2019-08-07-new.csv: 21166475.0, 166475 

@@ -21,7 +21,7 @@ if __name__ == "__main__":
             filename = os.path.join(folder_path, filename)
 
             # Generate initial solution
-            genernate_solution, pattern = GenernateSolution.generante_solution(
+            genernate_solution, pattern, obj = GenernateSolution.generante_solution(
                 filename, regulation, seuil, quarter, part, delta
             )
 
