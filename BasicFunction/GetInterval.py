@@ -115,7 +115,7 @@ class GetInterval:
                 u.end_interval = u.end_interval + 5 * MINUTE
         return interval
 
-    def transfer_second_to_half_minute(self):
+    def transform_second_to_half_minute(self):
         for i in self.interval:
             i.begin_interval = math.ceil(i.begin_interval / (MINUTE / 2))
             i.end_interval = math.ceil(i.end_interval / (MINUTE / 2))
