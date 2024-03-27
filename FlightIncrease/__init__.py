@@ -1,3 +1,4 @@
+import math
 import os
 import re
 
@@ -20,7 +21,7 @@ if __name__ == "__main__":
         match_pn = re.search(r"PN", filename, re.M | re.I)
         if match_pn is None and filename.endswith(".csv") and match_process is None:
             filename = os.path.join(folder_path, filename)
-            original_list = GetInterval(filename).interval
+            original_list = GetInterval(filename, quarter=math.nan).interval
             increase_list = IncreaseFlight(original_list, rate).increase_flight()
             OutPut(increase_list, filename, folder_path2)
             print(filename, "has been processed.")
