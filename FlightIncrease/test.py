@@ -4,6 +4,7 @@ from copy import deepcopy
 import loguru
 import numpy as np
 
+from BasicFunction.GetData import get_data
 from FlightIncrease import OutPut
 from FlightIncrease.AircraftModel import AircraftModel
 from BasicFunction.AirlineType import get_airline_info, AirlineType, get_group_dict
@@ -24,7 +25,8 @@ TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
 
 
 def test_get_data():
-    instance = GetInterval(filename="../data/mock_231029.csv", quarter=math.nan)
+    data = get_data("../data/mock_231029.csv")
+    instance = GetInterval(data, quarter=math.nan)
     for i in range(len(instance.data["callsign"])):
         if instance.data["callsign"][i][-2:] == "ar":
             assert instance.data["arrivee"][i] == "ZBTJ"
@@ -33,7 +35,8 @@ def test_get_data():
 
 
 def test_get_interval_one():
-    instance = GetInterval(filename="../data/mock_231029.csv", quarter=math.nan)
+    data = get_data("../data/mock_231029.csv")
+    instance = GetInterval(data, quarter=math.nan)
     for r in instance.data["registration"]:
         inst_list = instance._get_interval_one(r, quarter=math.nan)
         for i in inst_list:
@@ -41,7 +44,8 @@ def test_get_interval_one():
 
 
 def test_flight_list_sorted():
-    instance = GetInterval(filename="../data/mock_231029.csv", quarter=math.nan)
+    data = get_data("../data/mock_231029.csv")
+    instance = GetInterval(data, quarter=math.nan)
     flight_list = instance._flight_list_sorted("B9987", quarter=math.nan)
     for i in range(len(flight_list) - 1):
         if instance.data["departure"][flight_list[i]] == "ZBTJ":
@@ -57,7 +61,8 @@ def test_flight_list_sorted():
 
 
 def test_get_interval():
-    instance = GetInterval(filename="../data/mock_231029.csv", quarter=math.nan)
+    data = get_data("../data/mock_231029.csv")
+    instance = GetInterval(data, quarter=math.nan)
     inst_list = instance.get_interval(quarter=math.nan)
     assert len(inst_list) == 35
     for i in inst_list:
@@ -515,7 +520,8 @@ def test_get_index_range():
     )
 
     instance_list = [inst_1, inst_2, inst_3, inst_4, inst_5, inst_6]
-    original_list = GetInterval(filename="../data\\mock_231029.csv", quarter=math.nan).interval
+    data = get_data("../data/mock_231029.csv")
+    original_list = GetInterval(data, quarter=math.nan).interval
     min_inst, max_inst = IncreaseFlight(original_list)._get_index_range(inst_3, 2, instance_list)
     assert min_inst.airline == inst_2.airline
     assert max_inst.airline == inst_5.airline
@@ -596,6 +602,7 @@ def test_find_insertion_location():
 
 
 def test_all():
-    original_list = GetInterval(filename="../data\\mock_231029.csv", quarter=math.nan).interval
+    data = get_data("../data/mock_231029.csv")
+    original_list = GetInterval(data, quarter=math.nan).interval
     increase_list = IncreaseFlight(original_list).increase_flight()
     OutPut(increase_list, filename="../data\\mock_231029.csv", out_path="../data")

@@ -2,6 +2,7 @@ import math
 import os
 import re
 
+from BasicFunction.GetData import get_data
 from FlightIncrease.IncreaseFlight import IncreaseFlight
 from FlightIncrease.OutPut import OutPut
 from FlightIncrease.Splice import concatenate_files_with_same_number
@@ -21,7 +22,8 @@ if __name__ == "__main__":
         match_pn = re.search(r"PN", filename, re.M | re.I)
         if match_pn is None and filename.endswith(".csv") and match_process is None:
             filename = os.path.join(folder_path, filename)
-            original_list = GetInterval(filename, quarter=math.nan).interval
+            data = get_data(filename)
+            original_list = GetInterval(data, quarter=math.nan).interval
             increase_list = IncreaseFlight(original_list, rate).increase_flight()
             OutPut(increase_list, filename, folder_path2)
             print(filename, "has been processed.")

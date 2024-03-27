@@ -2,7 +2,6 @@ import math
 from typing import Union
 
 import numpy as np
-import pandas as pd
 
 from BasicFunction.GetTimeType import get_time_type
 from BasicFunction.IntervalType import IntervalType
@@ -11,20 +10,9 @@ HOUR = 60 * 60
 MINUTE = 60
 
 
-def get_data(filename) -> dict:
-    data = pd.read_csv(filename)
-    data = data.to_dict(orient="list")
-    for i in range(len(data["data"])):
-        if data["arrivee"][i] == "ZBTJ":
-            data["callsign"][i] = data["callsign"][i] + " ar"
-        else:
-            data["callsign"][i] = data["callsign"][i] + " de"
-    return data
-
-
 class GetInterval:
-    def __init__(self, filename: str, quarter: Union[int, float]):
-        self.data = get_data(filename)
+    def __init__(self, data: dict, quarter: Union[int, float]):
+        self.data = data
         self.interval = self.get_interval(quarter)
 
     def _get_interval_one(self, registration: str, quarter: Union[int, float]) -> list:
