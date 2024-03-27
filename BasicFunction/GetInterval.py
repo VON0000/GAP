@@ -3,7 +3,7 @@ from typing import Union
 
 import numpy as np
 
-from BasicFunction.GetData import get_time_type
+from BasicFunction.GetData import get_right_time
 from BasicFunction.IntervalType import IntervalType
 
 HOUR = 60 * 60
@@ -38,8 +38,8 @@ class GetInterval:
                 interval.append(interval_instance)
                 break
             interval_time = (
-                    self.data[get_time_type(self.data, flight_list[i + 1], "de", quarter)][flight_list[i + 1]]
-                    - self.data[get_time_type(self.data, flight_list[i], "ar", quarter)][flight_list[i]]
+                    get_right_time(self.data, flight_list[i + 1], "de", quarter)
+                    - get_right_time(self.data, flight_list[i], "ar", quarter)
             )
             if interval_time <= HOUR:
                 interval_instance = IntervalType(
@@ -73,9 +73,9 @@ class GetInterval:
         time_list = []
         for i in flight_list:
             if self.data["departure"][i] == "ZBTJ":
-                time_list.append(self.data[get_time_type(self.data, i, "de", quarter)][i])
+                time_list.append(get_right_time(self.data, i, "de", quarter))
             else:
-                time_list.append(self.data[get_time_type(self.data, i, "ar", quarter)][i])
+                time_list.append(get_right_time(self.data, i, "ar", quarter))
         enumerated_list = list(enumerate(time_list))
         sorted_list = sorted(enumerated_list, key=lambda x: x[1])
         sorted_indices = [x[0] for x in sorted_list]

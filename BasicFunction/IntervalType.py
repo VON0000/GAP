@@ -1,7 +1,7 @@
 import abc
 from typing import List, Union
 
-from BasicFunction.GetData import get_time_type
+from BasicFunction.GetData import get_right_time
 
 HOUR = 60 * 60
 MINUTE = 60
@@ -27,22 +27,22 @@ class IntervalBase(metaclass=abc.ABCMeta):
 
 
 def _longtime_arrivee(data: dict, index_list: list, quarter: Union[int, float]) -> tuple:
-    begin_interval = data[get_time_type(data, index_list[0], "ar", quarter)][index_list[0]] + 5 * MINUTE
-    end_interval = data[get_time_type(data, index_list[0], "ar", quarter)][index_list[0]] + 20 * MINUTE
+    begin_interval = get_right_time(data, index_list[0], "ar", quarter) + 5 * MINUTE
+    end_interval = get_right_time(data, index_list[0], "ar", quarter) + 20 * MINUTE
     interval = end_interval - begin_interval
     return interval, begin_interval, end_interval
 
 
 def _longtime_departure(data: dict, index_list: list, quarter: Union[int, float]) -> tuple:
-    begin_interval = data[get_time_type(data, index_list[0], "de", quarter)][index_list[0]] - 20 * MINUTE
-    end_interval = data[get_time_type(data, index_list[0], "de", quarter)][index_list[0]] - 5 * MINUTE
+    begin_interval = get_right_time(data, index_list[0], "de", quarter) - 20 * MINUTE
+    end_interval = get_right_time(data, index_list[0], "de", quarter) - 5 * MINUTE
     interval = end_interval - begin_interval
     return interval, begin_interval, end_interval
 
 
 def _shorttime(data: dict, index_list: list, quarter: Union[int, float]) -> tuple:
-    begin_interval = data[get_time_type(data, index_list[0], "ar", quarter)][index_list[0]] + 5 * MINUTE
-    end_interval = data[get_time_type(data, index_list[1], "de", quarter)][index_list[1]] - 5 * MINUTE
+    begin_interval = get_right_time(data, index_list[0], "ar", quarter) + 5 * MINUTE
+    end_interval = get_right_time(data, index_list[1], "de", quarter) - 5 * MINUTE
     interval = end_interval - begin_interval
     return interval, begin_interval, end_interval
 

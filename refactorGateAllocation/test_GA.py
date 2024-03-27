@@ -1,5 +1,6 @@
 import math
 
+from BasicFunction.GetData import get_data
 from BasicFunction.GetInterval import GetInterval
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 
@@ -70,10 +71,11 @@ def test_get_taxiing_time():
 
 
 def test_transform_second_to_half_minute():
-    interval_half_minute = GetInterval(filename="../data\\mock_231029.csv", quarter=math.nan)
+    data = get_data("../data/mock_231029.csv")
+    interval_half_minute = GetInterval(data, quarter=math.nan)
     interval_half_minute.transform_second_to_half_minute()
 
-    interval_second = GetInterval(filename="../data\\mock_231029.csv", quarter=math.nan)
+    interval_second = GetInterval(data, quarter=math.nan)
 
     for i in range(len(interval_half_minute.interval)):
         assert interval_half_minute.interval[i].begin_interval == math.ceil(

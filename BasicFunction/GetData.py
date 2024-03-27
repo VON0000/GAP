@@ -35,3 +35,10 @@ def get_time_type(data: dict, data_index: int, data_type: str, quarter: Union[in
     if data['ALDT'][data_index] <= quarter * q + h or data['TLDT'][data_index] < quarter * q:
         return "ALDT"
     return "TLDT"
+
+
+def get_right_time(data: dict, data_index: int, data_type: str, quarter: Union[int, float]):
+    """
+    直接获取数据 减少心智负担
+    """
+    return data[get_time_type(data, data_index, data_type, quarter)][data_index]
