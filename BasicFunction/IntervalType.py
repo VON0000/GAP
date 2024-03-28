@@ -9,7 +9,7 @@ MINUTE = 60
 
 class IntervalBase(metaclass=abc.ABCMeta):
     def __init__(self, info_list: list):
-        qfu_info_list = info_list[10:]
+        qfu_info_list = info_list[11:]
 
         self.interval = info_list[0]
         self.begin_interval = info_list[1]
