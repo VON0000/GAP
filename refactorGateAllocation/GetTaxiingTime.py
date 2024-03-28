@@ -40,6 +40,9 @@ def get_all_taxiing_time() -> dict:
 
 
 class GetTaxiingTime:
+    """
+    gate + pattern("PN_MANEX") -> taxiing_time
+    """
     taxiing_file_data = get_all_taxiing_time()
 
     def __init__(self, gate: str, pattern: str):
@@ -47,7 +50,7 @@ class GetTaxiingTime:
         self.pattern = pattern
         self.taxiing_time = self.get_taxiing_time()
 
-    def get_taxiing_time(self):
+    def get_taxiing_time(self) -> dict:
         """
         获取当前停机坪的滑行时间
         """

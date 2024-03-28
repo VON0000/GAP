@@ -17,6 +17,10 @@ def _count_numbers_in_range(lst, low, high):
 
 
 class TaxiingStatus:
+    """
+    为 interval 设置 QFU 属性
+    """
+
     def __init__(self, data: dict, quarter: int, seuil: int):
         self.data = data
         self.quarter = quarter
