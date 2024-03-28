@@ -42,6 +42,8 @@ class AirlineType:
     international = get_airline_info("international")
     all_available = get_airline_info("airlinesgate")
 
+    group_dict = get_group_dict()
+
     def __init__(self, airline: str):
         self.airline = airline
         self.type = self.get_type()
@@ -63,3 +65,13 @@ class AirlineType:
             return AirlineType.all_available[self.airline]
         else:
             return []
+
+    def get_type_gate(self):
+        if self.type == "cargo":
+            return AirlineType.group_dict["cargo"]
+        elif self.type == "domestic":
+            return AirlineType.group_dict["domestic"]
+        elif self.type == "international":
+            return AirlineType.group_dict["international"]
+        else:
+            raise ValueError("AirlineType.get_type_gate: type not found")

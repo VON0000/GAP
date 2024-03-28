@@ -351,6 +351,7 @@ def test_get_available_gate():
 
 def test_get_group_dict():
     group_dict = get_group_dict()
+    assert len(group_dict["cargo"]) + len(group_dict["domestic"]) + len(group_dict["international"]) == 139
     assert set(group_dict["cargo"]) == {
         "874",
         "875",
