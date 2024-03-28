@@ -5,7 +5,7 @@ import numpy as np
 
 from BasicFunction.GetData import get_right_time
 from BasicFunction.IntervalType import IntervalType
-from refactorGateAllocation.GetTaxiingPattern import TaxiingStatus
+from BasicFunction.GetTaxiingPattern import TaxiingStatus
 
 HOUR = 60 * 60
 MINUTE = 60

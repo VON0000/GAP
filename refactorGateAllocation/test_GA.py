@@ -2,7 +2,7 @@ import math
 
 from BasicFunction.GetData import get_data
 from BasicFunction.GetInterval import GetInterval
-from refactorGateAllocation.GetTaxiingPattern import TaxiingStatus
+from BasicFunction.GetTaxiingPattern import TaxiingStatus
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 
 
