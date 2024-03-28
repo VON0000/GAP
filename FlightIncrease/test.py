@@ -12,7 +12,7 @@ from FlightIncrease.DelayTime import get_wake_turbulence, find_insertion_locatio
 from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetWingSpan import GetWingSpan
 from FlightIncrease.IncreaseFlight import (
-    _is_overlapping,
+    is_overlapping,
     _conflict_half,
     _conflict_all,
     IncreaseFlight,
@@ -151,25 +151,25 @@ def test_conflict_all():
 
 def test_is_overlapping():
     # 时间段1和时间段2重叠
-    assert _is_overlapping((1, 5), (3, 7)) == True
+    assert is_overlapping((1, 5), (3, 7)) == True
 
     # 时间段1在时间段2之前
-    assert _is_overlapping((1, 5), (7, 10)) == False
+    assert is_overlapping((1, 5), (7, 10)) == False
 
     # 时间段1在时间段2之后
-    assert _is_overlapping((10, 15), (1, 5)) == False
+    assert is_overlapping((10, 15), (1, 5)) == False
 
     # 时间段1和时间段2完全相同
-    assert _is_overlapping((5, 10), (5, 10)) == True
+    assert is_overlapping((5, 10), (5, 10)) == True
 
     # 时间段1的结束时间等于时间段2的开始时间
-    assert _is_overlapping((1, 5), (5, 10)) == True
+    assert is_overlapping((1, 5), (5, 10)) == True
 
     # 时间段1的开始时间等于时间段2的结束时间
-    assert _is_overlapping((5, 10), (1, 5)) == True
+    assert is_overlapping((5, 10), (1, 5)) == True
 
     # 一个时间段包含另一个时间段
-    assert _is_overlapping((1, 10), (3, 7)) == True
+    assert is_overlapping((1, 10), (3, 7)) == True
 
 
 def test_get_airline_info():

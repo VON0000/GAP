@@ -11,7 +11,7 @@ from BasicFunction.GetWingSpan import GetWingSpan
 from BasicFunction.IntervalType import IntervalBase
 
 
-def _is_overlapping(time1, time2) -> bool:
+def is_overlapping(time1, time2) -> bool:
     """
     判断两个时间段是否有重叠
     False 为没有冲突
@@ -32,7 +32,7 @@ def _conflict_half(
     True 为有冲突
     """
     if inst.gate == gate or inst.gate == re.findall(r"\d+", gate):
-        flag = _is_overlapping(
+        flag = is_overlapping(
             (inst.begin_interval, inst.end_interval),
             (aug_inst.begin_interval, aug_inst.end_interval),
         )
@@ -47,7 +47,7 @@ def _conflict_all(
     True 为有冲突
     """
     if re.findall(r"\d+", inst.gate) == re.findall(r"\d+", gate):
-        flag = _is_overlapping(
+        flag = is_overlapping(
             (inst.begin_interval, inst.end_interval),
             (aug_inst.begin_interval, aug_inst.end_interval),
         )
