@@ -56,10 +56,8 @@ def _conflict_all(
 
 class IncreaseFlight:
     def __init__(self, original_list: list, rate: float = 1):
-        inst_wingspan = GetWingSpan()
         self.rate = rate
         self.interval = copy.deepcopy(original_list)
-        self.gatesize = inst_wingspan.gatesize
 
     def find_conflict(self, aug_inst: IntervalBase, gate: str) -> bool:
         """
@@ -87,9 +85,8 @@ class IncreaseFlight:
         available_gate = []
         gate = AirlineType(inst.airline).available_gate
         for g in gate:
-            idx = self.gatesize["gate"].index(g)
-            if inst.wingspan <= self.gatesize["size_limit"][idx]:
-                if not self.find_conflict(inst, self.gatesize["gate"][idx]):
+            if inst.wingspan <= GetWingSpan(g).size:
+                if not self.find_conflict(inst, g):
                     available_gate.append(g)
         if len(available_gate) == 0:
             return None

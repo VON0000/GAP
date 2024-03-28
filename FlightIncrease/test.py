@@ -84,11 +84,9 @@ def test_get_interval():
 
 
 def test_get_gate_size():
-    increase_inst = GetWingSpan()
-    gate_size = increase_inst.gatesize
-    for g in gate_size["size_limit"]:
-        assert g >= 24.9
-        assert g <= 80
+    assert GetWingSpan("414L").size == 36
+    assert GetWingSpan("228").size == 65
+    assert GetWingSpan("109").size == 52
 
 
 def test_conflict_half():
