@@ -2,7 +2,7 @@ import math
 
 from BasicFunction.GetData import get_data
 from BasicFunction.GetInterval import GetInterval
-from BasicFunction.GetTaxiingPattern import TaxiingStatus
+from BasicFunction.GetAircraftTide import AircraftTide
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 
 
@@ -90,14 +90,14 @@ def test_transform_second_to_half_minute():
 
 
 def test_get_time_used():
-    time_list = TaxiingStatus(data=get_data("../data/mock_231029.csv"), quarter=12, seuil=28)._get_time_used()
+    time_list = AircraftTide(data=get_data("../data/mock_231029.csv"), quarter=12, seuil=28)._get_time_used()
     assert 12840 in time_list
     assert 9420 in time_list
 
     assert 35880 not in time_list
     assert 41520 not in time_list
 
-    time_list = TaxiingStatus(data=get_data("../data/mock_231029.csv"), quarter=50, seuil=28)._get_time_used()
+    time_list = AircraftTide(data=get_data("../data/mock_231029.csv"), quarter=50, seuil=28)._get_time_used()
     assert 35880 in time_list
     assert 41520 in time_list
 

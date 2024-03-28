@@ -5,7 +5,7 @@ import numpy as np
 
 from BasicFunction.GetData import get_right_time
 from BasicFunction.IntervalType import IntervalType
-from BasicFunction.GetTaxiingPattern import TaxiingStatus
+from BasicFunction.GetAircraftTide import AircraftTide
 
 HOUR = 60 * 60
 MINUTE = 60
@@ -14,7 +14,7 @@ MINUTE = 60
 class GetInterval:
     def __init__(self, data: dict, quarter: Union[int, float], seuil: int):
         self.data = data
-        self.time_tide = TaxiingStatus(data, quarter, seuil).time_tide
+        self.time_tide = AircraftTide(data, quarter, seuil).time_tide
         self.interval = self.get_interval(quarter)
 
     def _get_interval_one(self, registration: str, quarter: Union[int, float]) -> list:

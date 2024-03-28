@@ -16,7 +16,7 @@ def _count_numbers_in_range(lst, low, high):
     return count
 
 
-class TaxiingStatus:
+class AircraftTide:
     """
     为 interval 设置 QFU 属性
     """
