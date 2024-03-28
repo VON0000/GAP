@@ -23,7 +23,7 @@ if __name__ == "__main__":
         if match_pn is None and filename.endswith(".csv") and match_process is None:
             filename = os.path.join(folder_path, filename)
             data = get_data(filename)
-            original_list = GetInterval(data, quarter=math.nan).interval
+            original_list = GetInterval(data, math.nan, 28).interval
             increase_list = IncreaseFlight(original_list, rate).increase_flight()
             OutPut(increase_list, filename, folder_path2)
             print(filename, "has been processed.")

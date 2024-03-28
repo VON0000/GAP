@@ -5,14 +5,16 @@ import numpy as np
 
 from BasicFunction.GetData import get_right_time
 from BasicFunction.IntervalType import IntervalType
+from refactorGateAllocation.GetTaxiingPattern import TaxiingStatus
 
 HOUR = 60 * 60
 MINUTE = 60
 
 
 class GetInterval:
-    def __init__(self, data: dict, quarter: Union[int, float]):
+    def __init__(self, data: dict, quarter: Union[int, float], seuil: int):
         self.data = data
+        self.time_tide = TaxiingStatus(data, quarter, seuil).time_tide
         self.interval = self.get_interval(quarter)
 
     def _get_interval_one(self, registration: str, quarter: Union[int, float]) -> list:
@@ -25,7 +27,7 @@ class GetInterval:
 
         if self.data["departure"][flight_list[0]] == "ZBTJ":
             interval_instance = IntervalType(
-                "longtime_departure", self.data, [flight_list[i]], quarter
+                "longtime_departure", self.data, [flight_list[i]], quarter, self.time_tide
             )
             interval.append(interval_instance)
             i = i + 1
@@ -33,7 +35,7 @@ class GetInterval:
         while i < len(flight_list):
             if i + 1 >= len(flight_list):
                 interval_instance = IntervalType(
-                    "longtime_arrivee", self.data, [flight_list[i]], quarter
+                    "longtime_arrivee", self.data, [flight_list[i]], quarter, self.time_tide
                 )
                 interval.append(interval_instance)
                 break
@@ -43,7 +45,7 @@ class GetInterval:
             )
             if interval_time <= HOUR:
                 interval_instance = IntervalType(
-                    "shorttime", self.data, [flight_list[i], flight_list[i + 1]], quarter
+                    "shorttime", self.data, [flight_list[i], flight_list[i + 1]], quarter, self.time_tide
                 )
                 if interval_time >= HOUR * (5 + 5 + 15 + 15) / 60:
                     pass
@@ -55,11 +57,11 @@ class GetInterval:
                 interval.append(interval_instance)
             else:
                 interval_instance = IntervalType(
-                    "longtime_arrivee", self.data, [flight_list[i]], quarter
+                    "longtime_arrivee", self.data, [flight_list[i]], quarter, self.time_tide
                 )
                 interval.append(interval_instance)
                 interval_instance = IntervalType(
-                    "longtime_departure", self.data, [flight_list[i + 1]], quarter
+                    "longtime_departure", self.data, [flight_list[i + 1]], quarter, self.time_tide
                 )
                 interval.append(interval_instance)
             i = i + 2

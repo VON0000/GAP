@@ -9,6 +9,8 @@ MINUTE = 60
 
 class IntervalBase(metaclass=abc.ABCMeta):
     def __init__(self, info_list: list):
+        qfu_info_list = info_list[10:]
+
         self.interval = info_list[0]
         self.begin_interval = info_list[1]
         self.end_interval = info_list[2]
@@ -24,6 +26,8 @@ class IntervalBase(metaclass=abc.ABCMeta):
         )
         self.aircraft_model = info_list[9]
         self.time_dict = info_list[10]
+        self.begin_qfu = qfu_info_list[0]
+        self.end_qfu = qfu_info_list[-1]
 
 
 def _longtime_arrivee(data: dict, index_list: list, quarter: Union[int, float]) -> tuple:
@@ -82,7 +86,32 @@ def _get_info_list(interval_type: str, data: dict, index_list: List[int], quarte
     return info_list
 
 
+def _get_qfu_info(data: dict, index_list: List[int], quarter: Union[int, float], time_tide: dict) -> list:
+    q = 60 * 15
+    h = 60 * 60
+
+    qfu_info_list = []
+    for i in index_list:
+        if data["callsign"][i].split(maxsplit=1)[1] == "de":
+            qfu_info_list.append("DEP-16R")
+            return qfu_info_list
+
+        time = data["ALDT"][i] if (data["ALDT"][i] <= quarter * q + h or data["TLDT"][i] < quarter * q) else \
+            data["TLDT"][i]
+
+        time = time // h
+
+        if time_tide[time]:
+            qfu_info_list.append("ARR-16L")
+        else:
+            qfu_info_list.append("ARR-16R")
+
+        return qfu_info_list
+
+
 class IntervalType(IntervalBase):
-    def __init__(self, interval_type: str, data: dict, index_list: List[int], quarter: Union[int, float]):
+    def __init__(self, interval_type: str, data: dict, index_list: List[int], quarter: Union[int, float],
+                 time_tide: dict):
         info_list = _get_info_list(interval_type, data, index_list, quarter)
-        super().__init__(info_list)
+        qfu_info_list = _get_qfu_info(data, index_list, quarter, time_tide)
+        super().__init__(info_list + qfu_info_list)
