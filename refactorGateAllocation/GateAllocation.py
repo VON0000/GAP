@@ -15,7 +15,7 @@ class GateAllocation:
     def __init__(self, data: dict, seuil: int, pattern: str, quarter: int = 0):
         self.quarter = quarter
         self.pattern = pattern
-        self.interval = GetInterval(data, self.quarter, seuil).interval
+        self.interval = GetInterval(data, self.quarter, seuil).transform_second_to_half_minute()
         self.available_gate_dict = _available_gate_dict(self.interval)
         self.model = gurobipy.Model()
 
