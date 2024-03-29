@@ -13,7 +13,7 @@ from refactorGateAllocation.GateAllocation import get_available_gate, get_confli
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 from refactorGateAllocation.RemoteGate import REMOTE_GATE
 from refactorGateAllocation.reAllocation import get_fixed_result, fixed_result, find_group, cost_for_international, \
-    cost_for_domestic, cost_for_cargo, change_end_interval
+    cost_for_domestic, cost_for_cargo, change_end_interval, ReAllocation, get_fixed_inst
 
 HOUR = 60 * 60
 TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
@@ -265,9 +265,12 @@ def test_get_fixed_result():
         inst_2: "414R",
         inst_3: "414L"
     }
-    assert get_fixed_result(inst_1, inst_list, "de") == ["414"]
-    assert get_fixed_result(inst_2, inst_list, "de") == ["414R"]
-    assert get_fixed_result(inst_3, inst_list, "de") == ["414L"]
+    key = get_fixed_inst(inst_1, inst_list, "de")
+    assert inst_list[key[0]] == "414"
+    key = get_fixed_inst(inst_2, inst_list, "de")
+    assert inst_list[key[0]] == "414R"
+    key = get_fixed_inst(inst_3, inst_list, "de")
+    assert inst_list[key[0]] == "414L"
 
 
 def test_fixed_result():
@@ -288,12 +291,12 @@ def test_fixed_result():
         inst_3: "414L"
     }
     assert fixed_result(inst_1, 30, inst_list) is None
-    assert fixed_result(inst_1, 40, inst_list) == ["414"]
-    assert fixed_result(inst_1, 50, inst_list) == ["414"]
+    assert fixed_result(inst_1, 40, inst_list) == "414"
+    assert fixed_result(inst_1, 50, inst_list) == "414"
     assert fixed_result(inst_2, 36, inst_list) is None
-    assert fixed_result(inst_2, 50, inst_list) == ["414R"]
+    assert fixed_result(inst_2, 50, inst_list) == "414R"
     assert fixed_result(inst_3, 30, inst_list) is None
-    assert fixed_result(inst_3, 50, inst_list) == ["414L"]
+    assert fixed_result(inst_3, 50, inst_list) == "414L"
 
 
 def test_find_group():
@@ -304,35 +307,33 @@ def test_find_group():
 
 
 def test_cost_for_international():
-    assert cost_for_international("105", ["105"], 1000 * 1000) == 0
-    assert cost_for_international("105", ["101"], 1000 * 1000) == 1000 * 1000
+    assert cost_for_international("105", "105", 1000 * 1000) == 0
+    assert cost_for_international("105", "101", 1000 * 1000) == 1000 * 1000
 
 
 def test_cost_for_cargo():
-    assert cost_for_cargo("876", ["876"], 1000 * 1000) == 0
-    assert cost_for_cargo("888", ["902"], 1000 * 1000) == 10 * 1000 * 1000
+    assert cost_for_cargo("876", "876", 1000 * 1000) == 0
+    assert cost_for_cargo("888", "902", 1000 * 1000) == 10 * 1000 * 1000
 
 
 def test_cost_for_domestic():
-    assert cost_for_domestic("417", ["101"], ["105"], 1000 * 1000) == 100 * 1000 * 1000
-    assert cost_for_domestic("110", ["101"], ["204"], 1000 * 1000) == 10 * 1000 * 1000
-    assert cost_for_domestic("110", ["101"], ["105"], 1000 * 1000) == 1000 * 1000
-    assert cost_for_domestic("110", ["101"], ["110"], 1000 * 1000) == 0
-
-    assert cost_for_domestic("105", ["206"], ["607"], 1000 * 1000) == 0
-    assert cost_for_domestic("607", ["206"], ["607"], 1000 * 1000) == 1 * 1000 * 1000
-    assert cost_for_domestic("419", ["206"], ["607"], 1000 * 1000) == 10 * 1000 * 1000
-
-    assert cost_for_domestic("417", ["601"], ["417"], 1000 * 1000) == 0
-    assert cost_for_domestic("105", ["601"], ["417"], 1000 * 1000) == 1 * 1000 * 1000
-    assert cost_for_domestic("418", ["601"], ["417"], 1000 * 1000) == 10 * 1000 * 1000
+    assert cost_for_domestic("417", "101", "105", 1000 * 1000) == 100 * 1000 * 1000
+    assert cost_for_domestic("110", "101", "204", 1000 * 1000) == 10 * 1000 * 1000
+    assert cost_for_domestic("110", "101", "105", 1000 * 1000) == 1000 * 1000
+    assert cost_for_domestic("110", "101", "110", 1000 * 1000) == 0
+    assert cost_for_domestic("105", "206", "607", 1000 * 1000) == 0
+    assert cost_for_domestic("607", "206", "607", 1000 * 1000) == 1 * 1000 * 1000
+    assert cost_for_domestic("419", "206", "607", 1000 * 1000) == 10 * 1000 * 1000
+    assert cost_for_domestic("417", "601", "417", 1000 * 1000) == 0
+    assert cost_for_domestic("105", "601", "417", 1000 * 1000) == 1 * 1000 * 1000
+    assert cost_for_domestic("418", "601", "417", 1000 * 1000) == 10 * 1000 * 1000
 
 
 def test_get_move_cost_reAllocation():
     def _get_move_cost(inst: IntervalBase, ag: str, init_results: dict, last_results: dict) -> float:
         alpha = 1000 * 1000
-        init_gate = get_fixed_result(inst, init_results, inst.begin_callsign[-2:])
-        last_gate = get_fixed_result(inst, last_results, inst.begin_callsign[-2:])
+        init_gate = get_fixed_result(init_results, get_fixed_inst(inst, init_results, inst.begin_callsign[-2:]))
+        last_gate = get_fixed_result(last_results, get_fixed_inst(inst, last_results, inst.begin_callsign[-2:]))
 
         if AirlineType(inst.airline).type == "international":
             return cost_for_international(ag, last_gate, alpha)
@@ -382,3 +383,9 @@ def test_change_end_interval():
     assert inst_1.registration == "B9987"
     assert inst_1.begin_callsign == "B9986 ar"
     assert before == after
+
+
+def test_reallocation():
+    data = get_data("../data/mock_231029.csv")
+    init_result = GateAllocation(data, 28, "MANEX").optimization()
+    ReAllocation(data, 28, "MANEX", 1, init_result, init_result).optimization()
