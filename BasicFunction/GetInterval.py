@@ -34,6 +34,7 @@ class GetInterval:
 
         while i < len(flight_list):
             if i + 1 >= len(flight_list):
+                assert self.data["departure"][flight_list[i]] == "ZBTJ"
                 interval_instance = IntervalType(
                     "longtime_arrivee", self.data, [flight_list[i]], quarter, self.time_tide
                 )
