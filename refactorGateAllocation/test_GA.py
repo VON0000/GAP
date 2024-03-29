@@ -3,12 +3,13 @@ import re
 
 import pandas as pd
 
+from BasicFunction.AirlineType import AirlineType
 from BasicFunction.GetData import get_data
 from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetAircraftTide import AircraftTide
 from BasicFunction.GetWingSpan import GetWingSpan
 from BasicFunction.IntervalType import IntervalBase
-from refactorGateAllocation.GateAllocation import get_available_gate, get_conflicts
+from refactorGateAllocation.GateAllocation import get_available_gate, get_conflicts, GateAllocation
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 from refactorGateAllocation.RemoteGate import REMOTE_GATE
 
@@ -219,3 +220,29 @@ def test_get_constraints():
     assert get_conflict("414") == ["414", "414R", "414L"]
     assert get_conflict("414R") == ["414", "414R"]
     assert get_conflict("601") == ["601"]
+
+
+def test_get_remote_cost():
+    def _get_remote_cost(inst: IntervalBase, ag: str) -> float:
+        if ag not in REMOTE_GATE:
+            return 0
+
+        alpha = 1000 * 1000
+        if ag in AirlineType(inst.airline).available_gate:
+            return alpha
+        return alpha * 10
+
+    inst_1 = IntervalBase(
+        [900, 1200, 2100, "SENDI", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [900, 1200, 2100, "LUCKYAIR", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    assert _get_remote_cost(inst_1, "415L") == 1000 * 1000 * 10
+    assert _get_remote_cost(inst_2, "415L") == 1000 * 1000
+    assert _get_remote_cost(inst_2, "110") == 0
+
+
+def test_gate_allocation():
+    data = get_data("../data/error-in-data/gaptraffic-2017-08-03-new.csv")
+    GateAllocation(data, 28, "MANEX").optimization()

@@ -16,7 +16,7 @@ class GateAllocation:
         self.quarter = quarter
         self.pattern = pattern
         self.interval = GetInterval(data, self.quarter, seuil).interval
-        self.available_gate_dict = self._available_gate_dict()
+        self.available_gate_dict = _available_gate_dict(self.interval)
         self.model = gurobipy.Model()
 
     def optimization(self):
@@ -25,18 +25,12 @@ class GateAllocation:
         self.get_objective()
         self.model.optimize()
 
-    def _available_gate_dict(self) -> dict:
-        available_gate_dict = {}
-        for inst in self.interval:
-            gate_list = get_available_gate(inst)
-            available_gate_dict[inst] = gate_list
-
-        return available_gate_dict
-
     def get_variable(self):
         for inst in self.interval:
             for ag in self.available_gate_dict[inst]:
                 self.model.addVar(vtype=gurobipy.GRB.BINARY, name=f"x_{inst}_{ag}")
+
+        self.model.update()
 
     def get_constraints(self):
         for inst in self.interval:
@@ -63,6 +57,8 @@ class GateAllocation:
                                          (re.findall(r"\d+", ag) == [rag] or ag == rag)]
                         self._conflict_in_dependent_gate(conflict_gate, inst, ref_inst, ag)
 
+        self.model.update()
+
     def _conflict_in_dependent_gate(self, conflict_gate: list, inst: IntervalBase, ref_inst: IntervalBase, ag: str):
         for rag in conflict_gate:
             self.model.addConstr(
@@ -77,11 +73,15 @@ class GateAllocation:
         """
         self.model.setObjective(
             gurobipy.quicksum(
-                self._get_taxiing_time(inst, ag) for inst in self.interval for ag in self.available_gate_dict[inst]
+                self._get_taxiing_time(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
+                for ag in self.available_gate_dict[inst]
             ) + gurobipy.quicksum(
-                self._get_remote_cost(inst, ag) for inst in self.interval for ag in self.available_gate_dict[inst]
-            )
+                self._get_remote_cost(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
+                for ag in self.available_gate_dict[inst]
+            ), gurobipy.GRB.MINIMIZE
         )
+
+        self.model.update()
 
     def _get_taxiing_time(self, inst: IntervalBase, ag: str) -> float:
         if inst.begin_callsign == inst.end_callsign:
@@ -89,10 +89,15 @@ class GateAllocation:
         return GetTaxiingTime(ag, self.pattern).taxiing_time[inst.end_qfu] + \
             GetTaxiingTime(ag, self.pattern).taxiing_time[inst.begin_qfu]
 
-    def _get_remote_cost(self, inst: IntervalBase, ag: str) -> float:
+    @staticmethod
+    def _get_remote_cost(inst: IntervalBase, ag: str) -> float:
         if ag not in REMOTE_GATE:
             return 0
-        ...
+
+        alpha = 1000 * 1000
+        if ag in AirlineType(inst.airline).available_gate:
+            return alpha
+        return alpha * 10
 
 
 def get_conflicts(inst: IntervalBase, interval: list) -> list:
@@ -112,6 +117,15 @@ def get_conflicts(inst: IntervalBase, interval: list) -> list:
             ref_inst_list.append(ref_inst)
 
     return ref_inst_list
+
+
+def _available_gate_dict(interval: list) -> dict:
+    available_gate_dict = {}
+    for inst in interval:
+        gate_list = get_available_gate(inst)
+        available_gate_dict[inst] = gate_list
+
+    return available_gate_dict
 
 
 def get_available_gate(inst: IntervalBase) -> list:
