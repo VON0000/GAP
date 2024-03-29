@@ -31,7 +31,7 @@ def _conflict_half(
     False 为没有冲突
     True 为有冲突
     """
-    if inst.gate == gate or inst.gate == re.findall(r"\d+", gate):
+    if inst.gate == gate or [inst.gate] == re.findall(r"\d+", gate):
         flag = is_overlapping(
             (inst.begin_interval, inst.end_interval),
             (aug_inst.begin_interval, aug_inst.end_interval),

@@ -97,7 +97,7 @@ def test_conflict_half():
         [900, 1200, 2100, "CA", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT] + ["DEP-16R"]
     )
     inst_3 = IntervalBase(
-        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT] + ["DEP-16R"]
+        [900, 1200, 2100, "CA", "B9987", "B9987 de", "B9987 ar", 24.9, "414", "B737", TIME_DICT] + ["DEP-16R"]
     )
     inst_4 = IntervalBase(
         [900, 0, 900, "CA", "B9988", "B9988 de", "B9988 ar", 24.9, "414L", "B737", TIME_DICT] + ["DEP-16R"]
@@ -112,7 +112,7 @@ def test_conflict_half():
     assert _conflict_half(inst_1, inst_3, "414L", False) == True
 
     # Test Case 2: Overlapping intervals with dependent gate (414L 414R)
-    assert _conflict_half(inst_2, inst_3, "414R", False) == False
+    assert _conflict_half(inst_2, inst_3, "414R", False) == True
 
     # Test Case 3: Non-overlapping intervals with dependent gate (414L 414L)
     assert _conflict_half(inst_3, inst_4, "414L", False) == False
