@@ -12,6 +12,8 @@ from BasicFunction.IntervalType import IntervalBase
 from refactorGateAllocation.GateAllocation import get_available_gate, get_conflicts, GateAllocation
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 from refactorGateAllocation.RemoteGate import REMOTE_GATE
+from refactorGateAllocation.reAllocation import get_fixed_result, fixed_result, find_group, cost_for_international, \
+    cost_for_domestic, cost_for_cargo, change_end_interval
 
 HOUR = 60 * 60
 TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
@@ -246,3 +248,137 @@ def test_get_remote_cost():
 def test_gate_allocation():
     data = get_data("../data/error-in-data/gaptraffic-2017-08-03-new.csv")
     GateAllocation(data, 28, "MANEX").optimization()
+
+
+def test_get_fixed_result():
+    inst_1 = IntervalBase(
+        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [900, 1200, 2100, "CA1", "B9987", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_3 = IntervalBase(
+        [900, 2600, 3400, "CA2", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_list = {
+        inst_1: "414",
+        inst_2: "414R",
+        inst_3: "414L"
+    }
+    assert get_fixed_result(inst_1, inst_list, "de") == ["414"]
+    assert get_fixed_result(inst_2, inst_list, "de") == ["414R"]
+    assert get_fixed_result(inst_3, inst_list, "de") == ["414L"]
+
+
+def test_fixed_result():
+    time_dict = {"ar": {"TTOT": 27000, "TLDT": 30000, "ATOT": 36000, "ALDT": 45000},
+                 "de": {"TTOT": 27000, "TLDT": 30000, "ATOT": 36000, "ALDT": 45000}}
+    inst_1 = IntervalBase(
+        [9000, 36000, 45000, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737", time_dict] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [9000, 36000, 45000, "CA1", "B9987", "B9986 ar", "B9986 ar", 24.9, "414R", "B737", time_dict] + ["DEP-16R"]
+    )
+    inst_3 = IntervalBase(
+        [9000, 36000, 45000, "CA2", "B9987", "B9987 de", "B9987 de", 24.9, "414L", "B737", time_dict] + ["DEP-16R"]
+    )
+    inst_list = {
+        inst_1: "414",
+        inst_2: "414R",
+        inst_3: "414L"
+    }
+    assert fixed_result(inst_1, 30, inst_list) is None
+    assert fixed_result(inst_1, 40, inst_list) == ["414"]
+    assert fixed_result(inst_1, 50, inst_list) == ["414"]
+    assert fixed_result(inst_2, 36, inst_list) is None
+    assert fixed_result(inst_2, 50, inst_list) == ["414R"]
+    assert fixed_result(inst_3, 30, inst_list) is None
+    assert fixed_result(inst_3, 50, inst_list) == ["414L"]
+
+
+def test_find_group():
+    assert find_group("105") == "TERMINAL_ONE"
+    assert find_group("230") == "TERMINAL_TWO"
+    assert find_group("417") == "REMOTE_ONE"
+    assert find_group("610") == "REMOTE_TWO"
+
+
+def test_cost_for_international():
+    assert cost_for_international("105", ["105"], 1000 * 1000) == 0
+    assert cost_for_international("105", ["101"], 1000 * 1000) == 1000 * 1000
+
+
+def test_cost_for_cargo():
+    assert cost_for_cargo("876", ["876"], 1000 * 1000) == 0
+    assert cost_for_cargo("888", ["902"], 1000 * 1000) == 10 * 1000 * 1000
+
+
+def test_cost_for_domestic():
+    assert cost_for_domestic("417", ["101"], ["105"], 1000 * 1000) == 100 * 1000 * 1000
+    assert cost_for_domestic("110", ["101"], ["204"], 1000 * 1000) == 10 * 1000 * 1000
+    assert cost_for_domestic("110", ["101"], ["105"], 1000 * 1000) == 1000 * 1000
+    assert cost_for_domestic("110", ["101"], ["110"], 1000 * 1000) == 0
+
+    assert cost_for_domestic("105", ["206"], ["607"], 1000 * 1000) == 0
+    assert cost_for_domestic("607", ["206"], ["607"], 1000 * 1000) == 1 * 1000 * 1000
+    assert cost_for_domestic("419", ["206"], ["607"], 1000 * 1000) == 10 * 1000 * 1000
+
+    assert cost_for_domestic("417", ["601"], ["417"], 1000 * 1000) == 0
+    assert cost_for_domestic("105", ["601"], ["417"], 1000 * 1000) == 1 * 1000 * 1000
+    assert cost_for_domestic("418", ["601"], ["417"], 1000 * 1000) == 10 * 1000 * 1000
+
+
+def test_get_move_cost_reAllocation():
+    def _get_move_cost(inst: IntervalBase, ag: str, init_results: dict, last_results: dict) -> float:
+        alpha = 1000 * 1000
+        init_gate = get_fixed_result(inst, init_results, inst.begin_callsign[-2:])
+        last_gate = get_fixed_result(inst, last_results, inst.begin_callsign[-2:])
+
+        if AirlineType(inst.airline).type == "international":
+            return cost_for_international(ag, last_gate, alpha)
+
+        if AirlineType(inst.airline).type == "cargo":
+            return cost_for_cargo(ag, last_gate, alpha)
+
+        return cost_for_domestic(ag, init_gate, last_gate, alpha)
+
+    inst_1 = IntervalBase(
+        [9000, 36000, 45000, "SHUNFENG", "B9985", "B9985 de", "B9985 ar", 24.9, "888", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [9000, 36000, 45000, "STRAITAIR", "B9987", "B9986 ar", "B9986 ar", 24.9, "415", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_3 = IntervalBase(
+        [9000, 36000, 45000, "EVAAir", "B9987", "B9987 de", "B9987 de", 24.9, "106", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    last = {
+        inst_1: "888",
+        inst_2: "415",
+        inst_3: "106"
+    }
+    init = {
+        inst_1: "901",
+        inst_2: "206",
+        inst_3: "101"
+    }
+    assert _get_move_cost(inst_1, "901", init, last) == 10 * 1000 * 1000
+    assert _get_move_cost(inst_2, "607", init, last) == 10 * 1000 * 1000
+    assert _get_move_cost(inst_3, "101", init, last) == 1000 * 1000
+
+
+def test_change_end_interval():
+    inst_1 = IntervalBase(
+        [9000, 36000, 45000, "SHUNFENG", "B9985", "B9985 de", "B9985 ar", 24.9, "888", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [9000, 36000, 45000, "STRAITAIR", "B9987", "B9986 ar", "B9986 ar", 24.9, "415", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+
+    before = id(inst_1)
+    change_end_interval(inst_1, inst_2)
+    after = id(inst_1)
+
+    assert inst_1.airline == "STRAITAIR"
+    assert inst_1.registration == "B9987"
+    assert inst_1.begin_callsign == "B9986 ar"
+    assert before == after
