@@ -1,5 +1,4 @@
 import re
-from typing import Union
 
 import gurobipy
 
@@ -7,29 +6,32 @@ from BasicFunction.AirlineType import AirlineType
 from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetWingSpan import GetWingSpan
 from BasicFunction.IntervalType import IntervalBase
-from FlightIncrease.IncreaseFlight import _is_overlapping
+from FlightIncrease.IncreaseFlight import is_overlapping
+from refactorGateAllocation.GetTaxiingTime import GetTaxiingTime
 from refactorGateAllocation.RemoteGate import REMOTE_GATE
 
 
 class GateAllocation:
-    def __init__(self, data: dict, seuil: int, quarter: int = 0):
+    def __init__(self, data: dict, seuil: int, pattern: str, quarter: int = 0):
         self.quarter = quarter
+        self.pattern = pattern
         self.interval = GetInterval(data, self.quarter, seuil).interval
-        self.available_gate_dict = self.available_gate_dict()
+        self.available_gate_dict = self._available_gate_dict()
         self.model = gurobipy.Model()
 
-    def available_gate_dict(self) -> dict:
+    def optimization(self):
+        self.get_variable()
+        self.get_constraints()
+        self.get_objective()
+        self.model.optimize()
+
+    def _available_gate_dict(self) -> dict:
         available_gate_dict = {}
         for inst in self.interval:
-            if not ignore_inst(inst, self.quarter):
-                continue
             gate_list = get_available_gate(inst)
             available_gate_dict[inst] = gate_list
 
         return available_gate_dict
-
-    def optimization(self):
-        ...
 
     def get_variable(self):
         for inst in self.interval:
@@ -45,7 +47,7 @@ class GateAllocation:
                 ) == 1,
                 name=f"constraint_{inst}"
             )
-            for ref_inst in self.get_conflicts(inst):
+            for ref_inst in get_conflicts(inst, self.interval):
                 for ag in self.available_gate_dict[inst]:
                     # 414 和 414R 414L 414 不能同时分配
                     if not (("L" in ag) or ("R" in ag)):
@@ -58,7 +60,7 @@ class GateAllocation:
                     else:
                         # ag = 414L 时， re.findall(r"\d+", ag) = ['414']， 因此 rag = 414L 414 会被选中
                         conflict_gate = [rag for rag in self.available_gate_dict[ref_inst] if
-                                         (re.findall(r"\d+", ag) == rag or ag == rag)]
+                                         (re.findall(r"\d+", ag) == [rag] or ag == rag)]
                         self._conflict_in_dependent_gate(conflict_gate, inst, ref_inst, ag)
 
     def _conflict_in_dependent_gate(self, conflict_gate: list, inst: IntervalBase, ref_inst: IntervalBase, ag: str):
@@ -70,39 +72,54 @@ class GateAllocation:
             )
 
     def get_objective(self):
+        """
+        滑行时间 + 远机位代价
+        """
+        self.model.setObjective(
+            gurobipy.quicksum(
+                self._get_taxiing_time(inst, ag) for inst in self.interval for ag in self.available_gate_dict[inst]
+            ) + gurobipy.quicksum(
+                self._get_remote_cost(inst, ag) for inst in self.interval for ag in self.available_gate_dict[inst]
+            )
+        )
+
+    def _get_taxiing_time(self, inst: IntervalBase, ag: str) -> float:
+        if inst.begin_callsign == inst.end_callsign:
+            return GetTaxiingTime(ag, self.pattern).taxiing_time[inst.begin_qfu]
+        return GetTaxiingTime(ag, self.pattern).taxiing_time[inst.end_qfu] + \
+            GetTaxiingTime(ag, self.pattern).taxiing_time[inst.begin_qfu]
+
+    def _get_remote_cost(self, inst: IntervalBase, ag: str) -> float:
+        if ag not in REMOTE_GATE:
+            return 0
         ...
 
-    def get_conflicts(self, inst: IntervalBase) -> list:
-        """
-        找到和 inst 会产生冲突的 interval
-        两个实例的 [begin_interval, end_interval] 有交集则产生冲突
-        """
-        ref_inst_list = []
-        for ref_inst in self.interval:
-            if _is_overlapping(
-                    (ref_inst.begin_interval, ref_inst.end_interval),
-                    (inst.begin_interval, inst.end_interval)
-            ):
-                ref_inst_list.append(ref_inst)
 
-        return ref_inst_list
-
-
-def ignore_inst(inst: IntervalBase, quarter: int) -> Union[IntervalBase, None]:
+def get_conflicts(inst: IntervalBase, interval: list) -> list:
     """
-    如果 inst 的 target 时间在 quarter 之前， actual 时间在 quarter + 一小时 之后，则忽略当前 inst 返回 None
+    找到和 inst 会产生冲突的 interval
+    两个实例的 [begin_interval, end_interval] 有交集则产生冲突
     """
-    ...
+    ref_inst_list = []
+    for ref_inst in interval:
+        if ref_inst == inst:
+            continue
+
+        if is_overlapping(
+                (ref_inst.begin_interval, ref_inst.end_interval),
+                (inst.begin_interval, inst.end_interval)
+        ):
+            ref_inst_list.append(ref_inst)
+
+    return ref_inst_list
 
 
 def get_available_gate(inst: IntervalBase) -> list:
     if AirlineType(inst.airline).type == "domestic":
-        available_gate_list = AirlineType(inst.airline).available_gate + REMOTE_GATE
+        available_gate_list = list(set(AirlineType(inst.airline).available_gate) | set(REMOTE_GATE))
     else:
         available_gate_list = AirlineType(inst.airline).available_gate
 
-    for g in available_gate_list:
-        if inst.wingspan > GetWingSpan(g).size:
-            available_gate_list.remove(g)
+    available_gate_list = [g for g in available_gate_list if inst.wingspan <= GetWingSpan(g).size]
 
     return available_gate_list

@@ -1,9 +1,20 @@
 import math
+import re
+
+import pandas as pd
 
 from BasicFunction.GetData import get_data
 from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetAircraftTide import AircraftTide
+from BasicFunction.GetWingSpan import GetWingSpan
+from BasicFunction.IntervalType import IntervalBase
+from refactorGateAllocation.GateAllocation import get_available_gate, get_conflicts
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
+from refactorGateAllocation.RemoteGate import REMOTE_GATE
+
+HOUR = 60 * 60
+TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
+             "de": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0}}
 
 
 def test_get_all_taxiing_time():
@@ -118,3 +129,93 @@ def test_get_interval():
         if i.begin_callsign == "CSC8861 ar":
             print("reach\n")
             assert i.begin_qfu == "ARR-16R"
+
+
+def test_get_available_gate():
+    inst_1 = IntervalBase(
+        [900, 1800, 2700, "NokScoot", "B9985", "B9985 de", "B9985 ar", 60, "414", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [900, 1200, 2100, "SENDI", "B9986", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_3 = IntervalBase(
+        [900, 1200, 2100, "Chinaexpressair", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT] + [
+            "DEP-16R"]
+    )
+    assert get_available_gate(inst_1) == ["101", "102", "105"]
+    assert sorted(get_available_gate(inst_2)) == sorted(["110", "111", "112", "113", "114", "115", "116"] + REMOTE_GATE)
+    assert sorted(get_available_gate(inst_3)) == sorted(REMOTE_GATE)
+
+
+def test_get_wing_size():
+    all_gate = pd.read_excel("../data/wingsizelimit.xls", sheet_name=None)
+    sheet_data = all_gate["sheet1"]
+    gate_size = sheet_data.to_dict(orient="list")
+    for i in range(len(gate_size["gate"])):
+        assert GetWingSpan(str(gate_size["gate"][i])).size == gate_size["size_limit"][i]
+    assert GetWingSpan("104").size == 52
+
+
+def test_get_conflicts():
+    inst_1 = IntervalBase(
+        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [900, 1200, 2100, "CA1", "B9987", "B9986 de", "B9986 ar", 24.9, "414R", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_3 = IntervalBase(
+        [900, 2600, 3400, "CA2", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_4 = IntervalBase(
+        [900, 0, 900, "CA3", "B9987", "B9988 de", "B9988 ar", 24.9, "414", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_5 = IntervalBase(
+        [900, 1900, 2500, "CA4", "B9987", "B9989 de", "B9989 ar", 24.9, "415", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_6 = IntervalBase(
+        [900, 2900, 3600, "CA5", "B9990", "B9989 de", "B9989 ar", 24.9, "415L", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_7 = IntervalBase(
+        [900, 1600, 2900, "CA6", "B9990", "B9989 de", "B9989 ar", 24.9, "415L", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_list = [inst_1, inst_2, inst_3, inst_4, inst_5, inst_6, inst_7]
+
+    assert get_conflicts(inst_1, inst_list) == [inst_2, inst_3, inst_5, inst_7]
+
+
+def test_get_taxiing_time_gate_allocation():
+    def _get_taxiing_time(inst: IntervalBase, ag: str, pattern: str) -> float:
+        if inst.begin_callsign == inst.end_callsign:
+            return GetTaxiingTime(ag, pattern).taxiing_time[inst.begin_qfu]
+        return GetTaxiingTime(ag, pattern).taxiing_time[inst.end_qfu] + \
+            GetTaxiingTime(ag, pattern).taxiing_time[inst.begin_qfu]
+
+    inst_1 = IntervalBase(
+        [900, 1800, 2700, "CA0", "B9985", "B9985 de", "B9985 de", 24.9, "414", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_2 = IntervalBase(
+        [900, 1200, 2100, "CA1", "B9987", "B9986 ar", "B9986 ar", 24.9, "414R", "B737", TIME_DICT] + ["ARR-16L"]
+    )
+    inst_3 = IntervalBase(
+        [900, 2600, 3400, "CA2", "B9987", "B9987 ar", "B9987 de", 24.9, "414L", "B737", TIME_DICT] + ["ARR-16L",
+                                                                                                      "DEP-16R"]
+    )
+    assert _get_taxiing_time(inst_1, "112", "MIN") == 465
+    assert _get_taxiing_time(inst_2, "415", "PN_MANEX") == 525
+    assert _get_taxiing_time(inst_3, "896", "MANEX") == 980
+
+
+def test_get_constraints():
+    gate_list = ["414", "414R", "414L", "601", "610"]
+
+    def get_conflict(gate):
+        if not (("L" in gate) or ("R" in gate)):
+            conflict_gate = [g for g in gate_list if re.findall(r"\d+", gate) == re.findall(r"\d+", g)]
+        else:
+            conflict_gate = [g for g in gate_list if (re.findall(r"\d+", gate) == [g] or gate == g)]
+
+        return conflict_gate
+
+    assert get_conflict("414") == ["414", "414R", "414L"]
+    assert get_conflict("414R") == ["414", "414R"]
+    assert get_conflict("601") == ["601"]
