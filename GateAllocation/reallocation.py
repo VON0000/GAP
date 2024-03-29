@@ -210,12 +210,6 @@ def reallocation(filename, seuil, part, delta, gate_dict, regulation, pattern):
         # conflicts
         obstruction = variable.get_obstruction(interval_data, interval_set)
 
-        # Check if intervals are all greater than zero
-        for i in range(len(interval_data['interval'])):
-            assert interval_data['interval'][i] > 0, [interval_data['registration'][i],
-                                                      interval_data['begin_callsign'][i],
-                                                      interval_data['end_callsign'][i], '001']
-
         # The indices of fixed variables (quarter + 30 minutes) in the interval_set(x)
         total_fix_info = new_interval.fix_information(data, quarter, seuil, delta, interval_flight, interval_data)
         total_fix_list = new_interval.fix_set(total_fix_info, interval_data)
