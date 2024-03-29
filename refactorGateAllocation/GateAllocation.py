@@ -19,11 +19,26 @@ class GateAllocation:
         self.available_gate_dict = _available_gate_dict(self.interval)
         self.model = gurobipy.Model()
 
-    def optimization(self):
+    def optimization(self) -> dict:
         self.get_variable()
         self.get_constraints()
         self.get_objective()
         self.model.optimize()
+        result = self.get_result()
+
+        return result
+
+    def get_result(self) -> dict:
+        """
+        优化完成后返回结果
+        """
+        result = {}
+        for inst in self.interval:
+            for ag in self.available_gate_dict[inst]:
+                if self.model.getVarByName(f"x_{inst}_{ag}").X == 1:
+                    result[inst] = ag
+
+        return result
 
     def get_variable(self):
         for inst in self.interval:
