@@ -11,6 +11,7 @@ from BasicFunction.GetWingSpan import GetWingSpan
 from BasicFunction.IntervalType import IntervalBase
 from refactorGateAllocation.GateAllocation import get_available_gate, get_conflicts, GateAllocation
 from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
+from refactorGateAllocation.OutPut import OutPut
 from refactorGateAllocation.RemoteGate import REMOTE_GATE
 from refactorGateAllocation.reAllocation import get_fixed_result, fixed_result, find_group, cost_for_international, \
     cost_for_domestic, cost_for_cargo, change_end_interval, ReAllocation, get_fixed_inst
@@ -388,4 +389,15 @@ def test_change_end_interval():
 def test_reallocation():
     data = get_data("../data/mock_231029.csv")
     init_result = GateAllocation(data, 28, "MANEX").optimization()
-    ReAllocation(data, 28, "MANEX", 1, init_result, init_result).optimization()
+
+    quarter = 0
+    last_result = init_result
+    result_list = []
+    while quarter < 5:
+        last_result = ReAllocation(data, 0, "MANEX", quarter, init_result, last_result).optimization()
+        result_list.append(last_result)
+
+        quarter += 1
+
+    OutPut(data, "../data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_process(result_list)
+    OutPut(data, "../data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_final(last_result)
