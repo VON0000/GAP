@@ -56,10 +56,13 @@ class ReAllocation(GateAllocation):
 
     def _get_move_cost(self, inst: IntervalBase, ag: str) -> float:
         alpha = 1000 * 1000
-        init_gate = get_fixed_result(self.init_results,
-                                     get_fixed_inst(inst, self.init_results, inst.begin_callsign[-2:]))
-        last_gate = get_fixed_result(self.last_results,
-                                     get_fixed_inst(inst, self.last_results, inst.begin_callsign[-2:]))
+        ref_init_inst = get_fixed_inst(inst, self.init_results, inst.begin_callsign[-2:])
+        ref_last_inst = get_fixed_inst(inst, self.last_results, inst.end_callsign[-2:])
+        if not ref_init_inst or not ref_last_inst:
+            return 0
+
+        init_gate = get_fixed_result(self.init_results, ref_init_inst)
+        last_gate = get_fixed_result(self.last_results, ref_last_inst)
 
         if AirlineType(inst.airline).type == "international":
             return cost_for_international(ag, last_gate, alpha)
@@ -131,21 +134,25 @@ def fixed_result(inst: IntervalBase, quarter: int, last_results: dict) -> Union[
             print(inst)
         if inst_type == "de" and inst.time_dict[inst_type]["ATOT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst_type)
-            change_end_interval(inst, ref_inst[0])
-            result = get_fixed_result(last_results, ref_inst)
+            if ref_inst:
+                change_end_interval(inst, ref_inst[0])
+                result = get_fixed_result(last_results, ref_inst)
         if inst_type == "ar" and inst.time_dict[inst_type]["ALDT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst_type)
-            change_end_interval(inst, ref_inst[0])
-            result = get_fixed_result(last_results, ref_inst)
+            if ref_inst:
+                change_end_interval(inst, ref_inst[0])
+                result = get_fixed_result(last_results, ref_inst)
     else:
         if inst.time_dict[inst.begin_callsign[-2:]]["ALDT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst.begin_callsign[:2])
-            change_end_interval(inst, ref_inst[0])
-            result = get_fixed_result(last_results, ref_inst)
+            if ref_inst:
+                change_end_interval(inst, ref_inst[0])
+                result = get_fixed_result(last_results, ref_inst)
         if inst.time_dict[inst.end_callsign[-2:]]["ATOT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst.end_callsign[:2])
-            change_end_interval(inst, ref_inst[0])
-            result = get_fixed_result(last_results, ref_inst)
+            if ref_inst:
+                change_end_interval(inst, ref_inst[0])
+                result = get_fixed_result(last_results, ref_inst)
     return result
 
 
@@ -162,7 +169,7 @@ def get_fixed_inst(inst: IntervalBase, last_results: dict, inst_type: str) -> li
             if (key.registration == inst.registration) and (key.end_callsign == inst.end_callsign):
                 result.append(key)
 
-    assert result is None or len(result) == 1
+    assert (result == [] or len(result) == 1), print(result)
     return result
 
 

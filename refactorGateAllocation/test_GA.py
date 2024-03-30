@@ -387,7 +387,7 @@ def test_change_end_interval():
 
 
 def test_reallocation():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("../data/error-in-data/gaptraffic-2017-08-03-new.csv")
     init_result = GateAllocation(data, 28, "MANEX").optimization()
 
     quarter = 0
