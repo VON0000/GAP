@@ -54,6 +54,6 @@ class AircraftTide:
         time_list = []
 
         for i in range(len(self.data["data"])):
-            time_list.append(get_right_time(self.data, i, self.data["callsign"][i].split(maxsplit=1)[1], self.quarter))
+            time_list.append(get_right_time(self.data, i, self.data["callsign"][i].split(maxsplit=1)[1], 0))
 
         return time_list
