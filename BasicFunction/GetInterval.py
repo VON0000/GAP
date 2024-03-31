@@ -33,9 +33,11 @@ class GetInterval:
             i = i + 1
 
         while i < len(flight_list):
-            if self.data["departure"][flight_list[i]] == "ZBTJ":
+            if self.data["departure"][flight_list[i]] == "ZBTJ" or (
+                    i + 1 < len(flight_list) and self.data["arrivee"][flight_list[i + 1]] == "ZBTJ"):
                 self.report_error(flight_list[i], quarter)
-                break
+                i = i + 1
+                continue
 
             if i + 1 >= len(flight_list):
                 interval_instance = IntervalType(
