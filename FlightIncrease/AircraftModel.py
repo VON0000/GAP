@@ -2,7 +2,7 @@ import numpy as np
 
 
 def get_aircraft_model() -> dict:
-    filename = "../data/acft_types/acft_types.csv"
+    filename = "./data/acft_types/acft_types.csv"
 
     with open(filename, 'r') as file:
         lines = file.readlines()

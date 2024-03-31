@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def get_airline_info(name: str) -> dict:
-    filename = "../data/group/FlightIncrease/" + name + ".xlsx"
+    filename = "./data/group/FlightIncrease/" + name + ".xlsx"
     data = pd.read_excel(filename, sheet_name=None, header=None)
     df = data["Feuil1"].astype(str)
     airline_info = {row[0]: list(row[1:]) for _, row in df.iterrows()}

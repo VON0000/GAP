@@ -7,8 +7,8 @@ from GateAllocation.reAllocation import ReAllocation
 
 if __name__ == "__main__":
 
-    folder_path = "../results/Traffic_GAP_2Pistes"
-    out_path = "../results/Traffic_GAP_2Pistes_ReAllocation"
+    folder_path = "./results/Traffic_GAP_2Pistes"
+    out_path = "./results/Traffic_GAP_2Pistes_ReAllocation"
     seuil = 28
     pattern = "MANEX"
     quarter = 0

@@ -5,7 +5,7 @@ def get_all_taxiing_time() -> dict:
     """
     从“E:/pycharm/GAP/data/mintaxitime.xlsx”获取每个停机坪对应的滑行时间
     """
-    data = pd.read_excel("../data/mintaxitime.xlsx", sheet_name=None, header=2)
+    data = pd.read_excel("./data/mintaxitime.xlsx", sheet_name=None, header=2)
     data = data["mintaxitime"].to_dict(orient="list")
 
     real_data = {}

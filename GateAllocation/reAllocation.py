@@ -130,8 +130,6 @@ def fixed_result(inst: IntervalBase, quarter: int, last_results: dict) -> Union[
     result = None
     if inst.begin_callsign == inst.end_callsign:
         inst_type = inst.begin_callsign[-2:]
-        if inst_type == "de" and inst.time_dict[inst_type] == {}:
-            print(inst)
         if inst_type == "de" and inst.time_dict[inst_type]["ATOT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst_type)
             if ref_inst:
