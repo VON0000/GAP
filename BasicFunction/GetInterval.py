@@ -33,17 +33,17 @@ class GetInterval:
             i = i + 1
 
         while i < len(flight_list):
+            if self.data["departure"][flight_list[i]] == "ZBTJ":
+                self.report_error(flight_list[i], quarter)
+                break
+
             if i + 1 >= len(flight_list):
-                if self.data["departure"][flight_list[i]] == "ZBTJ":
-                    print(
-                        "error in data" + " " + self.data["registration"][flight_list[i]] + " " + self.data["callsign"][
-                            flight_list[i]] + str(quarter))
-                    break
                 interval_instance = IntervalType(
                     "longtime_arrivee", self.data, [flight_list[i]], quarter, self.time_tide
                 )
                 interval.append(interval_instance)
                 break
+
             interval_time = (
                     get_right_time(self.data, flight_list[i + 1], "de", quarter)
                     - get_right_time(self.data, flight_list[i], "ar", quarter)
@@ -52,9 +52,7 @@ class GetInterval:
                 interval_instance = IntervalType(
                     "shorttime", self.data, [flight_list[i], flight_list[i + 1]], quarter, self.time_tide
                 )
-                if interval_time >= HOUR * (5 + 5 + 15 + 15) / 60:
-                    pass
-                else:
+                if interval_time < HOUR * (5 + 5 + 15 + 15) / 60:
                     interval_instance.interval = 30 * MINUTE
                     interval_instance.end_interval = (
                             interval_instance.begin_interval + interval_instance.interval
@@ -116,3 +114,11 @@ class GetInterval:
             i.end_interval = math.ceil(i.end_interval / (MINUTE / 2))
             i.interval = math.ceil(i.interval / (MINUTE / 2))
         return self.interval
+
+    def report_error(self, flight_index, quarter):
+        """
+        打印出现错误的航班信息和季度。
+        """
+        error_message = ("error in data " + self.data["registration"][flight_index] + " " +
+                         self.data["callsign"][flight_index] + " " + str(quarter))
+        print(error_message)
