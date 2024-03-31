@@ -1,6 +1,7 @@
 from typing import Union
 
 import gurobipy
+import loguru
 
 from BasicFunction.AirlineType import AirlineType
 from BasicFunction.IntervalType import IntervalBase
@@ -54,6 +55,7 @@ class ReAllocation(GateAllocation):
 
         self.model.update()
 
+    @loguru.logger.catch
     def _get_move_cost(self, inst: IntervalBase, ag: str) -> float:
         alpha = 1000 * 1000
         ref_init_inst = get_fixed_inst(inst, self.init_results, inst.begin_callsign[-2:])
@@ -141,13 +143,11 @@ def fixed_result(inst: IntervalBase, quarter: int, last_results: dict) -> Union[
                 change_end_interval(inst, ref_inst[0])
                 result = get_fixed_result(last_results, ref_inst)
     else:
+        # 这时 interval 开始端为降落 结束端为起飞
+        # 一但飞机降落，就会有一个固定的机位
+        # 与飞机何时起飞无关
         if inst.time_dict[inst.begin_callsign[-2:]]["ALDT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst.begin_callsign[:2])
-            if ref_inst:
-                change_end_interval(inst, ref_inst[0])
-                result = get_fixed_result(last_results, ref_inst)
-        if inst.time_dict[inst.end_callsign[-2:]]["ATOT"] < quarter * 15 * 60 + 30 * 60:
-            ref_inst = get_fixed_inst(inst, last_results, inst.end_callsign[:2])
             if ref_inst:
                 change_end_interval(inst, ref_inst[0])
                 result = get_fixed_result(last_results, ref_inst)
@@ -167,7 +167,11 @@ def get_fixed_inst(inst: IntervalBase, last_results: dict, inst_type: str) -> li
             if (key.registration == inst.registration) and (key.end_callsign == inst.end_callsign):
                 result.append(key)
 
-    assert (result == [] or len(result) == 1), print(result)
+    assert (result == [] or len(result) == 1), print(
+        inst.registration, inst.begin_callsign, inst.end_callsign, result[0].registration, result[0].begin_callsign,
+        result[0].end_callsign,
+        result[1].registration, result[1].begin_callsign,
+        result[1].end_callsign)
     return result
 
 
@@ -182,5 +186,6 @@ def change_end_interval(inst: IntervalBase, key: IntervalBase):
     """
     将 key 的属性赋值给 inst
     """
-    for attr, value in key.__dict__.items():
-        setattr(inst, attr, value)
+
+    inst.interval = key.interval
+    inst.end_interval = key.end_interval
