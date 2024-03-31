@@ -9,11 +9,11 @@ from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetAircraftTide import AircraftTide
 from BasicFunction.GetWingSpan import GetWingSpan
 from BasicFunction.IntervalType import IntervalBase
-from refactorGateAllocation.GateAllocation import get_available_gate, get_conflicts, GateAllocation
-from refactorGateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
-from refactorGateAllocation.OutPut import OutPut
-from refactorGateAllocation.RemoteGate import REMOTE_GATE
-from refactorGateAllocation.reAllocation import get_fixed_result, fixed_result, find_group, cost_for_international, \
+from GateAllocation.GateAllocation import get_available_gate, get_conflicts, GateAllocation
+from GateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
+from GateAllocation.OutPut import OutPut
+from GateAllocation.RemoteGate import REMOTE_GATE
+from GateAllocation.reAllocation import get_fixed_result, fixed_result, find_group, cost_for_international, \
     cost_for_domestic, cost_for_cargo, change_end_interval, ReAllocation, get_fixed_inst
 
 HOUR = 60 * 60

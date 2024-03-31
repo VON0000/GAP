@@ -7,8 +7,8 @@ from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetWingSpan import GetWingSpan
 from BasicFunction.IntervalType import IntervalBase
 from FlightIncrease.IncreaseFlight import is_overlapping
-from refactorGateAllocation.GetTaxiingTime import GetTaxiingTime
-from refactorGateAllocation.RemoteGate import REMOTE_GATE
+from GateAllocation.GetTaxiingTime import GetTaxiingTime
+from GateAllocation.RemoteGate import REMOTE_GATE
 
 
 class GateAllocation:

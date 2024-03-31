@@ -1,9 +1,9 @@
 import os
 
 from BasicFunction.GetData import get_data
-from refactorGateAllocation.GateAllocation import GateAllocation
-from refactorGateAllocation.OutPut import OutPut
-from refactorGateAllocation.reAllocation import ReAllocation
+from GateAllocation.GateAllocation import GateAllocation
+from GateAllocation.OutPut import OutPut
+from GateAllocation.reAllocation import ReAllocation
 
 if __name__ == "__main__":
 
