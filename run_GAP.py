@@ -1,5 +1,5 @@
 import os
-
+import tracemalloc
 from BasicFunction.GetData import get_data
 from GateAllocation.GateAllocation import GateAllocation
 from GateAllocation.OutPut import OutPut
@@ -7,8 +7,8 @@ from GateAllocation.reAllocation import ReAllocation
 
 if __name__ == "__main__":
 
-    folder_path = "./results/Traffic_GAP_2Pistes"
-    out_path = "./results/Traffic_GAP_2Pistes_ReAllocation"
+    folder_path = "./data/error-in-data"
+    out_path = "./results/re_Traffic_GAP_mix"
     seuil = 28
     pattern = "MANEX"
     quarter = 0
@@ -17,6 +17,8 @@ if __name__ == "__main__":
 
     for filename in os.listdir(folder_path):
         if filename.endswith(".csv"):
+            tracemalloc.start()
+
             filename = os.path.join(folder_path, filename)
 
             data = get_data(filename)
@@ -31,5 +33,11 @@ if __name__ == "__main__":
                 if quarter == 100:
                     break
 
+                current, peak = tracemalloc.get_traced_memory()
+                print(f"当前内存使用：{current / 10 ** 6}MB")
+                print(f"峰值内存使用：{peak / 10 ** 6}MB")
+
             OutPut(data, filename, out_path).output_process(result_list)
             OutPut(data, filename, out_path).output_final(last_result)
+
+            tracemalloc.stop()

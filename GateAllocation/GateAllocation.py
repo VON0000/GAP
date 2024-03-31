@@ -1,4 +1,5 @@
 import re
+import time
 
 import gurobipy
 
@@ -20,11 +21,14 @@ class GateAllocation:
         self.model = gurobipy.Model()
 
     def optimization(self) -> dict:
+        t1 = time.time()
         self.get_variable()
         self.get_constraints()
         self.get_objective()
         self.model.optimize()
         result = self.get_result()
+        t2 = time.time()
+        print('程序运行时间:%s毫秒' % ((t2 - t1) * 1000))
 
         return result
 
