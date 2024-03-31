@@ -4,7 +4,7 @@ from typing import List
 
 import pandas as pd
 
-from FlightIncrease.IntervalType import IntervalBase
+from BasicFunction.IntervalType import IntervalBase
 
 
 def _get_reference(filename: str) -> dict:

@@ -5,13 +5,13 @@ from typing import Union
 
 import loguru
 
-from FlightIncrease.AirlineType import AirlineType
+from BasicFunction.AirlineType import AirlineType
 from FlightIncrease.DelayTime import delay_time
-from FlightIncrease.GetWingSpan import GetWingSpan
-from FlightIncrease.IntervalType import IntervalBase
+from BasicFunction.GetWingSpan import GetWingSpan
+from BasicFunction.IntervalType import IntervalBase
 
 
-def _is_overlapping(time1, time2) -> bool:
+def is_overlapping(time1, time2) -> bool:
     """
     判断两个时间段是否有重叠
     False 为没有冲突
@@ -31,8 +31,8 @@ def _conflict_half(
     False 为没有冲突
     True 为有冲突
     """
-    if inst.gate == gate or inst.gate == re.findall(r"\d+", gate):
-        flag = _is_overlapping(
+    if inst.gate == gate or [inst.gate] == re.findall(r"\d+", gate):
+        flag = is_overlapping(
             (inst.begin_interval, inst.end_interval),
             (aug_inst.begin_interval, aug_inst.end_interval),
         )
@@ -47,7 +47,7 @@ def _conflict_all(
     True 为有冲突
     """
     if re.findall(r"\d+", inst.gate) == re.findall(r"\d+", gate):
-        flag = _is_overlapping(
+        flag = is_overlapping(
             (inst.begin_interval, inst.end_interval),
             (aug_inst.begin_interval, aug_inst.end_interval),
         )
@@ -56,10 +56,8 @@ def _conflict_all(
 
 class IncreaseFlight:
     def __init__(self, original_list: list, rate: float = 1):
-        inst_wingspan = GetWingSpan()
         self.rate = rate
         self.interval = copy.deepcopy(original_list)
-        self.gatesize = inst_wingspan.gatesize
 
     def find_conflict(self, aug_inst: IntervalBase, gate: str) -> bool:
         """
@@ -87,9 +85,8 @@ class IncreaseFlight:
         available_gate = []
         gate = AirlineType(inst.airline).available_gate
         for g in gate:
-            idx = self.gatesize["gate"].index(g)
-            if inst.wingspan <= self.gatesize["size_limit"][idx]:
-                if not self.find_conflict(inst, self.gatesize["gate"][idx]):
+            if inst.wingspan <= GetWingSpan(g).size:
+                if not self.find_conflict(inst, g):
                     available_gate.append(g)
         if len(available_gate) == 0:
             return None

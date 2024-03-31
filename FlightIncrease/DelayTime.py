@@ -1,6 +1,6 @@
 from typing import List
 
-from FlightIncrease.IntervalType import IntervalBase
+from BasicFunction.IntervalType import IntervalBase
 from FlightIncrease.AircraftModel import AircraftModel
 
 
