@@ -391,11 +391,11 @@ def test_reallocation():
     quarter = 0
     last_result = init_result
     result_list = []
-    while quarter < 5:
+    while quarter < 10:
         last_result = ReAllocation(data, 0, "MANEX", quarter, init_result, last_result).optimization()
         result_list.append(last_result)
 
         quarter += 1
 
-    OutPut(data, "data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_process(result_list)
-    OutPut(data, "data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_final(last_result)
+    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\").output_process(result_list)
+    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\").output_final(last_result)
