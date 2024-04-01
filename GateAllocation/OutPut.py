@@ -26,6 +26,7 @@ class OutPut:
         del self.data["Wingspan"]
         del self.data["Airline"]
         del self.data["QFU"]
+        del self.data["Parking"]
 
         change_times = 0
         for rl_idx in range(len(result_list)):
