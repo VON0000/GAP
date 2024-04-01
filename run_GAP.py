@@ -8,7 +8,7 @@ from GateAllocation.reAllocation import ReAllocation
 if __name__ == "__main__":
 
     folder_path = "./data/error-in-data"
-    out_path = "./results/re_Traffic_GAP_mix"
+    out_path = "./results/re_Traffic_GAP_mix\\"
     seuil = 28
     pattern = "MANEX"
     quarter = 0

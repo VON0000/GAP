@@ -7,7 +7,7 @@ import loguru
 
 from BasicFunction.AirlineType import AirlineType
 from FlightIncrease.DelayTime import delay_time
-from BasicFunction.GetWingSpan import GetWingSpan
+from BasicFunction.GetGateAttribute import GetGateAttribute
 from BasicFunction.IntervalType import IntervalBase
 
 
@@ -85,7 +85,7 @@ class IncreaseFlight:
         available_gate = []
         gate = AirlineType(inst.airline).available_gate
         for g in gate:
-            if inst.wingspan <= GetWingSpan(g).size:
+            if inst.wingspan <= GetGateAttribute(g).size:
                 if not self.find_conflict(inst, g):
                     available_gate.append(g)
         if len(available_gate) == 0:

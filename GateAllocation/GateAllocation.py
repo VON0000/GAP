@@ -5,7 +5,7 @@ import gurobipy
 
 from BasicFunction.AirlineType import AirlineType
 from BasicFunction.GetInterval import GetInterval
-from BasicFunction.GetWingSpan import GetWingSpan
+from BasicFunction.GetGateAttribute import GetGateAttribute
 from BasicFunction.IntervalType import IntervalBase
 from FlightIncrease.IncreaseFlight import is_overlapping
 from GateAllocation.GetTaxiingTime import GetTaxiingTime
@@ -17,18 +17,36 @@ class GateAllocation:
         self.quarter = quarter
         self.pattern = pattern
         self.interval = GetInterval(data, self.quarter, seuil).transform_second_to_half_minute()
+        self.conflict_dict = self._get_conflicts_dict()
         self.available_gate_dict = _available_gate_dict(self.interval)
         self.model = gurobipy.Model()
 
     def optimization(self) -> dict:
         t1 = time.time()
+
+        t3 = time.time()
         self.get_variable()
+        t4 = time.time()
+        print("载入变量耗时:%s秒" % (t4 - t3))
+
+        t5 = time.time()
         self.get_constraints()
+        t6 = time.time()
+        print("载入限制条件耗时:%s秒" % (t6 - t5))
+
+        t7 = time.time()
         self.get_objective()
+        t8 = time.time()
+        print("载入优化目标耗时:%s秒" % (t8 - t7))
+
+        t9 = time.time()
         self.model.optimize()
+        t10 = time.time()
+        print("优化耗时:%s秒" % (t10 - t9))
+
         result = self.get_result()
         t2 = time.time()
-        print('程序运行时间:%s毫秒' % ((t2 - t1) * 1000))
+        print('程序运行时间:%s秒' % (t2 - t1))
 
         return result
 
@@ -60,21 +78,11 @@ class GateAllocation:
                 ) == 1,
                 name=f"constraint_{inst}"
             )
-            for ref_inst in get_conflicts(inst, self.interval):
+            for ref_inst in self.conflict_dict[inst]:
                 for ag in self.available_gate_dict[inst]:
-                    # 414 和 414R 414L 414 不能同时分配
-                    if not (("L" in ag) or ("R" in ag)):
-                        # ag = 414 时， re.findall(r"\d+", ag) = ['414']， 因此 rag = 414R 414L 414 会被选中
-                        # ag = 601 时， re.findall(r"\d+", ag) = ['601']， 因此 rag = 601 会被选中
-                        conflict_gate = [rag for rag in self.available_gate_dict[ref_inst] if
-                                         re.findall(r"\d+", ag) == re.findall(r"\d+", rag)]
-                        self._conflict_in_dependent_gate(conflict_gate, inst, ref_inst, ag)
-                    # 414L 414R
-                    else:
-                        # ag = 414L 时， re.findall(r"\d+", ag) = ['414']， 因此 rag = 414L 414 会被选中
-                        conflict_gate = [rag for rag in self.available_gate_dict[ref_inst] if
-                                         (re.findall(r"\d+", ag) == [rag] or ag == rag)]
-                        self._conflict_in_dependent_gate(conflict_gate, inst, ref_inst, ag)
+                    conflict_gate = list(
+                        set(GetGateAttribute(ag).dependent_gate) & set(self.available_gate_dict[ref_inst]))
+                    self._conflict_in_dependent_gate(conflict_gate, inst, ref_inst, ag)
 
         self.model.update()
 
@@ -118,6 +126,13 @@ class GateAllocation:
             return alpha
         return alpha * 10
 
+    def _get_conflicts_dict(self) -> dict:
+        conflict_dict = {}
+        for inst in self.interval:
+            ref_inst_list = get_conflicts(inst, self.interval)
+            conflict_dict[inst] = ref_inst_list
+        return conflict_dict
+
 
 def get_conflicts(inst: IntervalBase, interval: list) -> list:
     """
@@ -153,6 +168,6 @@ def get_available_gate(inst: IntervalBase) -> list:
     else:
         available_gate_list = AirlineType(inst.airline).available_gate
 
-    available_gate_list = [g for g in available_gate_list if inst.wingspan <= GetWingSpan(g).size]
+    available_gate_list = [g for g in available_gate_list if inst.wingspan <= GetGateAttribute(g).size]
 
     return available_gate_list
