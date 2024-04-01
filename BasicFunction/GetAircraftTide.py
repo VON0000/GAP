@@ -30,12 +30,12 @@ class AircraftTide:
     def get_time_tide(self):
         """
         获取航班潮汐
-        大于 seuil -> True
-        小于 seuil -> False
+        大于 seuil -> True ARR-16L
+        小于等于 seuil -> False ARR-16R
         """
         time_tide = {}
 
-        time_list = self._get_time_used()
+        time_list = self._get_time_used(0)
 
         for i in range(24):
             counter = _count_numbers_in_range(time_list, i * 60 * 60, (i + 1) * 60 * 60)
@@ -46,7 +46,7 @@ class AircraftTide:
 
         return time_tide
 
-    def _get_time_used(self) -> list:
+    def _get_time_used(self, quarter) -> list:
         """
         查找需要使用的时间
         """
@@ -54,6 +54,6 @@ class AircraftTide:
         time_list = []
 
         for i in range(len(self.data["data"])):
-            time_list.append(get_right_time(self.data, i, self.data["callsign"][i].split(maxsplit=1)[1], 0))
+            time_list.append(get_right_time(self.data, i, self.data["callsign"][i].split(maxsplit=1)[1], quarter))
 
         return time_list
