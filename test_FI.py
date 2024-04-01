@@ -10,7 +10,7 @@ from FlightIncrease.AircraftModel import AircraftModel
 from BasicFunction.AirlineType import get_airline_info, AirlineType, get_group_dict
 from FlightIncrease.DelayTime import get_wake_turbulence, find_insertion_location
 from BasicFunction.GetInterval import GetInterval
-from BasicFunction.GetWingSpan import GetWingSpan
+from BasicFunction.GetGateAttribute import GetGateAttribute
 from FlightIncrease.IncreaseFlight import (
     is_overlapping,
     _conflict_half,
@@ -25,7 +25,7 @@ TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
 
 
 def test_get_data():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     instance = GetInterval(data, quarter=math.nan, seuil=28)
     for i in range(len(instance.data["callsign"])):
         if instance.data["callsign"][i][-2:] == "ar":
@@ -35,7 +35,7 @@ def test_get_data():
 
 
 def test_get_interval_one():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     instance = GetInterval(data, quarter=math.nan, seuil=28)
     for r in instance.data["registration"]:
         inst_list = instance._get_interval_one(r, quarter=math.nan)
@@ -44,7 +44,7 @@ def test_get_interval_one():
 
 
 def test_flight_list_sorted():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     instance = GetInterval(data, quarter=math.nan, seuil=28)
     flight_list = instance._flight_list_sorted("B9987", quarter=math.nan)
     for i in range(len(flight_list) - 1):
@@ -61,7 +61,7 @@ def test_flight_list_sorted():
 
 
 def test_get_interval():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     instance = GetInterval(data, quarter=math.nan, seuil=28)
     inst_list = instance.get_interval(quarter=math.nan)
     assert len(inst_list) == 35
@@ -84,9 +84,9 @@ def test_get_interval():
 
 
 def test_get_gate_size():
-    assert GetWingSpan("414L").size == 36
-    assert GetWingSpan("228").size == 65
-    assert GetWingSpan("109").size == 52
+    assert GetGateAttribute("414L").size == 36
+    assert GetGateAttribute("228").size == 65
+    assert GetGateAttribute("109").size == 52
 
 
 def test_conflict_half():
@@ -519,7 +519,7 @@ def test_get_index_range():
     )
 
     instance_list = [inst_1, inst_2, inst_3, inst_4, inst_5, inst_6]
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     original_list = GetInterval(data, quarter=math.nan, seuil=28).interval
     min_inst, max_inst = IncreaseFlight(original_list)._get_index_range(inst_3, 2, instance_list)
     assert min_inst.airline == inst_2.airline
@@ -602,7 +602,7 @@ def test_find_insertion_location():
 
 
 def test_all():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     original_list = GetInterval(data, quarter=math.nan, seuil=28).interval
     increase_list = IncreaseFlight(original_list).increase_flight()
-    OutPut(increase_list, filename="../data\\mock_231029.csv", out_path="../data/")
+    OutPut(increase_list, filename="./data\\mock_231029.csv", out_path="./results/Traffic_GAP_test\\")

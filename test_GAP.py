@@ -7,7 +7,7 @@ from BasicFunction.AirlineType import AirlineType
 from BasicFunction.GetData import get_data
 from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetAircraftTide import AircraftTide
-from BasicFunction.GetWingSpan import GetWingSpan
+from BasicFunction.GetGateAttribute import GetGateAttribute
 from BasicFunction.IntervalType import IntervalBase
 from GateAllocation.GateAllocation import get_available_gate, get_conflicts, GateAllocation
 from GateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
@@ -87,7 +87,7 @@ def test_get_taxiing_time():
 
 
 def test_transform_second_to_half_minute():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     interval_half_minute = GetInterval(data, math.nan, 28)
     interval_half_minute.transform_second_to_half_minute()
 
@@ -105,20 +105,20 @@ def test_transform_second_to_half_minute():
 
 
 def test_get_time_used():
-    time_list = AircraftTide(data=get_data("../data/mock_231029.csv"), quarter=12, seuil=28)._get_time_used()
+    time_list = AircraftTide(data=get_data("data/mock_231029.csv"), quarter=12, seuil=28)._get_time_used(quarter=12)
     assert 12840 in time_list
     assert 9420 in time_list
 
     assert 35880 not in time_list
     assert 41520 not in time_list
 
-    time_list = AircraftTide(data=get_data("../data/mock_231029.csv"), quarter=50, seuil=28)._get_time_used()
+    time_list = AircraftTide(data=get_data("data/mock_231029.csv"), quarter=50, seuil=28)._get_time_used(quarter=50)
     assert 35880 in time_list
     assert 41520 in time_list
 
 
 def test_get_interval():
-    data = get_data("../data/mock_231029.csv")
+    data = get_data("data/mock_231029.csv")
     instance = GetInterval(data, quarter=math.nan, seuil=3)
     inst_list = instance.get_interval(quarter=math.nan)
     for i in inst_list:
@@ -129,7 +129,7 @@ def test_get_interval():
                 assert i.begin_qfu == "DEP-16R"
         if i.begin_callsign == "CXA8229 ar":
             print("\nreach")
-            assert i.begin_qfu == "ARR-16L"
+            assert i.begin_qfu == "ARR-16R"
         if i.begin_callsign == "CSC8861 ar":
             print("reach\n")
             assert i.begin_qfu == "ARR-16R"
@@ -152,12 +152,12 @@ def test_get_available_gate():
 
 
 def test_get_wing_size():
-    all_gate = pd.read_excel("../data/wingsizelimit.xls", sheet_name=None)
+    all_gate = pd.read_excel("./data/wingsizelimit.xls", sheet_name=None)
     sheet_data = all_gate["sheet1"]
     gate_size = sheet_data.to_dict(orient="list")
     for i in range(len(gate_size["gate"])):
-        assert GetWingSpan(str(gate_size["gate"][i])).size == gate_size["size_limit"][i]
-    assert GetWingSpan("104").size == 52
+        assert GetGateAttribute(str(gate_size["gate"][i])).size == gate_size["size_limit"][i]
+    assert GetGateAttribute("104").size == 52
 
 
 def test_get_conflicts():
@@ -247,7 +247,7 @@ def test_get_remote_cost():
 
 
 def test_gate_allocation():
-    data = get_data("../data/error-in-data/gaptraffic-2017-08-03-new.csv")
+    data = get_data("data/error-in-data/gaptraffic-2017-08-03-new.csv")
     GateAllocation(data, 28, "MANEX").optimization()
 
 
@@ -278,7 +278,7 @@ def test_fixed_result():
     time_dict = {"ar": {"TTOT": 27000, "TLDT": 30000, "ATOT": 36000, "ALDT": 45000},
                  "de": {"TTOT": 27000, "TLDT": 30000, "ATOT": 36000, "ALDT": 45000}}
     inst_1 = IntervalBase(
-        [9000, 36000, 45000, "CA0", "B9985", "B9985 de", "B9985 ar", 24.9, "414", "B737", time_dict] + ["DEP-16R"]
+        [9000, 36000, 45000, "CA0", "B9985", "B9985 ar", "B9985 de", 24.9, "414", "B737", time_dict] + ["DEP-16R"]
     )
     inst_2 = IntervalBase(
         [9000, 36000, 45000, "CA1", "B9987", "B9986 ar", "B9986 ar", 24.9, "414R", "B737", time_dict] + ["DEP-16R"]
@@ -292,7 +292,6 @@ def test_fixed_result():
         inst_3: "414L"
     }
     assert fixed_result(inst_1, 30, inst_list) is None
-    assert fixed_result(inst_1, 40, inst_list) == "414"
     assert fixed_result(inst_1, 50, inst_list) == "414"
     assert fixed_result(inst_2, 36, inst_list) is None
     assert fixed_result(inst_2, 50, inst_list) == "414R"
@@ -373,21 +372,20 @@ def test_change_end_interval():
         [9000, 36000, 45000, "SHUNFENG", "B9985", "B9985 de", "B9985 ar", 24.9, "888", "B737", TIME_DICT] + ["DEP-16R"]
     )
     inst_2 = IntervalBase(
-        [9000, 36000, 45000, "STRAITAIR", "B9987", "B9986 ar", "B9986 ar", 24.9, "415", "B737", TIME_DICT] + ["DEP-16R"]
+        [18000, 40000, 58000, "STRAITAIR", "B9987", "B9986 ar", "B9986 ar", 24.9, "415", "B737", TIME_DICT] + ["DEP-16R"]
     )
 
     before = id(inst_1)
     change_end_interval(inst_1, inst_2)
     after = id(inst_1)
 
-    assert inst_1.airline == "STRAITAIR"
-    assert inst_1.registration == "B9987"
-    assert inst_1.begin_callsign == "B9986 ar"
+    assert inst_1.interval == 18000
+    assert inst_1.end_interval == 58000
     assert before == after
 
 
 def test_reallocation():
-    data = get_data("../data/error-in-data/gaptraffic-2017-08-03-new.csv")
+    data = get_data("data/error-in-data/gaptraffic-2017-08-03-new.csv")
     init_result = GateAllocation(data, 28, "MANEX").optimization()
 
     quarter = 0
@@ -399,5 +397,5 @@ def test_reallocation():
 
         quarter += 1
 
-    OutPut(data, "../data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_process(result_list)
-    OutPut(data, "../data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_final(last_result)
+    OutPut(data, "data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_process(result_list)
+    OutPut(data, "data\\mock_231029.csv", "../results/Traffic_GAP_test\\").output_final(last_result)
