@@ -17,7 +17,7 @@ class GateAllocation:
         self.quarter = quarter
         self.pattern = pattern
         self.interval = GetInterval(data, self.quarter, seuil).transform_second_to_half_minute()
-        self.conflict_dict = self._get_conflicts_dict()
+        self.conflict_dict = {}
         self.available_gate_dict = _available_gate_dict(self.interval)
         self.model = gurobipy.Model()
 
@@ -30,6 +30,7 @@ class GateAllocation:
         print("载入变量耗时:%s秒" % (t4 - t3))
 
         t5 = time.time()
+        self.conflict_dict = self._get_conflicts_dict()
         self.get_constraints()
         t6 = time.time()
         print("载入限制条件耗时:%s秒" % (t6 - t5))
