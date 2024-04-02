@@ -11,7 +11,6 @@ if __name__ == "__main__":
     out_path = "./results/re_Traffic_GAP_mix\\"
     seuil = 28
     pattern = "MANEX"
-    quarter = 0
 
     result_list = []
 
@@ -19,9 +18,10 @@ if __name__ == "__main__":
         if filename.endswith(".csv"):
             tracemalloc.start()
 
+            quarter = 0
             filename = os.path.join(folder_path, filename)
 
-            data = get_data(filename)
+            data = get_data("data/error-in-data/gaptraffic-2017-08-06-new.csv")
             init_result = GateAllocation(data, seuil, pattern).optimization()
             last_result = init_result
 
@@ -34,6 +34,7 @@ if __name__ == "__main__":
                     break
 
                 current, peak = tracemalloc.get_traced_memory()
+                print(f"当前时刻为：{quarter}")
                 print(f"当前内存使用：{current / 10 ** 6}MB")
                 print(f"峰值内存使用：{peak / 10 ** 6}MB")
 
