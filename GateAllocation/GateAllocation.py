@@ -44,6 +44,10 @@ class GateAllocation:
         t10 = time.time()
         print("优化耗时:%s秒" % (t10 - t9))
 
+        if self.model.status == gurobipy.GRB.INFEASIBLE:
+            self.model.computeIIS()
+            return {}
+
         result = self.get_result()
         t2 = time.time()
         print('程序运行时间:%s秒' % (t2 - t1))
