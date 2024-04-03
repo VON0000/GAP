@@ -40,8 +40,8 @@ class OutPut:
         remote_numbers = get_remote_numbers(result_list[0], result_list[-1])
         self.data["remote_numbers"] = remote_numbers
 
-        name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + ["_process"] + [".csv"]
-        out_name = [self.out_path] + name + [self.pattern]
+        name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + ["_process"] + ["_"]
+        out_name = [self.out_path] + name + [self.pattern] + [".csv"]
         output_file_path = "".join(out_name)
 
         data = pd.DataFrame(self.data)
@@ -51,8 +51,8 @@ class OutPut:
         for i in range(len(self.data["data"])):
             self._update_data_final(i, result)
 
-        name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + [".csv"]
-        out_name = [self.out_path] + name + [self.pattern]
+        name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + ["_"]
+        out_name = [self.out_path] + name + [self.pattern] + [".csv"]
         output_file_path = "".join(out_name)
 
         data = pd.DataFrame(self.data)
