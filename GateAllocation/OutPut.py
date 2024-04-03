@@ -34,7 +34,7 @@ class OutPut:
             for i in range(len(self.data["callsign"])):
                 self._update_data_process(i, rl_idx, result_list[rl_idx])
             if rl_idx > 0:
-                change_times += get_change_times(result_list[0], result_list[rl_idx])
+                change_times += get_change_times(result_list[rl_idx - 1], result_list[rl_idx])
         self.data["change_times"] = change_times
 
         remote_numbers = get_remote_numbers(result_list[0], result_list[-1])
