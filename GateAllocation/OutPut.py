@@ -10,10 +10,11 @@ from BasicFunction.IntervalType import IntervalBase
 
 
 class OutPut:
-    def __init__(self, data: dict, filename: str, out_path: str):
+    def __init__(self, data: dict, filename: str, out_path: str, pattern: str):
         self.data = deepcopy(data)
         self.out_path = out_path
         self.filename = filename
+        self.pattern = pattern
         create_directory(out_path)
 
     def output_process(self, result_list: list):
@@ -40,7 +41,7 @@ class OutPut:
         self.data["remote_numbers"] = remote_numbers
 
         name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + ["_process"] + [".csv"]
-        out_name = [self.out_path] + name
+        out_name = [self.out_path] + name + [self.pattern]
         output_file_path = "".join(out_name)
 
         data = pd.DataFrame(self.data)
@@ -51,7 +52,7 @@ class OutPut:
             self._update_data_final(i, result)
 
         name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + [".csv"]
-        out_name = [self.out_path] + name
+        out_name = [self.out_path] + name + [self.pattern]
         output_file_path = "".join(out_name)
 
         data = pd.DataFrame(self.data)

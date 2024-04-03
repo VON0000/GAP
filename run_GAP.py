@@ -22,7 +22,7 @@ if __name__ == "__main__":
                 quarter = 0
                 filename = os.path.join(folder_path, filename)
 
-                data = get_data("data/error-in-data/gaptraffic-2017-08-06-new.csv")
+                data = get_data(filename)
                 init_result = GateAllocation(data, seuil, pattern).optimization()
                 last_result = init_result
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                     print(f"当前内存使用：{current / 10 ** 6}MB")
                     print(f"峰值内存使用：{peak / 10 ** 6}MB")
 
-                OutPut(data, filename, out_path).output_process(result_list)
-                OutPut(data, filename, out_path).output_final(last_result)
+                OutPut(data, filename, out_path, pattern).output_process(result_list)
+                OutPut(data, filename, out_path, pattern).output_final(last_result)
 
                 tracemalloc.stop()
