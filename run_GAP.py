@@ -12,14 +12,14 @@ if __name__ == "__main__":
     seuil = 28
     pattern_list = ["MANEX", "PN_MANEX"]
 
-    result_list = []
-
     for pattern in pattern_list:
         for filename in os.listdir(folder_path):
             if filename.endswith(".csv"):
                 tracemalloc.start()
 
                 quarter = 0
+                result_list = []
+
                 filename = os.path.join(folder_path, filename)
 
                 data = get_data(filename)

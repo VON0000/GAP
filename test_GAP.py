@@ -372,7 +372,8 @@ def test_change_end_interval():
         [9000, 36000, 45000, "SHUNFENG", "B9985", "B9985 de", "B9985 ar", 24.9, "888", "B737", TIME_DICT] + ["DEP-16R"]
     )
     inst_2 = IntervalBase(
-        [18000, 40000, 58000, "STRAITAIR", "B9987", "B9986 ar", "B9986 ar", 24.9, "415", "B737", TIME_DICT] + ["DEP-16R"]
+        [18000, 40000, 58000, "STRAITAIR", "B9987", "B9986 ar", "B9986 ar", 24.9, "415", "B737", TIME_DICT] + [
+            "DEP-16R"]
     )
 
     before = id(inst_1)
@@ -385,17 +386,17 @@ def test_change_end_interval():
 
 
 def test_reallocation():
-    data = get_data("data/error-in-data/gaptraffic-2017-08-03-new.csv")
+    data = get_data("data/error-in-data/gaptraffic-2017-08-06-new.csv")
     init_result = GateAllocation(data, 28, "MANEX").optimization()
 
     quarter = 0
     last_result = init_result
     result_list = []
-    while quarter < 10:
-        last_result = ReAllocation(data, 0, "MANEX", quarter, init_result, last_result).optimization()
+    while quarter < 3:
+        last_result = ReAllocation(data, 28, "MANEX", quarter, init_result, last_result).optimization()
         result_list.append(last_result)
 
         quarter += 1
 
-    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\").output_process(result_list)
-    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\").output_final(last_result)
+    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\", "MANEX").output_process(result_list)
+    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\", "MANEX").output_final(last_result)
