@@ -14,8 +14,8 @@ if __name__ == "__main__":
 
     folder_path = "../results/Traffic_GAP_2Pistes"
 
-    folder_path2 = "../results/In/Traffic_IncreaseFlight_GAP_2Pistes_" + str(rate) + "/"
-    output_path = "../results/Traffic_ConcatenatedFiles_GAP_2Pistes_" + str(rate) + "/"
+    folder_path2 = "../results/intermediateFile/re_2Pistes_increase/"
+    output_path = "../results/intermediateFile/re_2Pistes_concatenated/"
 
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
@@ -23,7 +23,7 @@ if __name__ == "__main__":
         if match_pn is None and filename.endswith(".csv") and match_process is None:
             filename = os.path.join(folder_path, filename)
             data = get_data(filename)
-            original_list = GetInterval(data, math.nan, 28).interval
+            original_list = GetInterval(data, math.nan, 0).interval
             increase_list = IncreaseFlight(original_list, rate).increase_flight()
             OutPut(increase_list, filename, folder_path2)
             print(filename, "has been processed.")
