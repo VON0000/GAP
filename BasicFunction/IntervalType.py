@@ -104,6 +104,9 @@ def _get_qfu_info(data: dict, index_list: List[int], quarter: Union[int, float],
         if time >= 25:
             time = 23
 
+        if time <= 0:
+            time = 0
+
         if time_tide[time]:
             qfu_info_list.append("ARR-16L")
         else:
