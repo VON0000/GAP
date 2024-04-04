@@ -142,3 +142,4 @@ schema.json
 
 dataReprocess/all_results/
 results/Traffic_GAP_test
+/results/intermediateFile/
