@@ -4,17 +4,18 @@ import re
 import pandas as pd
 
 from BasicFunction.AirlineType import AirlineType
+from BasicFunction.AvailableGateStrategy import get_available_gate_GAP
 from BasicFunction.GetData import get_data
 from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetAircraftTide import AircraftTide
 from BasicFunction.GetGateAttribute import GetGateAttribute
 from BasicFunction.IntervalType import IntervalBase
-from GateAllocation.GateAllocation import get_available_gate, get_conflicts, GateAllocation
+from GateAllocation.GateAllocation import get_conflicts, GateAllocation
 from GateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
 from GateAllocation.OutPut import OutPut
 from GateAllocation.RemoteGate import REMOTE_GATE
-from GateAllocation.reAllocation import get_fixed_result, fixed_result, find_group, cost_for_international, \
-    cost_for_domestic, cost_for_cargo, change_end_interval, ReAllocation, get_fixed_inst
+from GateAllocation.reAllocation import get_fixed_result, fixed_result, change_end_interval, ReAllocation, \
+    get_fixed_inst, cost_for_international, cost_for_cargo, cost_for_domestic, find_group
 
 HOUR = 60 * 60
 TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
@@ -146,9 +147,10 @@ def test_get_available_gate():
         [900, 1200, 2100, "Chinaexpressair", "B9987", "B9987 de", "B9987 ar", 24.9, "414L", "B737", TIME_DICT] + [
             "DEP-16R"]
     )
-    assert get_available_gate(inst_1) == ["101", "102", "105"]
-    assert sorted(get_available_gate(inst_2)) == sorted(["110", "111", "112", "113", "114", "115", "116"] + REMOTE_GATE)
-    assert sorted(get_available_gate(inst_3)) == sorted(REMOTE_GATE)
+    assert get_available_gate_GAP(inst_1) == ["101", "102", "105"]
+    assert sorted(get_available_gate_GAP(inst_2)) == sorted(
+        ["110", "111", "112", "113", "114", "115", "116"] + REMOTE_GATE)
+    assert sorted(get_available_gate_GAP(inst_3)) == sorted(REMOTE_GATE)
 
 
 def test_get_wing_size():
@@ -231,7 +233,7 @@ def test_get_remote_cost():
             return 0
 
         alpha = 1000 * 1000
-        if ag in AirlineType(inst.airline).available_gate:
+        if ag in AirlineType(inst.airline).airline_gate:
             return alpha
         return alpha * 10
 
@@ -247,7 +249,7 @@ def test_get_remote_cost():
 
 
 def test_gate_allocation():
-    data = get_data("data/error-in-data/gaptraffic-2017-08-03-new.csv")
+    data = get_data("data/error-in-data/modified_gaptraffic-2017-08-03.csv")
     GateAllocation(data, 28, "MANEX").optimization()
 
 
@@ -317,16 +319,23 @@ def test_cost_for_cargo():
 
 
 def test_cost_for_domestic():
-    assert cost_for_domestic("417", "101", "105", 1000 * 1000) == 100 * 1000 * 1000
-    assert cost_for_domestic("110", "101", "204", 1000 * 1000) == 10 * 1000 * 1000
-    assert cost_for_domestic("110", "101", "105", 1000 * 1000) == 1000 * 1000
-    assert cost_for_domestic("110", "101", "110", 1000 * 1000) == 0
-    assert cost_for_domestic("105", "206", "607", 1000 * 1000) == 0
-    assert cost_for_domestic("607", "206", "607", 1000 * 1000) == 1 * 1000 * 1000
-    assert cost_for_domestic("419", "206", "607", 1000 * 1000) == 10 * 1000 * 1000
-    assert cost_for_domestic("417", "601", "417", 1000 * 1000) == 0
-    assert cost_for_domestic("105", "601", "417", 1000 * 1000) == 1 * 1000 * 1000
-    assert cost_for_domestic("418", "601", "417", 1000 * 1000) == 10 * 1000 * 1000
+    inst_1 = IntervalBase(
+        [9000, 36000, 45000, "ShanghaiSpringAirlines", "B9985", "B9985 de", "B9985 ar", 24.9, "888", "B737",
+         TIME_DICT] + ["DEP-16R"])
+    inst_2 = IntervalBase(
+        [9000, 36000, 45000, "LUCKYAIR", "B9987", "B9986 ar", "B9986 ar", 24.9, "415", "B737", TIME_DICT] + ["DEP-16R"]
+    )
+    inst_3 = IntervalBase(
+        [9000, 36000, 45000, "ShanghaiAirlines", "B9987", "B9987 de", "B9987 de", 24.9, "106", "B737", TIME_DICT] + [
+            "DEP-16R"])
+    assert cost_for_domestic(inst_1, "417", "101", "105", 1000 * 1000) == 1001 * 1000 * 1000
+    assert cost_for_domestic(inst_1, "110", "101", "204", 1000 * 1000) == 1 * 1000 * 1000
+    assert cost_for_domestic(inst_1, "110", "204", "105", 1000 * 1000) == 11 * 1000 * 1000
+    assert cost_for_domestic(inst_1, "110", "101", "110", 1000 * 1000) == 0
+    assert cost_for_domestic(inst_2, "607", "206", "607", 1000 * 1000) == 1000 * 1000 * 1000
+    assert cost_for_domestic(inst_2, "419", "607", "206", 1000 * 1000) == 11 * 1000 * 1000
+    assert cost_for_domestic(inst_3, "609", "609", "609", 1000 * 1000) == 0
+    assert cost_for_domestic(inst_3, "218", "609", "417", 1000 * 1000) == 101 * 1000 * 1000
 
 
 def test_get_move_cost_reAllocation():
@@ -341,7 +350,7 @@ def test_get_move_cost_reAllocation():
         if AirlineType(inst.airline).type == "cargo":
             return cost_for_cargo(ag, last_gate, alpha)
 
-        return cost_for_domestic(ag, init_gate, last_gate, alpha)
+        return cost_for_domestic(inst, ag, init_gate, last_gate, alpha)
 
     inst_1 = IntervalBase(
         [9000, 36000, 45000, "SHUNFENG", "B9985", "B9985 de", "B9985 ar", 24.9, "888", "B737", TIME_DICT] + ["DEP-16R"]
@@ -363,7 +372,7 @@ def test_get_move_cost_reAllocation():
         inst_3: "101"
     }
     assert _get_move_cost(inst_1, "901", init, last) == 10 * 1000 * 1000
-    assert _get_move_cost(inst_2, "607", init, last) == 10 * 1000 * 1000
+    assert _get_move_cost(inst_2, "607", init, last) == 1001 * 1000 * 1000
     assert _get_move_cost(inst_3, "101", init, last) == 1000 * 1000
 
 
@@ -386,7 +395,7 @@ def test_change_end_interval():
 
 
 def test_reallocation():
-    data = get_data("data/error-in-data/gaptraffic-2017-08-06-new.csv")
+    data = get_data("data/error-in-data/modified_gaptraffic-2017-08-03.csv")
     init_result = GateAllocation(data, 28, "MANEX").optimization()
 
     quarter = 0

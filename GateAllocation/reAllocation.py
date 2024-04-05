@@ -74,7 +74,7 @@ class ReAllocation(GateAllocation):
         if AirlineType(inst.airline).type == "cargo":
             return cost_for_cargo(ag, last_gate, alpha)
 
-        return cost_for_domestic(ag, init_gate, last_gate, alpha)
+        return cost_for_domestic(inst, ag, init_gate, last_gate, alpha)
 
 
 def cost_for_international(ag: str, last_gate: str, alpha: int) -> float:
@@ -89,32 +89,25 @@ def cost_for_cargo(ag: str, last_gate: str, alpha: int) -> float:
     return 10 * alpha
 
 
-def cost_for_domestic(ag: str, init_gate: str, last_gate: str, alpha: int) -> float:
-    if find_group(last_gate) == "TERMINAL_ONE" or find_group(last_gate) == "TERMINAL_TWO":
-        if ag == last_gate:
-            return 0
-        if ag in GROUP_DICT[find_group(last_gate)]:
-            return 1 * alpha
-        if ag in GROUP_DICT["REMOTE_ONE"] or ag in GROUP_DICT["REMOTE_TWO"]:
-            return 100 * alpha
-        return 10 * alpha
+def cost_for_domestic(inst: IntervalBase, ag: str, init_gate: str, last_gate: str, alpha: int) -> float:
+    beta = 0
+    if ag != last_gate:
+        beta = 1
 
-    if find_group(init_gate) == "TERMINAL_ONE" or find_group(init_gate) == "TERMINAL_TWO":
-        if ag in GROUP_DICT["TERMINAL_ONE"] or ag in GROUP_DICT["TERMINAL_TWO"]:
-            return 0
-        if ag == last_gate:
-            return 1 * alpha
-        else:
-            return 10 * alpha
+    if ag not in AirlineType(inst.airline).airline_gate:
+        return alpha * (1000 + beta)
 
-    if ag == last_gate:
-        return 0
-    if ag in GROUP_DICT["TERMINAL_ONE"] or ag in GROUP_DICT["TERMINAL_TWO"]:
-        return 1 * alpha
-    return 10 * alpha
+    if (ag in (REMOTE_TWO + REMOTE_ONE) and init_gate not in (REMOTE_TWO + REMOTE_ONE)) or \
+            (ag not in (REMOTE_TWO + REMOTE_ONE) and init_gate in (REMOTE_TWO + REMOTE_ONE)):
+        return alpha * (100 + beta)
+
+    if find_group(ag) != find_group(init_gate):
+        return alpha * (10 + beta)
+
+    return alpha * beta
 
 
-def find_group(ag: str):
+def find_group(ag: str) -> str:
     """
     遍历 GROUP_DICT，找到 ag 所在的 list
     """
