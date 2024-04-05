@@ -47,7 +47,7 @@ class AirlineType:
     def __init__(self, airline: str):
         self.airline = airline
         self.type = self.get_type()
-        self.available_gate = self.get_available_gate()
+        self.airline_gate = self.get_airline_gate()  # 当前航空公司拥有的gate
 
     def get_type(self) -> str:
         if self.airline in AirlineType.cargo.keys():
@@ -60,7 +60,7 @@ class AirlineType:
             print(self.airline)
             raise ValueError("AirlineType.get_type: airline not found")
 
-    def get_available_gate(self) -> list:
+    def get_airline_gate(self) -> list:
         if self.airline in AirlineType.all_available.keys():
             return AirlineType.all_available[self.airline]
         else:

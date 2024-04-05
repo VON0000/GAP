@@ -5,7 +5,6 @@ import loguru
 import numpy as np
 
 from BasicFunction.GetData import get_data
-from FlightIncrease import OutPut
 from FlightIncrease.AircraftModel import AircraftModel
 from BasicFunction.AirlineType import get_airline_info, AirlineType, get_group_dict
 from FlightIncrease.DelayTime import get_wake_turbulence, find_insertion_location
@@ -18,6 +17,7 @@ from FlightIncrease.IncreaseFlight import (
     IncreaseFlight,
 )
 from BasicFunction.IntervalType import IntervalBase
+from FlightIncrease.OutPut import OutPut
 
 HOUR = 60 * 60
 TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
@@ -274,7 +274,7 @@ def test_get_type():
 
 def test_get_available_gate():
     airline = AirlineType("AirChina")
-    assert airline.available_gate == [
+    assert airline.airline_gate == [
         "107",
         "108",
         "109",
@@ -286,7 +286,7 @@ def test_get_available_gate():
     ]
 
     airline = AirlineType("YangtzeRiverExpress")
-    assert airline.available_gate == [
+    assert airline.airline_gate == [
         "874",
         "875",
         "876",
@@ -344,7 +344,7 @@ def test_get_available_gate():
     ]
 
     airline = AirlineType("AirAsiaX")
-    assert airline.available_gate == ["101", "102", "103", "104", "105", "106"]
+    assert airline.airline_gate == ["101", "102", "103", "104", "105", "106"]
 
 
 def test_get_group_dict():

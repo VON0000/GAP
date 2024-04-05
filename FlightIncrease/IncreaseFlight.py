@@ -83,7 +83,7 @@ class IncreaseFlight:
         找到一个能停靠的停机坪
         """
         available_gate = []
-        gate = AirlineType(inst.airline).available_gate
+        gate = AirlineType(inst.airline).airline_gate
         for g in gate:
             if inst.wingspan <= GetGateAttribute(g).size:
                 if not self.find_conflict(inst, g):

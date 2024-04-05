@@ -168,6 +168,6 @@ def _get_remote_counter(inst: IntervalBase, last_result: dict, counter: int, cal
         possible_ref = _get_possible_ref(inst, last_result, call_sign)
         if possible_ref:
             ref = possible_ref[0]
-            if last_result[ref] not in AirlineType(inst.airline).available_gate:
+            if last_result[ref] not in AirlineType(inst.airline).airline_gate:
                 counter += 1
     return counter

@@ -129,7 +129,7 @@ class GateAllocation:
             return 0
 
         alpha = 1000 * 1000
-        if ag in AirlineType(inst.airline).available_gate:
+        if ag in AirlineType(inst.airline).airline_gate:
             return alpha
         return alpha * 10
 
