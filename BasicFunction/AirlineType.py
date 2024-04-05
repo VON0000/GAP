@@ -66,7 +66,7 @@ class AirlineType:
         else:
             return []
 
-    def get_type_gate(self):
+    def get_type_gate(self) -> list:
         if self.type == "cargo":
             return AirlineType.group_dict["cargo"]
         elif self.type == "domestic":

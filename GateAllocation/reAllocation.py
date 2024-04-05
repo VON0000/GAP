@@ -1,9 +1,10 @@
-from typing import Union
+from typing import Union, Callable
 
 import gurobipy
 import loguru
 
 from BasicFunction.AirlineType import AirlineType
+from BasicFunction.AvailableGateStrategy import get_available_gate_GAP
 from BasicFunction.IntervalType import IntervalBase
 from GateAllocation.GateAllocation import GateAllocation
 
@@ -25,8 +26,9 @@ GROUP_DICT = {
 
 
 class ReAllocation(GateAllocation):
-    def __init__(self, data: dict, seuil: int, pattern: str, quarter: int, init_results: dict, last_results: dict):
-        super().__init__(data, seuil, pattern, quarter)
+    def __init__(self, data: dict, seuil: int, pattern: str, quarter: int, init_results: dict, last_results: dict,
+                 available_gate_strategy: Callable[[IntervalBase], list] = get_available_gate_GAP):
+        super().__init__(data, seuil, pattern, quarter, available_gate_strategy)
         self.init_results = init_results
         self.last_results = last_results
 

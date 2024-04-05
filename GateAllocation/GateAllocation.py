@@ -1,8 +1,10 @@
 import time
+from typing import Callable
 
 import gurobipy
 
 from BasicFunction.AirlineType import AirlineType
+from BasicFunction.AvailableGateStrategy import get_available_gate_GAP
 from BasicFunction.GetInterval import GetInterval
 from BasicFunction.GetGateAttribute import GetGateAttribute
 from BasicFunction.IntervalType import IntervalBase
@@ -12,12 +14,13 @@ from GateAllocation.RemoteGate import REMOTE_GATE
 
 
 class GateAllocation:
-    def __init__(self, data: dict, seuil: int, pattern: str, quarter: int = 0):
+    def __init__(self, data: dict, seuil: int, pattern: str, quarter: int = 0,
+                 available_gate_strategy: Callable[[IntervalBase], list] = get_available_gate_GAP):
         self.quarter = quarter
         self.pattern = pattern
         self.interval = GetInterval(data, self.quarter, seuil).transform_second_to_half_minute()
         self.conflict_dict = {}
-        self.available_gate_dict = _available_gate_dict(self.interval)
+        self.available_gate_dict = _available_gate_dict(self.interval, available_gate_strategy)
         self.model = gurobipy.Model()
 
     def optimization(self) -> dict:
@@ -157,21 +160,10 @@ def get_conflicts(inst: IntervalBase, interval: list) -> list:
     return ref_inst_list
 
 
-def _available_gate_dict(interval: list) -> dict:
+def _available_gate_dict(interval: list, available_gate_strategy: Callable[[IntervalBase], list]) -> dict:
     available_gate_dict = {}
     for inst in interval:
-        gate_list = get_available_gate(inst)
+        gate_list = available_gate_strategy(inst)
         available_gate_dict[inst] = gate_list
 
     return available_gate_dict
-
-
-def get_available_gate(inst: IntervalBase) -> list:
-    if AirlineType(inst.airline).type == "domestic":
-        available_gate_list = list(set(AirlineType(inst.airline).available_gate) | set(REMOTE_GATE))
-    else:
-        available_gate_list = AirlineType(inst.airline).available_gate
-
-    available_gate_list = [g for g in available_gate_list if inst.wingspan <= GetGateAttribute(g).size]
-
-    return available_gate_list
