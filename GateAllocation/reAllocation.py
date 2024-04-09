@@ -72,7 +72,8 @@ class ReAllocation(GateAllocation):
         ref_init_inst = get_fixed_inst(inst, self.init_results, inst.begin_callsign[-2:])
         ref_last_inst = get_fixed_inst(inst, self.last_results, inst.end_callsign[-2:])
         if not ref_init_inst or not ref_last_inst:
-            return 0
+            print(inst.registration, inst.begin_callsign, inst.end_callsign,
+                  "\033[34mthis one doesn't have a fixed gate\033[0m")
 
         init_gate = get_fixed_result(self.init_results, ref_init_inst)
         last_gate = get_fixed_result(self.last_results, ref_last_inst)
