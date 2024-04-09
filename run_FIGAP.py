@@ -26,12 +26,13 @@ if __name__ == "__main__":
 
                 data = get_data(filename)
                 init_result = GateAllocation(data, seuil, pattern,
-                                             available_gate_strategy=get_available_gate_FIGAP).optimization()
+                                             available_gate_strategy=get_available_gate_FIGAP).optimization(
+                    sans_taxiing_time=False)
                 last_result = init_result
 
                 while True:
                     last_result = ReAllocation(data, seuil, pattern, quarter, init_result, last_result,
-                                               get_available_gate_FIGAP).optimization()
+                                               get_available_gate_FIGAP).optimization(sans_taxiing_time=False)
                     result_list.append(last_result)
 
                     quarter += 1

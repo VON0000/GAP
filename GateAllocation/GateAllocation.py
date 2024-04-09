@@ -23,7 +23,10 @@ class GateAllocation:
         self.available_gate_dict = _available_gate_dict(self.interval, available_gate_strategy)
         self.model = gurobipy.Model()
 
-    def optimization(self) -> dict:
+    def optimization(self, sans_taxiing_time: bool = False) -> dict:
+        """
+        sans_taxiing_time: 是否不考虑滑行时间 False: 考虑滑行时间 True: 不考虑滑行时间
+        """
         t1 = time.time()
 
         t3 = time.time()
@@ -38,7 +41,7 @@ class GateAllocation:
         print("载入限制条件耗时:%s秒" % (t6 - t5))
 
         t7 = time.time()
-        self.get_objective()
+        self.get_objective(sans_taxiing_time)
         t8 = time.time()
         print("载入优化目标耗时:%s秒" % (t8 - t7))
 
@@ -101,19 +104,30 @@ class GateAllocation:
                 name=f"constraint_{inst}_{ref_inst}_{ag}_{rag}"
             )
 
-    def get_objective(self):
+    def get_objective(self, sans_taxiing_time: bool = False):
         """
         滑行时间 + 远机位代价
         """
-        self.model.setObjective(
-            gurobipy.quicksum(
-                self._get_taxiing_time(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
-                for ag in self.available_gate_dict[inst]
-            ) + gurobipy.quicksum(
-                self._get_remote_cost(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
-                for ag in self.available_gate_dict[inst]
-            ), gurobipy.GRB.MINIMIZE
-        )
+        if not sans_taxiing_time:
+            self.model.setObjective(
+                gurobipy.quicksum(
+                    self._get_taxiing_time(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in
+                    self.interval
+                    for ag in self.available_gate_dict[inst]
+                ) + gurobipy.quicksum(
+                    self._get_remote_cost(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in
+                    self.interval
+                    for ag in self.available_gate_dict[inst]
+                ), gurobipy.GRB.MINIMIZE
+            )
+        else:
+            self.model.setObjective(
+                gurobipy.quicksum(
+                    self._get_remote_cost(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in
+                    self.interval
+                    for ag in self.available_gate_dict[inst]
+                ), gurobipy.GRB.MINIMIZE
+            )
 
         self.model.update()
 

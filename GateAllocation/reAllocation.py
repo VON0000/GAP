@@ -44,16 +44,25 @@ class ReAllocation(GateAllocation):
 
         self.model.update()
 
-    def get_objective(self):
-        self.model.setObjective(
-            gurobipy.quicksum(
-                self._get_taxiing_time(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
-                for ag in self.available_gate_dict[inst]
-            ) + gurobipy.quicksum(
-                self._get_move_cost(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
-                for ag in self.available_gate_dict[inst]
-            ), gurobipy.GRB.MINIMIZE
-        )
+    def get_objective(self, sans_taxiing_time: bool = False):
+        if not sans_taxiing_time:
+            self.model.setObjective(
+                gurobipy.quicksum(
+                    self._get_taxiing_time(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in
+                    self.interval
+                    for ag in self.available_gate_dict[inst]
+                ) + gurobipy.quicksum(
+                    self._get_move_cost(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
+                    for ag in self.available_gate_dict[inst]
+                ), gurobipy.GRB.MINIMIZE
+            )
+        else:
+            self.model.setObjective(
+                gurobipy.quicksum(
+                    self._get_move_cost(inst, ag) * self.model.getVarByName(f"x_{inst}_{ag}") for inst in self.interval
+                    for ag in self.available_gate_dict[inst]
+                ), gurobipy.GRB.MINIMIZE
+            )
 
         self.model.update()
 
