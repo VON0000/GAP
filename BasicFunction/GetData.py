@@ -28,11 +28,11 @@ def get_time_type(data: dict, data_index: int, data_type: str, quarter: Union[in
     q = 60 * 15
 
     if data_type == "de":
-        if data['ATOT'][data_index] <= quarter * q + h:
+        if (data['ATOT'][data_index] <= quarter * q + h) or (data['TTOT'][data_index] <= quarter * q + h):
             return "ATOT"
         return "TTOT"
 
-    if data['ALDT'][data_index] <= quarter * q + h:
+    if (data['ALDT'][data_index] <= quarter * q + h) or (data['TLDT'][data_index] <= quarter * q + h):
         return "ALDT"
     return "TLDT"
 
