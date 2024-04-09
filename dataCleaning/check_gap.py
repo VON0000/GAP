@@ -3,7 +3,7 @@ import re
 
 APT = "ZBTJ"
 TAXI_D = 5
-GATE_D = 15
+GATE_D = 10
 
 
 class Mvt:
@@ -43,11 +43,12 @@ def check_gap(file, gate_d=GATE_D):
             last = cur
 
 
-folder_path = "../results/ConcatenatedFiles_airline/"
+folder_path = "../results/re_Traffic_GAP_mix/"
 
 for filename in os.listdir(folder_path):
     match = re.search(r"process", filename, re.M | re.I)
-    if match is None and filename.endswith(".csv"):
+    pn_match = re.search(r"PN", filename, re.M | re.I)
+    if match is None and filename.endswith(".csv") and pn_match is None:
         filename = os.path.join(folder_path, filename)
         check_gap(filename)
 # for file in sys.argv[1:]:

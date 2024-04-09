@@ -44,3 +44,5 @@ if __name__ == "__main__":
                 OutPut(data, filename, out_path, pattern).output_final(last_result)
 
                 tracemalloc.stop()
+
+                print("\033[32m" + filename + "\033[0m")
