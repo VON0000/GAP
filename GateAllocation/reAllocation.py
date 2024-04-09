@@ -140,12 +140,10 @@ def fixed_result(inst: IntervalBase, quarter: int, last_results: dict) -> Union[
         if inst_type == "de" and inst.time_dict[inst_type]["ATOT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst_type)
             if ref_inst:
-                change_end_interval(inst, ref_inst[0])
                 result = get_fixed_result(last_results, ref_inst)
         if inst_type == "ar" and inst.time_dict[inst_type]["ALDT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst_type)
             if ref_inst:
-                change_end_interval(inst, ref_inst[0])
                 result = get_fixed_result(last_results, ref_inst)
     else:
         # 这时 interval 开始端为降落 结束端为起飞
@@ -154,7 +152,6 @@ def fixed_result(inst: IntervalBase, quarter: int, last_results: dict) -> Union[
         if inst.time_dict[inst.begin_callsign[-2:]]["ALDT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst.begin_callsign[:2])
             if ref_inst:
-                change_end_interval(inst, ref_inst[0])
                 result = get_fixed_result(last_results, ref_inst)
     return result
 
