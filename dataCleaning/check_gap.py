@@ -43,7 +43,7 @@ def check_gap(file, gate_d=GATE_D):
             last = cur
 
 
-folder_path = "../results/re_Traffic_GAP_mix/"
+folder_path = "../results/re_Traffic_GAP_16R/"
 
 for filename in os.listdir(folder_path):
     match = re.search(r"process", filename, re.M | re.I)

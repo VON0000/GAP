@@ -8,9 +8,10 @@ from GateAllocation.reAllocation import ReAllocation
 if __name__ == "__main__":
 
     folder_path = "./data/error-in-data"
-    out_path = "./results/re_Traffic_GAP_mix\\"
-    seuil = 28
+    out_path = "./results/re_Traffic_GAP_16R\\"
+    seuil = 100000
     pattern_list = ["MANEX", "PN_MANEX"]
+    sans_taxiing_time = False
 
     for pattern in pattern_list:
         for filename in os.listdir(folder_path):
@@ -23,12 +24,12 @@ if __name__ == "__main__":
                 filename = os.path.join(folder_path, filename)
 
                 data = get_data(filename)
-                init_result = GateAllocation(data, seuil, pattern).optimization(sans_taxiing_time=False)
+                init_result = GateAllocation(data, seuil, pattern).optimization(sans_taxiing_time=sans_taxiing_time)
                 last_result = init_result
 
                 while True:
                     last_result = ReAllocation(data, seuil, pattern, quarter, init_result,
-                                               last_result).optimization(sans_taxiing_time=False)
+                                               last_result).optimization(sans_taxiing_time=sans_taxiing_time)
                     result_list.append(last_result)
 
                     quarter += 1
