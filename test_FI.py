@@ -107,18 +107,18 @@ def test_conflict_half():
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
-    assert _conflict_half(inst_1, inst_2, "414L", False) == False
-    assert _conflict_half(inst_1, inst_2, "414R", False) == True
-    assert _conflict_half(inst_1, inst_3, "414L", False) == True
+    assert _conflict_half(inst_1, inst_2, "414L", False) is False
+    assert _conflict_half(inst_1, inst_2, "414R", False) is True
+    assert _conflict_half(inst_1, inst_3, "414L", False) is True
 
     # Test Case 2: Overlapping intervals with dependent gate (414L 414R)
-    assert _conflict_half(inst_2, inst_3, "414R", False) == True
+    assert _conflict_half(inst_2, inst_3, "414R", False) is True
 
     # Test Case 3: Non-overlapping intervals with dependent gate (414L 414L)
-    assert _conflict_half(inst_3, inst_4, "414L", False) == False
+    assert _conflict_half(inst_3, inst_4, "414L", False) is False
 
     # Test Case 4: Overlapping intervals but different gate
-    assert _conflict_half(inst_2, inst_5, "414L", False) == False
+    assert _conflict_half(inst_2, inst_5, "414L", False) is False
 
 
 def test_conflict_all():
@@ -139,37 +139,37 @@ def test_conflict_all():
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
-    assert _conflict_all(inst_1, inst_2, "414", False) == True
-    assert _conflict_all(inst_1, inst_3, "414", False) == True
+    assert _conflict_all(inst_1, inst_2, "414", False) is True
+    assert _conflict_all(inst_1, inst_3, "414", False) is True
 
-    # Test Case 2: Non-overlapping intervals with dependent gate (414L 414L)
-    assert _conflict_all(inst_1, inst_4, "414", False) == False
+    # Test Case 2: Non-overlapping intervals with dependent gate is
+    assert _conflict_all(inst_1, inst_4, "414", False) is False
 
     # Test Case 4: Overlapping intervals but different gate
-    assert _conflict_all(inst_1, inst_5, "414", False) == False
+    assert _conflict_all(inst_1, inst_5, "414", False) is False
 
 
 def test_is_overlapping():
     # 时间段1和时间段2重叠
-    assert is_overlapping((1, 5), (3, 7)) == True
+    assert is_overlapping((1, 5), (3, 7)) is True
 
     # 时间段1在时间段2之前
-    assert is_overlapping((1, 5), (7, 10)) == False
+    assert is_overlapping((1, 5), (7, 10)) is False
 
     # 时间段1在时间段2之后
-    assert is_overlapping((10, 15), (1, 5)) == False
+    assert is_overlapping((10, 15), (1, 5)) is False
 
     # 时间段1和时间段2完全相同
-    assert is_overlapping((5, 10), (5, 10)) == True
+    assert is_overlapping((5, 10), (5, 10)) is True
 
     # 时间段1的结束时间等于时间段2的开始时间
-    assert is_overlapping((1, 5), (5, 10)) == True
+    assert is_overlapping((1, 5), (5, 10)) is True
 
     # 时间段1的开始时间等于时间段2的结束时间
-    assert is_overlapping((5, 10), (1, 5)) == True
+    assert is_overlapping((5, 10), (1, 5)) is True
 
     # 一个时间段包含另一个时间段
-    assert is_overlapping((1, 10), (3, 7)) == True
+    assert is_overlapping((1, 10), (3, 7)) is True
 
 
 def test_get_airline_info():

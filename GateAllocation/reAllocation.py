@@ -71,9 +71,6 @@ class ReAllocation(GateAllocation):
         alpha = 1000 * 1000
         ref_init_inst = get_fixed_inst(inst, self.init_results, inst.begin_callsign[-2:])
         ref_last_inst = get_fixed_inst(inst, self.last_results, inst.end_callsign[-2:])
-        if not ref_init_inst or not ref_last_inst:
-            print(inst.registration, inst.begin_callsign, inst.end_callsign,
-                  "\033[34mthis one doesn't have a fixed gate\033[0m")
 
         init_gate = get_fixed_result(self.init_results, ref_init_inst)
         last_gate = get_fixed_result(self.last_results, ref_last_inst)
@@ -139,23 +136,17 @@ def fixed_result(inst: IntervalBase, quarter: int, last_results: dict) -> Union[
         inst_type = inst.begin_callsign[-2:]
         if inst_type == "de" and inst.time_dict[inst_type]["ATOT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst_type)
-            if ref_inst:
-                change_end_interval(inst, ref_inst[0])
-                result = get_fixed_result(last_results, ref_inst)
+            result = get_fixed_result(last_results, ref_inst)
         if inst_type == "ar" and inst.time_dict[inst_type]["ALDT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst_type)
-            if ref_inst:
-                change_end_interval(inst, ref_inst[0])
-                result = get_fixed_result(last_results, ref_inst)
+            result = get_fixed_result(last_results, ref_inst)
     else:
         # 这时 interval 开始端为降落 结束端为起飞
         # 一但飞机降落，就会有一个固定的机位
         # 与飞机何时起飞无关
         if inst.time_dict[inst.begin_callsign[-2:]]["ALDT"] < quarter * 15 * 60 + 30 * 60:
             ref_inst = get_fixed_inst(inst, last_results, inst.begin_callsign[:2])
-            if ref_inst:
-                change_end_interval(inst, ref_inst[0])
-                result = get_fixed_result(last_results, ref_inst)
+            result = get_fixed_result(last_results, ref_inst)
     return result
 
 
@@ -172,11 +163,8 @@ def get_fixed_inst(inst: IntervalBase, last_results: dict, inst_type: str) -> li
             if (key.registration == inst.registration) and (key.end_callsign == inst.end_callsign):
                 result.append(key)
 
-    assert (result == [] or len(result) == 1), print(
-        inst.registration, inst.begin_callsign, inst.end_callsign, result[0].registration, result[0].begin_callsign,
-        result[0].end_callsign,
-        result[1].registration, result[1].begin_callsign,
-        result[1].end_callsign)
+    assert (len(result) == 1), print(inst.registration, inst.begin_callsign, inst.end_callsign,
+                                     "\033[34mthis one doesn't have a fixed gate\033[0m")
     return result
 
 
