@@ -14,8 +14,8 @@ if __name__ == "__main__":
 
     folder_path = "./results/re_Traffic_GAP_2Pistes"
 
-    folder_path2 = "./results/intermediateFile/re_2Pistes_increase/"
-    output_path = "./results/intermediateFile/re_2Pistes_concatenated/"
+    folder_path2 = "./results/intermediateFile/re_increase/"
+    output_path = "./results/intermediateFile/re_concatenated/"
 
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
