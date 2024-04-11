@@ -1,4 +1,5 @@
 import math
+import random
 from copy import deepcopy
 
 import loguru
@@ -598,7 +599,70 @@ def test_find_insertion_location():
     origin_test_inst_conflict = deepcopy(test_inst_conflict)
     # 应该返回一个调整后的 inst，不是 test_inst_conflict
     assert find_insertion_location(useful_interval,
-                                   test_inst_conflict).begin_interval != origin_test_inst_conflict.begin_interval
+                                   test_inst_conflict).begin_interval == origin_test_inst_conflict.begin_interval + 60
+
+
+def test_find_conflict_and_find_suitable_gate():
+    def find_conflict(aug_inst: IntervalBase, gate: str, interval: list) -> bool:
+        """
+        检查当前停机坪是否有与添加interval冲突的interval
+        False 为没有冲突
+        True 为有冲突
+        """
+        flag = False
+        counter = 0
+        while not flag and counter < len(interval):
+            inst = interval[counter]
+            # 414
+            if not (("L" in gate) or ("R" in gate)):
+                flag = _conflict_all(aug_inst, inst, gate, flag)
+            # 414L 414R
+            else:
+                flag = _conflict_half(aug_inst, inst, gate, flag)
+            counter = counter + 1
+        return flag
+
+    # 构建一些 IntervalBase 实例
+    dummy_data = ["registration", "begin_callsign", "end_callsign"]
+    inst1 = IntervalBase(
+        [0, 13000, 24000] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414R"] + ["B190", TIME_DICT, "DEP-16R"])
+    inst2 = IntervalBase(
+        [0, 27340, 34530] + ["ShanghaiAirlines"] + dummy_data + [36] + ["218"] + ["FK70", TIME_DICT, "DEP-16R"])
+    inst3 = IntervalBase(
+        [0, 34670, 43450] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414"] + ["A340", TIME_DICT, "DEP-16R"])
+    inst4 = IntervalBase(
+        [0, 27340, 34530] + ["ShanghaiAirlines"] + dummy_data + [45] + ["218"] + ["LJ60", TIME_DICT, "DEP-16R"])
+    inst5 = IntervalBase(
+        [0, 21340, 28530] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414"] + ["A330", TIME_DICT, "DEP-16R"])
+
+    # 测试用例 1: 无冲突情况
+    assert find_conflict(inst2, "414", [inst1, inst3]) is False
+
+    # 测试用例 2: 有冲突情况
+    assert find_conflict(inst1, "414", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst2, "218", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst4, "218", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst5, "414R", [inst1, inst2, inst3]) is True
+
+    def find_suitable_gate(inst, interval):
+        """
+        找到一个能停靠的停机坪
+        """
+        available_gate = []
+        gate = AirlineType(inst.airline).airline_gate
+        for g in gate:
+            if inst.wingspan <= GetGateAttribute(g).size:
+                if not find_conflict(inst, g, interval):
+                    available_gate.append(g)
+        if len(available_gate) == 0:
+            return None
+        else:
+            inst.gate = random.choice(available_gate)
+            return inst
+
+    assert find_suitable_gate(inst1, [inst2, inst3]).gate == "219"
+    assert find_suitable_gate(inst2, [inst1, inst4]).gate != "218"
+    assert find_suitable_gate(inst2, [inst1, inst4]).gate is not None
 
 
 def test_all():
