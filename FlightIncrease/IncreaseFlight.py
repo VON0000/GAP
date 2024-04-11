@@ -31,7 +31,7 @@ def _conflict_half(
     False 为没有冲突
     True 为有冲突
     """
-    if inst.gate == gate or [inst.gate] == re.findall(r"\d+", gate):
+    if (inst.gate == gate) or ([inst.gate] == re.findall(r"\d+", gate)):
         flag = is_overlapping(
             (inst.begin_interval, inst.end_interval),
             (aug_inst.begin_interval, aug_inst.end_interval),
@@ -123,8 +123,8 @@ class IncreaseFlight:
 
             # find the index of the inst in the ref_original_interval(keep)
             ref_idx = None
-            for index, obj in enumerate(ref_original_interval):
-                if obj is mapping[ref_original_interval[original_interval.index(inst)]][1]:
+            for index, _ in enumerate(ref_original_interval):
+                if inst is mapping[ref_original_interval[index]][0]:
                     ref_idx = index
                     break
 
@@ -189,7 +189,8 @@ class IncreaseFlight:
         original_interval.remove(inst_neighbor)
 
         # the inst_neighbor has a suitable gate
-        return [inst, inst_neighbor]
+        # 防止数据污染
+        return [copy.deepcopy(inst), copy.deepcopy(inst_neighbor)]
 
     def _get_index_range(self, new_inst: IntervalBase, ref_idx: int, ref_original_interval: list) -> tuple:
         min_inst = self._get_min_idx(new_inst, ref_idx, ref_original_interval)
@@ -199,6 +200,8 @@ class IncreaseFlight:
     def _get_min_idx(self, new_inst: IntervalBase, ref_idx: int, ref_original_interval: list) -> IntervalBase:
         # the first instances of the group
         min_idx = ref_idx - 1
+        if min_idx < 0:
+            return ref_original_interval[0]
         next_inst = ref_original_interval[min_idx]
         if new_inst.registration == next_inst.registration and min_idx > 0:
             return self._get_min_idx(new_inst, min_idx, ref_original_interval)
@@ -207,6 +210,8 @@ class IncreaseFlight:
     def _get_max_idx(self, new_inst: IntervalBase, ref_idx: int, ref_original_interval: list) -> IntervalBase:
         # the last instances of the group
         max_idx = ref_idx + 1
+        if max_idx >= len(ref_original_interval):
+            return ref_original_interval[-1]
         next_inst = ref_original_interval[max_idx]
         if new_inst.registration == next_inst.registration and max_idx < (len(ref_original_interval) - 1):
             return self._get_max_idx(new_inst, max_idx, ref_original_interval)
