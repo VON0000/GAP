@@ -2,7 +2,7 @@ import os
 import tracemalloc
 from BasicFunction.GetData import get_data
 from GateAllocation.GateAllocation import GateAllocation
-from GateAllocation.OutPut import OutPut
+from GateAllocation.OutPutGAP import OutPutGAP
 from GateAllocation.reAllocation import ReAllocation
 
 if __name__ == "__main__":
@@ -41,8 +41,8 @@ if __name__ == "__main__":
                     print(f"当前内存使用：{current / 10 ** 6}MB")
                     print(f"峰值内存使用：{peak / 10 ** 6}MB")
 
-                OutPut(data, filename, out_path, pattern).output_process(result_list)
-                OutPut(data, filename, out_path, pattern).output_final(last_result)
+                OutPutGAP(data, filename, out_path, pattern).output_process(result_list)
+                OutPutGAP(data, filename, out_path, pattern).output_final(last_result)
 
                 tracemalloc.stop()
 

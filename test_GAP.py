@@ -12,7 +12,7 @@ from BasicFunction.GetGateAttribute import GetGateAttribute
 from BasicFunction.IntervalType import IntervalBase
 from GateAllocation.GateAllocation import get_conflicts, GateAllocation
 from GateAllocation.GetTaxiingTime import get_all_taxiing_time, GetTaxiingTime
-from GateAllocation.OutPut import OutPut
+from GateAllocation.OutPutGAP import OutPutGAP
 from GateAllocation.RemoteGate import REMOTE_GATE
 from GateAllocation.reAllocation import get_fixed_result, fixed_result, change_end_interval, ReAllocation, \
     get_fixed_inst, cost_for_international, cost_for_cargo, cost_for_domestic, find_group
@@ -407,5 +407,5 @@ def test_reallocation():
 
         quarter += 1
 
-    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\", "MANEX").output_process(result_list)
-    OutPut(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\", "MANEX").output_final(last_result)
+    OutPutGAP(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\", "MANEX").output_process(result_list)
+    OutPutGAP(data, "data\\mock_231029.csv", "./results/Traffic_GAP_test\\", "MANEX").output_final(last_result)

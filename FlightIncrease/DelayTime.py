@@ -73,7 +73,7 @@ def find_insertion_location(useful_interval: List[IntervalBase], inst: IntervalB
     if after_conflict or before_conflict:
         return find_insertion_location(useful_interval, inst)
 
-    delta_time = inst.begin_interval - inst.time_dict["ar"]["ALDT"] - 5 * 60
+    delta_time = inst.begin_interval - inst.time_dict["ar"]["TLDT"] - 5 * 60
     inst.end_interval = inst.end_interval + delta_time
     return inst
 

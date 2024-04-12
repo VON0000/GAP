@@ -18,7 +18,7 @@ from FlightIncrease.IncreaseFlight import (
     IncreaseFlight,
 )
 from BasicFunction.IntervalType import IntervalBase
-from FlightIncrease.OutPut import OutPut
+from FlightIncrease.OutPut import OutPutFI
 
 HOUR = 60 * 60
 TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
@@ -669,4 +669,4 @@ def test_all():
     data = get_data("data/mock_231029.csv")
     original_list = GetInterval(data, quarter=math.nan, seuil=28).interval
     increase_list = IncreaseFlight(original_list).increase_flight()
-    OutPut(increase_list, filename="./data\\mock_231029.csv", out_path="./results/Traffic_GAP_test\\")
+    OutPutFI(increase_list, filename="./data\\mock_231029.csv", out_path="./results/Traffic_GAP_test\\")

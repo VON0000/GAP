@@ -46,21 +46,21 @@ def _build_element(
             data["departure"].append("ZBTJ")
             data["arrivee"].append("Default")
 
-            data["ATOT"].append(c.end_interval)
-            data["ALDT"].append(c.time_dict["de"]["ALDT"])
-
-            data["TTOT"].append(c.time_dict["de"]["TTOT"])
+            data["TTOT"].append(c.end_interval)
             data["TLDT"].append(c.time_dict["de"]["TLDT"])
+
+            data["ATOT"].append(c.time_dict["de"]["ATOT"])
+            data["ALDT"].append(c.time_dict["de"]["ALDT"])
         else:
             data["departure"].append("Default")
             data["arrivee"].append("ZBTJ")
 
-            delta_time = c.begin_interval - 5 * 60 - c.time_dict["ar"]["ALDT"]
-            data["ATOT"].append(c.time_dict["ar"]["ATOT"] + delta_time)
-            data["ALDT"].append(c.begin_interval - 5 * 60)
-
+            delta_time = c.begin_interval - 5 * 60 - c.time_dict["ar"]["TLDT"]
             data["TTOT"].append(c.time_dict["ar"]["TTOT"] + delta_time)
-            data["TLDT"].append(c.time_dict["ar"]["TLDT"] + delta_time)
+            data["TLDT"].append(c.begin_interval - 5 * 60)
+
+            data["ATOT"].append(c.time_dict["ar"]["ATOT"] + delta_time)
+            data["ALDT"].append(c.time_dict["ar"]["ALDT"] + delta_time)
 
         data["Type"].append(c.aircraft_model)
         data["Wingspan"].append(c.wingspan)
@@ -89,14 +89,14 @@ def find_numbers(text: str) -> List[str]:
     return numbers
 
 
-class OutPut:
+class OutPutFI:
     def __init__(self, increase_list: List[IntervalBase], filename: str, out_path: str):
         increase_list_sorted_by_registration = sorted(increase_list, key=lambda inst: inst.registration)
         self.out_path = out_path
         self.to_csv(increase_list_sorted_by_registration, filename)
 
     def to_csv(self, increase_list: List[IntervalBase], filename: str):
-        name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
+        name = find_numbers(re.search(r'[\\/][^\\/]*$', filename).group()) + [".csv"]
         out_path = self.out_path
         self.create_directory(out_path)
         out_name = [out_path] + name

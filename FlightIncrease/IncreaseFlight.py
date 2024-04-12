@@ -54,6 +54,24 @@ def _conflict_all(
     return flag
 
 
+def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
+    """
+    判断航班的actual time是否在一天的一个小时内
+    false 为不在
+    true 为在
+    不增加 actual 时间在一个小时内的航班
+    """
+    if inst.begin_callsign == inst.end_callsign:
+        inst.type = inst.begin_callsign[-2:].rstrip()
+        if inst.type == "de":
+            return inst.time_dict["de"]["ATOT"] <= 60 * 60
+        return inst.time_dict["ar"]["ALDT"] <= 60 * 60
+
+    # 如果是ar + de，只要ar在一个小时内，就不增加(de 在一个小时内，ar 必在一个小时内)
+    if inst.time_dict["ar"]["ALDT"] <= 60 * 60:
+        return True
+
+
 class IncreaseFlight:
     def __init__(self, original_list: list, rate: float = 1):
         self.rate = rate
@@ -117,6 +135,9 @@ class IncreaseFlight:
         increase_list = []
         while len(increase_list) < n * self.rate:
             inst = random.choice(original_interval)
+            if judge_inst_in_one_hour(inst):
+                original_interval.remove(inst)
+                continue
 
             # find the index of the inst in the original_interval(delete)
             idx = original_interval.index(inst)

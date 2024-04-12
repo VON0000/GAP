@@ -9,7 +9,7 @@ from BasicFunction.AirlineType import AirlineType
 from BasicFunction.IntervalType import IntervalBase
 
 
-class OutPut:
+class OutPutGAP:
     def __init__(self, data: dict, filename: str, out_path: str, pattern: str):
         self.data = deepcopy(data)
         self.out_path = out_path
