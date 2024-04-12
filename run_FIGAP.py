@@ -4,12 +4,12 @@ import tracemalloc
 from BasicFunction.AvailableGateStrategy import get_available_gate_FIGAP
 from BasicFunction.GetData import get_data
 from GateAllocation.GateAllocation import GateAllocation
-from GateAllocation.OutPut import OutPut
+from GateAllocation.OutPutGAP import OutPutGAP
 from GateAllocation.reAllocation import ReAllocation
 
 if __name__ == "__main__":
 
-    folder_path = "./results/intermediateFile/re_2Pistes_concatenated"
+    folder_path = "./results/intermediateFile/re_concatenated"
     out_path = "./results/re_Traffic_Augmente_GAP_2Pistes\\"
     seuil = 0
     pattern_list = ["MANEX", "PN_MANEX"]
@@ -30,9 +30,16 @@ if __name__ == "__main__":
                     sans_taxiing_time=False)
                 last_result = init_result
 
+                print("初次分配已完成，开始迭代分配")
+
                 while True:
                     last_result = ReAllocation(data, seuil, pattern, quarter, init_result, last_result,
-                                               get_available_gate_FIGAP).optimization(sans_taxiing_time=False)
+                                               available_gate_strategy=get_available_gate_FIGAP).optimization(
+                        sans_taxiing_time=False)
+
+                    if last_result == {}:
+                        break
+
                     result_list.append(last_result)
 
                     quarter += 1
@@ -44,7 +51,9 @@ if __name__ == "__main__":
                     print(f"当前内存使用：{current / 10 ** 6}MB")
                     print(f"峰值内存使用：{peak / 10 ** 6}MB")
 
-                OutPut(data, filename, out_path, pattern).output_process(result_list)
-                OutPut(data, filename, out_path, pattern).output_final(last_result)
+                OutPutGAP(data, filename, out_path, pattern).output_process(result_list)
+                OutPutGAP(data, filename, out_path, pattern).output_final(last_result)
 
                 tracemalloc.stop()
+
+                print("\033[32m" + filename + "\033[0m")
