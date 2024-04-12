@@ -59,16 +59,16 @@ def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
     判断航班的actual time是否在一天的一个小时内
     false 为不在
     true 为在
-    不增加 actual 时间在一个小时内的航班
+    不增加 target 时间在一个小时内的航班
     """
     if inst.begin_callsign == inst.end_callsign:
         inst.type = inst.begin_callsign[-2:].rstrip()
         if inst.type == "de":
-            return inst.time_dict["de"]["ATOT"] <= 60 * 60
-        return inst.time_dict["ar"]["ALDT"] <= 60 * 60
+            return inst.time_dict["de"]["TTOT"] <= 60 * 60
+        return inst.time_dict["ar"]["TLDT"] <= 60 * 60
 
     # 如果是ar + de，只要ar在一个小时内，就不增加(de 在一个小时内，ar 必在一个小时内)
-    if inst.time_dict["ar"]["ALDT"] <= 60 * 60:
+    if inst.time_dict["ar"]["TLDT"] <= 60 * 60:
         return True
 
 
@@ -194,6 +194,11 @@ class IncreaseFlight:
             return []
 
         inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
+
+        # 去掉通过neighbor找到的actual时间在一小时之内的航班
+        if judge_inst_in_one_hour(inst_neighbor):
+            original_interval.remove(inst_neighbor)
+            return [inst]
 
         # the inst is in the middle of the group, it has no neighbor
         if inst.registration != inst_neighbor.registration:
