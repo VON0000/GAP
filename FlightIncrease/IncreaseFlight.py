@@ -56,7 +56,7 @@ def _conflict_all(
 
 def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
     """
-    判断航班的actual time是否在一天的一个小时内
+    判断航班的target time是否在一天的一个小时内
     false 为不在
     true 为在
     不增加 target 时间在一个小时内的航班
@@ -135,6 +135,9 @@ class IncreaseFlight:
         increase_list = []
         while len(increase_list) < n * self.rate:
             inst = random.choice(original_interval)
+
+            # 如果inst的target时间在一个小时内，不增加
+            # 注意: 对于neighbor同样考虑这个问题 详情可见 self._get_neighbor_flight(...) 函数
             if judge_inst_in_one_hour(inst):
                 original_interval.remove(inst)
                 continue
@@ -195,7 +198,7 @@ class IncreaseFlight:
 
         inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
 
-        # 去掉通过neighbor找到的actual时间在一小时之内的航班
+        # 去掉通过neighbor找到的target时间在一小时之内的航班
         if judge_inst_in_one_hour(inst_neighbor):
             original_interval.remove(inst_neighbor)
             return [inst]
