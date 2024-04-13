@@ -11,13 +11,13 @@ from GateAllocation.OutPutGAP import OutPutGAP
 
 if __name__ == "__main__":
 
-    rate = 0.5  # the proportion of increased flights
+    rate = 0.4  # the proportion of increased flights
 
     folder_path = "./results/re_Traffic_GAP_2Pistes"
 
-    folder_path3 = "./results/intermediateFile/re_optimization/"
-    folder_path2 = "./results/intermediateFile/re_increase/"
-    output_path = "./results/intermediateFile/re_concatenated/"
+    folder_path3 = "./results/intermediateFile/re_optimization_" + str(rate) + "/"
+    folder_path2 = "./results/intermediateFile/re_increase_" + str(rate) + "/"
+    output_path = "./results/intermediateFile/re_concatenated_" + str(rate) + "/"
 
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
