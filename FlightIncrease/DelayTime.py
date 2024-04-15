@@ -7,7 +7,7 @@ from FlightIncrease.AircraftModel import AircraftModel
 
 
 @loguru.logger.catch()
-def delay_time(add_list: list, exist_interval: list) -> list:
+def delay_time(add_list: list, exist_interval: list, time_dict_type: str) -> list:
     """
     只考虑降落航班之间的尾流间隔
     | 1st acft → | A. L | A. M | A. H |
@@ -27,7 +27,7 @@ def delay_time(add_list: list, exist_interval: list) -> list:
         if (add_list[0].begin_callsign == add_list[0].end_callsign) and (inst_type == "de"):
             return add_list
 
-        find_insertion_location(useful_interval, inst=add_list[0])
+        find_insertion_location(useful_interval, add_list[0], time_dict_type)
 
         return add_list
 
@@ -36,16 +36,19 @@ def delay_time(add_list: list, exist_interval: list) -> list:
         if inst_type == "de":
             continue
 
-        find_insertion_location(useful_interval, inst=al)
+        find_insertion_location(useful_interval, al, time_dict_type)
 
     return add_list
 
 
-def find_insertion_location(useful_interval: List[IntervalBase], inst: IntervalBase) -> IntervalBase:
+def find_insertion_location(useful_interval: List[IntervalBase], inst: IntervalBase,
+                            time_dict_type: str) -> IntervalBase:
     """
     事实上，先按照在这个instance之前的interval更新，后按照在这个instance之后的interval更新，不会产生错误。更新的时间一定是按照最晚的来的。
     In fact, updating according to the interval before this instance and then updating according to the interval after
     this instance will not produce an error. The update time is always based on the latest.
+
+    输出为更改时间后（加入尾流）的interval
     """
     before_inst_list = [instance for instance in useful_interval if instance.begin_interval <= inst.begin_interval]
     before_conflict = False
@@ -71,9 +74,9 @@ def find_insertion_location(useful_interval: List[IntervalBase], inst: IntervalB
     # 使用递归的原因: 对于一个interval来讲，先按顺序推到最晚的没有冲突的时间，此时时间对于整个list来讲不一定在什么位置，
     # 于是再次循环，检查与list前面部分是否有冲突。
     if after_conflict or before_conflict:
-        return find_insertion_location(useful_interval, inst)
+        return find_insertion_location(useful_interval, inst, time_dict_type)
 
-    delta_time = inst.begin_interval - inst.time_dict["ar"]["TLDT"] - 5 * 60
+    delta_time = inst.begin_interval - inst.time_dict["ar"][time_dict_type] - 5 * 60
     inst.end_interval = inst.end_interval + delta_time
     return inst
 
