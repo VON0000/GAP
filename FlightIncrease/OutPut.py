@@ -46,21 +46,21 @@ def _build_element(
             data["departure"].append("ZBTJ")
             data["arrivee"].append("Default")
 
-            data["TTOT"].append(c.end_interval)
-            data["TLDT"].append(c.time_dict["de"]["TLDT"])
-
-            data["ATOT"].append(c.time_dict["de"]["ATOT"])
+            data["ATOT"].append(c.end_interval)
             data["ALDT"].append(c.time_dict["de"]["ALDT"])
+
+            data["TTOT"].append(c.time_dict["de"]["TTOT"])
+            data["TLDT"].append(c.time_dict["de"]["TLDT"])
         else:
             data["departure"].append("Default")
             data["arrivee"].append("ZBTJ")
 
-            delta_time = c.begin_interval - 5 * 60 - c.time_dict["ar"]["TLDT"]
-            data["TTOT"].append(c.time_dict["ar"]["TTOT"] + delta_time)
-            data["TLDT"].append(c.begin_interval - 5 * 60)
-
+            delta_time = c.begin_interval - 5 * 60 - c.time_dict["ar"]["ALDT"]
             data["ATOT"].append(c.time_dict["ar"]["ATOT"] + delta_time)
-            data["ALDT"].append(c.time_dict["ar"]["ALDT"] + delta_time)
+            data["ALDT"].append(c.begin_interval - 5 * 60)
+
+            data["TTOT"].append(c.time_dict["ar"]["TTOT"] + delta_time)
+            data["TLDT"].append(c.time_dict["ar"]["TLDT"] + delta_time)
 
         data["Type"].append(c.aircraft_model)
         data["Wingspan"].append(c.wingspan)

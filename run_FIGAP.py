@@ -9,8 +9,8 @@ from GateAllocation.reAllocation import ReAllocation
 
 if __name__ == "__main__":
 
-    folder_path = "./results/intermediateFile/re_concatenated_0.5"
-    out_path = "./results/re_Traffic_Augmente_GAP_2Pistes_0.5\\"
+    folder_path = "./results/intermediateFile/t_a_total/re_concatenated_0.5"
+    out_path = "./results/t_a_total/re_Traffic_Augmente_GAP_2Pistes_0.5\\"
     seuil = 0
     pattern_list = ["MANEX", "PN_MANEX"]
 

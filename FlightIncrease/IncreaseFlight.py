@@ -1,7 +1,7 @@
 import copy
 import random
 import re
-from typing import Union
+from typing import Union, Tuple
 
 import loguru
 
@@ -91,6 +91,64 @@ def find_suitable_gate(inst: IntervalBase, interval: list) -> Union[IntervalBase
         return inst
 
 
+def get_map_al(inst: IntervalBase, interval_list: list) -> list:
+    """
+    为对应的航班根据尾流间隔推迟时间，查找是否有合适的机位
+    """
+    ref_inst = get_ref_inst(inst, interval_list)
+    ref_inst = copy.deepcopy(ref_inst)
+
+    assert ref_inst != [], "No reference interval found" + str(inst.begin_callsign) + str(inst.registration)
+
+    ref_inst = delay_time(ref_inst, interval_list, "TLDT")
+    if not ref_inst:
+        return []
+    ref_inst = find_suitable_gate_total(ref_inst, interval_list)
+    return ref_inst
+
+
+def get_ref_inst(inst: IntervalBase, interval_list: list) -> list:
+    """
+    获取inst的在actual time下的对应航班
+    """
+    if inst.begin_callsign == inst.end_callsign:
+        inst_type = inst.begin_callsign[-2:].rstrip()
+        if inst_type == "ar":
+            ref_inst = [il for il in interval_list if
+                        il.begin_callsign == inst.begin_callsign and il.registration == inst.registration]
+            return ref_inst
+
+        ref_inst = [il for il in interval_list if
+                    il.end_callsign == inst.end_callsign and il.registration == inst.registration]
+        return ref_inst
+
+    ref_inst = [il for il in interval_list if (
+            il.begin_callsign == inst.begin_callsign or il.end_callsign == inst.end_callsign) and
+                il.registration == inst.registration]
+    return ref_inst
+
+
+def find_suitable_gate_total(add_list: list, interval_list: list) -> list:
+    for al in add_list:
+        al = find_suitable_gate(al, interval_list)
+        if al is None:
+            return []
+    return add_list
+
+
+def judge_in_actual(add_list: list, actual_list: list) -> Tuple[list, list]:
+    """
+    校验通过target time增加的航班 在actual time下是否也能找到停机位
+    """
+    ref_list = []
+    for al in add_list:
+        ref_inst = get_map_al(al, actual_list)
+        ref_list.extend(ref_inst)
+        if not ref_inst:
+            return [], []
+    return add_list, ref_list
+
+
 def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
     """
     判断航班的target time是否在一天的一个小时内
@@ -110,35 +168,15 @@ def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
 
 
 class IncreaseFlight:
-    def __init__(self, target_list: list, rate: float = 1):
+    def __init__(self, actual_list: list, rate: float = 1):
         self.rate = rate
-        self.interval = copy.deepcopy(target_list)
+        self.interval = copy.deepcopy(actual_list)
 
-    def find_suitable_gate_total(self, add_list: list) -> list:
-        for al in add_list:
-            al = find_suitable_gate(al, self.interval)
-            if al is None:
-                return []
-        return add_list
-
-    @staticmethod
-    def judge_in_actual(add_list: list, actual_list: list) -> list:
-        """
-        校验通过target time增加的航班 在actual time下是否也能找到停机位
-        """
-        for al in add_list:
-            al = find_suitable_gate(al, actual_list)
-            if al is None:
-                return []
-        return add_list
-
-    def increase_flight(self, actual_list: list) -> list:
+    def increase_flight(self, target_list: list) -> list:
         """
         通过循环尝试将停靠间隔塞进去
         :return: interval list 能增加的停靠间隔
         """
-        actual_interval_list = copy.deepcopy(actual_list)  # 用来验证所增加的航班是否在actual time下适用
-
         original_interval = copy.deepcopy(self.interval)
         ref_original_interval = copy.deepcopy(self.interval)  # fixed
 
@@ -173,14 +211,14 @@ class IncreaseFlight:
             add_list = self._get_neighbor_flight(inst, idx, ref_idx, original_interval, ref_original_interval)
 
             # consider turbulence
-            add_list = delay_time(add_list, self.interval)
+            add_list = delay_time(add_list, self.interval, "ALDT")
 
             # find_suitable_gate again
-            add_list = self.find_suitable_gate_total(add_list)
+            add_list = find_suitable_gate_total(add_list, self.interval)
 
             # 校验他是否在actual_interval_list里面也能增加
-            add_list = self.judge_in_actual(add_list, actual_interval_list)
-            actual_interval_list.extend(add_list)
+            add_list, ref_list = judge_in_actual(add_list, target_list)
+            target_list.extend(ref_list)
 
             increase_list.extend(add_list)
             self.interval.extend(add_list)

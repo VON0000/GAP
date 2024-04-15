@@ -40,12 +40,12 @@ if __name__ == "__main__":
 
             filename_actual = os.path.join(folder_path4, filename.split("\\")[-1])
             data_actual = get_data(filename_actual)
-            actual_list = GetInterval(data_actual, 0, 0).interval
+            actual_list = GetInterval(data_actual, math.nan, 0).interval
 
-            increase_list = IncreaseFlight(target_list, rate).increase_flight(actual_list)
+            increase_list = IncreaseFlight(actual_list, rate).increase_flight(target_list)
             OutPutFI(increase_list, filename_target, folder_path2)
             print(filename, "has been processed.")
 
     # 文件拼接
 
-    concatenate_files_with_same_number(folder_path3, folder_path2, output_path)
+    concatenate_files_with_same_number(folder_path4, folder_path2, output_path)
