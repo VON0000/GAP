@@ -11,7 +11,7 @@ from GateAllocation.OutPutGAP import OutPutGAP
 
 if __name__ == "__main__":
 
-    rate = 0.4  # the proportion of increased flights
+    rate = 0.05  # the proportion of increased flights
 
     folder_path = "./results/re_Traffic_GAP_2Pistes"
 
