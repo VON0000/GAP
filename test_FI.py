@@ -1,5 +1,4 @@
 import math
-import random
 from copy import deepcopy
 
 import loguru
@@ -15,7 +14,7 @@ from FlightIncrease.IncreaseFlight import (
     is_overlapping,
     _conflict_half,
     _conflict_all,
-    IncreaseFlight,
+    IncreaseFlight, find_conflict, find_suitable_gate,
 )
 from BasicFunction.IntervalType import IntervalBase
 from FlightIncrease.OutPut import OutPutFI
@@ -603,25 +602,6 @@ def test_find_insertion_location():
 
 
 def test_find_conflict_and_find_suitable_gate():
-    def find_conflict(aug_inst: IntervalBase, gate: str, interval: list) -> bool:
-        """
-        检查当前停机坪是否有与添加interval冲突的interval
-        False 为没有冲突
-        True 为有冲突
-        """
-        flag = False
-        counter = 0
-        while not flag and counter < len(interval):
-            inst = interval[counter]
-            # 414
-            if not (("L" in gate) or ("R" in gate)):
-                flag = _conflict_all(aug_inst, inst, gate, flag)
-            # 414L 414R
-            else:
-                flag = _conflict_half(aug_inst, inst, gate, flag)
-            counter = counter + 1
-        return flag
-
     # 构建一些 IntervalBase 实例
     dummy_data = ["registration", "begin_callsign", "end_callsign"]
     inst1 = IntervalBase(
@@ -644,22 +624,6 @@ def test_find_conflict_and_find_suitable_gate():
     assert find_conflict(inst4, "218", [inst1, inst2, inst3]) is True
     assert find_conflict(inst5, "414R", [inst1, inst2, inst3]) is True
 
-    def find_suitable_gate(inst, interval):
-        """
-        找到一个能停靠的停机坪
-        """
-        available_gate = []
-        gate = AirlineType(inst.airline).airline_gate
-        for g in gate:
-            if inst.wingspan <= GetGateAttribute(g).size:
-                if not find_conflict(inst, g, interval):
-                    available_gate.append(g)
-        if len(available_gate) == 0:
-            return None
-        else:
-            inst.gate = random.choice(available_gate)
-            return inst
-
     assert find_suitable_gate(inst1, [inst2, inst3]).gate == "219"
     assert find_suitable_gate(inst2, [inst1, inst4]).gate != "218"
     assert find_suitable_gate(inst2, [inst1, inst4]).gate is not None
@@ -667,6 +631,7 @@ def test_find_conflict_and_find_suitable_gate():
 
 def test_all():
     data = get_data("data/mock_231029.csv")
-    original_list = GetInterval(data, quarter=math.nan, seuil=28).interval
-    increase_list = IncreaseFlight(original_list).increase_flight()
+    target_list = GetInterval(data, quarter=0, seuil=28).interval
+    actual_list = GetInterval(data, quarter=math.nan, seuil=28).interval
+    increase_list = IncreaseFlight(target_list).increase_flight(actual_list)
     OutPutFI(increase_list, filename="./data\\mock_231029.csv", out_path="./results/Traffic_GAP_test\\")

@@ -1,3 +1,4 @@
+import math
 import os
 import re
 
@@ -11,13 +12,14 @@ from GateAllocation.OutPutGAP import OutPutGAP
 
 if __name__ == "__main__":
 
-    rate = 0.05  # the proportion of increased flights
+    rate = 0.5  # the proportion of increased flights
 
     folder_path = "./results/re_Traffic_GAP_2Pistes"
 
-    folder_path3 = "./results/intermediateFile/re_optimization_" + str(rate) + "/"
-    folder_path2 = "./results/intermediateFile/re_increase_" + str(rate) + "/"
-    output_path = "./results/intermediateFile/re_concatenated_" + str(rate) + "/"
+    folder_path4 = "./results/intermediateFile/t_a_total/re_optimization_actual_" + str(rate) + "/"
+    folder_path3 = "./results/intermediateFile/t_a_total/re_optimization_target_" + str(rate) + "/"
+    folder_path2 = "./results/intermediateFile/t_a_total/re_increase_" + str(rate) + "/"
+    output_path = "./results/intermediateFile/t_a_total/re_concatenated_" + str(rate) + "/"
 
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
@@ -25,16 +27,23 @@ if __name__ == "__main__":
         if match_pn is None and filename.endswith(".csv") and match_process is None:
             filename = os.path.join(folder_path, filename)
             data = get_data(filename)
-            init_result = GateAllocation(data, 0, "MANEX").optimization(sans_taxiing_time=False)
-            OutPutGAP(data, filename, folder_path3, "MANEX").output_final(init_result)
+            target_result = GateAllocation(data, 0, "MANEX").optimization(sans_taxiing_time=False)
+            OutPutGAP(data, filename, folder_path3, "MANEX").output_final(target_result)
+            actual_result = GateAllocation(data, 0, "MANEX", math.nan).optimization(sans_taxiing_time=False)
+            OutPutGAP(data, filename, folder_path4, "MANEX").output_final(actual_result)
 
     for filename in os.listdir(folder_path3):
         if filename.endswith(".csv"):
-            filename = os.path.join(folder_path3, filename)
-            data = get_data(filename)
-            original_list = GetInterval(data, 0, 0).interval
-            increase_list = IncreaseFlight(original_list, rate).increase_flight()
-            OutPutFI(increase_list, filename, folder_path2)
+            filename_target = os.path.join(folder_path3, filename)
+            data_target = get_data(filename_target)
+            target_list = GetInterval(data_target, 0, 0).interval
+
+            filename_actual = os.path.join(folder_path4, filename.split("\\")[-1])
+            data_actual = get_data(filename_actual)
+            actual_list = GetInterval(data_actual, 0, 0).interval
+
+            increase_list = IncreaseFlight(target_list, rate).increase_flight(actual_list)
+            OutPutFI(increase_list, filename_target, folder_path2)
             print(filename, "has been processed.")
 
     # 文件拼接

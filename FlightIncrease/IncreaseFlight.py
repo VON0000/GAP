@@ -54,6 +54,43 @@ def _conflict_all(
     return flag
 
 
+def find_conflict(aug_inst: IntervalBase, gate: str, interval: list) -> bool:
+    """
+    检查当前停机坪是否有与添加interval冲突的interval
+    False 为没有冲突
+    True 为有冲突
+    """
+    flag = False
+    counter = 0
+    while not flag and counter < len(interval):
+        inst = interval[counter]
+        # 414
+        if not (("L" in gate) or ("R" in gate)):
+            flag = _conflict_all(aug_inst, inst, gate, flag)
+        # 414L 414R
+        else:
+            flag = _conflict_half(aug_inst, inst, gate, flag)
+        counter = counter + 1
+    return flag
+
+
+def find_suitable_gate(inst: IntervalBase, interval: list) -> Union[IntervalBase, None]:
+    """
+    找到一个能停靠的停机坪
+    """
+    available_gate = []
+    gate = AirlineType(inst.airline).airline_gate
+    for g in gate:
+        if inst.wingspan <= GetGateAttribute(g).size:
+            if not find_conflict(inst, g, interval):
+                available_gate.append(g)
+    if len(available_gate) == 0:
+        return None
+    else:
+        inst.gate = random.choice(available_gate)
+        return inst
+
+
 def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
     """
     判断航班的target time是否在一天的一个小时内
@@ -73,57 +110,35 @@ def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
 
 
 class IncreaseFlight:
-    def __init__(self, original_list: list, rate: float = 1):
+    def __init__(self, target_list: list, rate: float = 1):
         self.rate = rate
-        self.interval = copy.deepcopy(original_list)
-
-    def find_conflict(self, aug_inst: IntervalBase, gate: str) -> bool:
-        """
-        检查当前停机坪是否有与添加interval冲突的interval
-        False 为没有冲突
-        True 为有冲突
-        """
-        flag = False
-        counter = 0
-        while not flag and counter < len(self.interval):
-            inst = self.interval[counter]
-            # 414
-            if not (("L" in gate) or ("R" in gate)):
-                flag = _conflict_all(aug_inst, inst, gate, flag)
-            # 414L 414R
-            else:
-                flag = _conflict_half(aug_inst, inst, gate, flag)
-            counter = counter + 1
-        return flag
-
-    def find_suitable_gate(self, inst: IntervalBase) -> Union[IntervalBase, None]:
-        """
-        找到一个能停靠的停机坪
-        """
-        available_gate = []
-        gate = AirlineType(inst.airline).airline_gate
-        for g in gate:
-            if inst.wingspan <= GetGateAttribute(g).size:
-                if not self.find_conflict(inst, g):
-                    available_gate.append(g)
-        if len(available_gate) == 0:
-            return None
-        else:
-            inst.gate = random.choice(available_gate)
-            return inst
+        self.interval = copy.deepcopy(target_list)
 
     def find_suitable_gate_total(self, add_list: list) -> list:
         for al in add_list:
-            al = self.find_suitable_gate(al)
+            al = find_suitable_gate(al, self.interval)
             if al is None:
                 return []
         return add_list
 
-    def increase_flight(self) -> list:
+    @staticmethod
+    def judge_in_actual(add_list: list, actual_list: list) -> list:
+        """
+        校验通过target time增加的航班 在actual time下是否也能找到停机位
+        """
+        for al in add_list:
+            al = find_suitable_gate(al, actual_list)
+            if al is None:
+                return []
+        return add_list
+
+    def increase_flight(self, actual_list: list) -> list:
         """
         通过循环尝试将停靠间隔塞进去
         :return: interval list 能增加的停靠间隔
         """
+        actual_interval_list = copy.deepcopy(actual_list)  # 用来验证所增加的航班是否在actual time下适用
+
         original_interval = copy.deepcopy(self.interval)
         ref_original_interval = copy.deepcopy(self.interval)  # fixed
 
@@ -162,6 +177,10 @@ class IncreaseFlight:
 
             # find_suitable_gate again
             add_list = self.find_suitable_gate_total(add_list)
+
+            # 校验他是否在actual_interval_list里面也能增加
+            add_list = self.judge_in_actual(add_list, actual_interval_list)
+            actual_interval_list.extend(add_list)
 
             increase_list.extend(add_list)
             self.interval.extend(add_list)
