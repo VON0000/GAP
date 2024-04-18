@@ -43,7 +43,7 @@ def check_gap(file, gate_d=GATE_D):
             last = cur
 
 
-folder_path = "../results/intermediateFile/t_a_total/re_concatenated_0.5"
+folder_path = "../results/intermediateFile/t_a_total/re_concatenated_3_0.5"
 
 for filename in os.listdir(folder_path):
     match = re.search(r"process", filename, re.M | re.I)

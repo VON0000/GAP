@@ -10,17 +10,8 @@ from FlightIncrease.Splice import concatenate_files_with_same_number
 from GateAllocation.GateAllocation import GateAllocation
 from GateAllocation.OutPutGAP import OutPutGAP
 
-if __name__ == "__main__":
 
-    rate = 0.5  # the proportion of increased flights
-
-    folder_path = "./results/re_Traffic_GAP_2Pistes"
-
-    folder_path4 = "./results/intermediateFile/t_a_total/re_optimization_actual_" + str(rate) + "/"
-    folder_path3 = "./results/intermediateFile/t_a_total/re_optimization_target_" + str(rate) + "/"
-    folder_path2 = "./results/intermediateFile/t_a_total/re_increase_" + str(rate) + "/"
-    output_path = "./results/intermediateFile/t_a_total/re_concatenated_" + str(rate) + "/"
-
+def re_optimization():
     for filename in os.listdir(folder_path):
         match_process = re.search(r"process", filename, re.M | re.I)
         match_pn = re.search(r"PN", filename, re.M | re.I)
@@ -31,6 +22,20 @@ if __name__ == "__main__":
             OutPutGAP(data, filename, folder_path3, "MANEX").output_final(target_result)
             actual_result = GateAllocation(data, 0, "MANEX", math.nan).optimization(sans_taxiing_time=False)
             OutPutGAP(data, filename, folder_path4, "MANEX").output_final(actual_result)
+
+
+if __name__ == "__main__":
+
+    rate = 0.5  # the proportion of increased flights
+
+    folder_path = "./results/re_Traffic_GAP_2Pistes"
+
+    folder_path4 = "./results/intermediateFile/t_a_total/re_optimization_actual_3_" + str(rate) + "/"
+    folder_path3 = "./results/intermediateFile/t_a_total/re_optimization_target_3_" + str(rate) + "/"
+    folder_path2 = "./results/intermediateFile/t_a_total/re_increase_3_" + str(rate) + "/"
+    output_path = "./results/intermediateFile/t_a_total/re_concatenated_3_" + str(rate) + "/"
+
+    # re_optimization()
 
     for filename in os.listdir(folder_path3):
         if filename.endswith(".csv"):
