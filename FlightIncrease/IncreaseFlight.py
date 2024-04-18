@@ -225,6 +225,13 @@ class IncreaseFlight:
             add_list, ref_list = judge_in_actual(add_list, target_list)
             target_list.extend(ref_list)
 
+            # 防止重复选择同一个inst
+            if len(ref_list) == 2:
+                if (ref_list[0].begin_callsign == ref_list[1].begin_callsign and
+                        ref_list[0].end_callsign == ref_list[1].end_callsign and
+                        ref_list[0].registration == ref_list[1].registration):
+                    ref_list.pop()
+
             increase_list.extend(add_list)
             self.interval.extend(add_list)
 
