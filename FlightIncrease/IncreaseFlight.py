@@ -172,7 +172,7 @@ class IncreaseFlight:
         self.rate = rate
         self.interval = copy.deepcopy(actual_list)
 
-    def increase_flight(self, target_list: list) -> list:
+    def increase_flight(self, target_list: list, seed: int) -> list:
         """
         通过循环尝试将停靠间隔塞进去
         :return: interval list 能增加的停靠间隔
@@ -185,9 +185,14 @@ class IncreaseFlight:
                    range(len(ref_original_interval))}
 
         n = len(self.interval)  # the number of original flights
+
+        random.seed(seed)  # 随机种子
+
         increase_list = []
+
         while len(increase_list) < n * self.rate:
-            inst = random.choice(original_interval)
+            random_index = random.randint(0, len(original_interval) - 1)
+            inst = original_interval[random_index]
 
             # 如果inst的target时间在一个小时内，不增加
             # 注意: 对于neighbor同样考虑这个问题 详情可见 self._get_neighbor_flight(...) 函数
