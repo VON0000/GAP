@@ -33,12 +33,12 @@ def increase_concatenate_files_with_same_number(folder_path_target_opt: str, fol
             data_target = get_data(filename_target)
             target_list = GetInterval(data_target, 0, 0).interval
 
-            filename_actual = os.path.join(folder_path_target_opt, filename.split("\\")[-1])
+            filename_actual = os.path.join(folder_path_actual_opt, filename.split("\\")[-1])
             data_actual = get_data(filename_actual)
             actual_list = GetInterval(data_actual, math.nan, 0).interval
 
             increase_list = IncreaseFlight(actual_list, rate).increase_flight(target_list, seed)
-            OutPutFI(increase_list, filename_target, folder_path_target_opt)
+            OutPutFI(increase_list, filename_target, folder_path_increase)
             print(filename, "has been processed.")
 
     # 文件拼接
