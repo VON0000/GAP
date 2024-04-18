@@ -10,7 +10,11 @@ folder_path_target_opt = "./results/intermediateFile/t_a_total/re_optimization_t
 
 seuil = 0
 
-for seed in range(3, 5):
+print("请输入循环范围(range(a, b))")
+a = int(input("请输入a："))
+b = int(input("请输入b："))
+
+for seed in range(a, b):
     folder_path_increase = "./results/intermediateFile/t_a_total/re_increase_3_" + str(rate) + "_seed" + str(seed) + "/"
     output_path_concatenate = "./results/intermediateFile/t_a_total/re_concatenated_3_" + str(rate) + "_seed" + str(
         seed) + "/"
