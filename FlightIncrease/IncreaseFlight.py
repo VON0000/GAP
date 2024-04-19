@@ -103,7 +103,6 @@ def get_map_al(inst: IntervalBase, interval_list: list) -> list:
     ref_inst = delay_time(ref_inst, interval_list, "TLDT")
     if not ref_inst:
         return []
-    ref_inst = find_suitable_gate_total(ref_inst, interval_list)
     return ref_inst
 
 
@@ -133,23 +132,27 @@ def find_suitable_gate_total(add_list: list, interval_list: list) -> list:
         al = find_suitable_gate(al, interval_list)
         if al is None:
             return []
+        interval_list.append(al)
     return add_list
 
 
-def judge_in_actual(add_list: list, actual_list: list) -> Tuple[list, list]:
+def _judge_in_target(add_list: list, target_list: list) -> Tuple[list, list]:
     """
-    校验通过target time增加的航班 在actual time下是否也能找到停机位
+    校验通过actual time增加的航班 在target time下是否也能找到停机位
     """
     ref_list = []
     for al in add_list:
-        ref_inst = get_map_al(al, actual_list)
+        ref_inst = get_map_al(al, target_list)
         ref_list.extend(ref_inst)
         if not ref_inst:
             return [], []
+
+    ref_list = rm_repeat(ref_list)
+    ref_list = find_suitable_gate_total(ref_list, target_list)
     return add_list, ref_list
 
 
-def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
+def _judge_inst_in_one_hour(inst: IntervalBase) -> bool:
     """
     判断航班的target time是否在一天的一个小时内
     false 为不在
@@ -206,7 +209,7 @@ class IncreaseFlight:
 
             # 如果inst的target时间在一个小时内，不增加
             # 注意: 对于neighbor同样考虑这个问题 详情可见 self._get_neighbor_flight(...) 函数
-            if judge_inst_in_one_hour(inst):
+            if _judge_inst_in_one_hour(inst):
                 original_interval.remove(inst)
                 continue
 
@@ -232,13 +235,9 @@ class IncreaseFlight:
             add_list = find_suitable_gate_total(add_list, self.interval)
 
             # 校验他是否在actual_interval_list里面也能增加
-            add_list, ref_list = judge_in_actual(add_list, target_list)
-
-            ref_list = rm_repeat(ref_list)
-            target_list.extend(ref_list)
+            add_list, ref_list = _judge_in_target(add_list, target_list)
 
             increase_list.extend(add_list)
-            self.interval.extend(add_list)
 
             if len(original_interval) == 0:
                 break
@@ -273,7 +272,7 @@ class IncreaseFlight:
         inst_neighbor = original_interval[idx - 1] if inst_type == "de" else original_interval[idx]
 
         # 去掉通过neighbor找到的target时间在一小时之内的航班
-        if judge_inst_in_one_hour(inst_neighbor):
+        if _judge_inst_in_one_hour(inst_neighbor):
             original_interval.remove(inst_neighbor)
             return [inst]
 
