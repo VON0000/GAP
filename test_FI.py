@@ -14,7 +14,7 @@ from FlightIncrease.IncreaseFlight import (
     is_overlapping,
     _conflict_half,
     _conflict_all,
-    IncreaseFlight, find_conflict, find_suitable_gate, get_ref_list, rm_repeat,
+    IncreaseFlight, find_conflict, find_suitable_gate, get_ref_list,
 )
 from BasicFunction.IntervalType import IntervalBase
 from FlightIncrease.OutPut import OutPutFI
@@ -655,9 +655,10 @@ def test_get_ref_list_and_rm_repeat():
 
     add_list = [actual_list[2]]
     add_list[0].begin_interval = add_list[0].begin_interval + 800
-    assert len(get_ref_list(add_list, target_list)) == 1
-    assert get_ref_list(add_list, target_list)[0].begin_interval == 36000 - 20 * 60
-    assert get_ref_list(add_list, target_list)[0].end_interval == 36000
+    ref_list = get_ref_list(add_list, target_list)
+    assert len(ref_list) == 1
+    assert ref_list[0].begin_interval == 36000 - 20 * 60
+    assert ref_list[0].end_interval == 36000
 
     add_list = [actual_list[11], actual_list[12]]
     add_list[0].begin_interval = add_list[0].begin_interval + 900
@@ -666,6 +667,34 @@ def test_get_ref_list_and_rm_repeat():
     assert get_ref_list(add_list, target_list)[0].end_interval == 60000 + 20 * 60 + 900
     assert get_ref_list(add_list, target_list)[1].begin_interval == 64800 - 20 * 60 + 900
     assert get_ref_list(add_list, target_list)[1].end_interval == 64800 + 900
+
+
+def test_delay_time():
+    def case_length_two(add_list):
+        counter = 0
+        for al in add_list:
+            inst_type = al.begin_callsign[-2:].rstrip()
+            if inst_type == "de":
+                counter += 1
+                continue
+
+            delta_time = 900
+
+            add_list[abs(counter - 1)].begin_interval = add_list[abs(counter - 1)].begin_interval + delta_time
+            add_list[abs(counter - 1)].end_interval = add_list[abs(counter - 1)].end_interval + delta_time
+            break
+
+        return add_list
+
+    data = get_data("data/mock_231029.csv")
+    actual_list = GetInterval(data, quarter=math.nan, seuil=28).interval
+    add_list = [actual_list[11], actual_list[12]]
+
+    departure = case_length_two(add_list)[1]
+
+    assert departure.begin_interval == 71100 - 20 * 60 + 900
+    assert departure.end_interval == 71100 + 900
+
 
 
 def test_all():

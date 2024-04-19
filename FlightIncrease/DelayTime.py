@@ -31,12 +31,19 @@ def delay_time(add_list: list, exist_interval: list, time_dict_type: str) -> lis
 
         return add_list
 
+    counter = 0
     for al in add_list:
         inst_type = al.begin_callsign[-2:].rstrip()
         if inst_type == "de":
+            counter += 1
             continue
 
         find_insertion_location(useful_interval, al, time_dict_type)
+        delta_time = al.begin_interval - al.time_dict["ar"][time_dict_type] - 5 * 60
+
+        add_list[abs(counter - 1)].begin_interval = add_list[abs(counter - 1)].begin_interval + delta_time
+        add_list[abs(counter - 1)].end_interval = add_list[abs(counter - 1)].end_interval + delta_time
+        break
 
     return add_list
 
