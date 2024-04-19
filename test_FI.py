@@ -14,7 +14,7 @@ from FlightIncrease.IncreaseFlight import (
     is_overlapping,
     _conflict_half,
     _conflict_all,
-    IncreaseFlight, find_conflict, find_suitable_gate,
+    IncreaseFlight, find_conflict, find_suitable_gate, get_ref_list, rm_repeat,
 )
 from BasicFunction.IntervalType import IntervalBase
 from FlightIncrease.OutPut import OutPutFI
@@ -590,15 +590,15 @@ def test_find_insertion_location():
     # 测试用例 1: 无冲突情况
     test_inst = IntervalBase([0, 54560, 66750] + dummy_data[3:] + ["LJ60", TIME_DICT] + ["DEP-16R"])  # 插入时间在所有飞机之后
     origin_test_inst = deepcopy(test_inst)
-    assert find_insertion_location(useful_interval, test_inst).begin_interval == origin_test_inst.begin_interval
+    assert find_insertion_location(useful_interval, test_inst, "TLDT").begin_interval == origin_test_inst.begin_interval
 
     # 测试用例 2: 有冲突情况
     test_inst_conflict = IntervalBase(
         [0, 13000, 24000] + dummy_data[3:] + ["A330", TIME_DICT] + ["DEP-16R"])  # 插入时间和 inst1 冲突
     origin_test_inst_conflict = deepcopy(test_inst_conflict)
     # 应该返回一个调整后的 inst，不是 test_inst_conflict
-    assert find_insertion_location(useful_interval,
-                                   test_inst_conflict).begin_interval == origin_test_inst_conflict.begin_interval + 60
+    assert find_insertion_location(useful_interval, test_inst_conflict,
+                                   "TLDT").begin_interval == origin_test_inst_conflict.begin_interval + 60
 
 
 def test_find_conflict_and_find_suitable_gate():
@@ -629,9 +629,48 @@ def test_find_conflict_and_find_suitable_gate():
     assert find_suitable_gate(inst2, [inst1, inst4]).gate is not None
 
 
+def test_get_ref_list_and_rm_repeat():
+    data = get_data("data/mock_231029.csv")
+    target_list = GetInterval(data, quarter=0, seuil=28).interval
+    actual_list = GetInterval(data, quarter=math.nan, seuil=28).interval
+    add_list = [actual_list[17]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 500
+    assert len(get_ref_list(add_list, target_list)) == 2
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 65700 + 300 + 500
+    assert get_ref_list(add_list, target_list)[0].end_interval == 65700 + 20 * 60 + 500
+    assert get_ref_list(add_list, target_list)[1].begin_interval == 74100 - 20 * 60 + 500
+    assert get_ref_list(add_list, target_list)[1].end_interval == 74100 + 500
+
+    add_list = [actual_list[13], actual_list[14]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 600
+    assert len(get_ref_list(add_list, target_list)) == 1
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 32700 + 300 + 600
+    assert get_ref_list(add_list, target_list)[0].end_interval == 36200 + 600
+
+    add_list = [actual_list[0]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 700
+    assert len(get_ref_list(add_list, target_list)) == 1
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 27000 + 300 + 700
+    assert get_ref_list(add_list, target_list)[0].end_interval == 27000 + 20 * 60 + 700
+
+    add_list = [actual_list[2]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 800
+    assert len(get_ref_list(add_list, target_list)) == 1
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 36000 - 20 * 60
+    assert get_ref_list(add_list, target_list)[0].end_interval == 36000
+
+    add_list = [actual_list[11], actual_list[12]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 900
+    assert len(get_ref_list(add_list, target_list)) == 2
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 60000 + 300 + 900
+    assert get_ref_list(add_list, target_list)[0].end_interval == 60000 + 20 * 60 + 900
+    assert get_ref_list(add_list, target_list)[1].begin_interval == 64800 - 20 * 60 + 900
+    assert get_ref_list(add_list, target_list)[1].end_interval == 64800 + 900
+
+
 def test_all():
     data = get_data("data/mock_231029.csv")
     target_list = GetInterval(data, quarter=0, seuil=28).interval
     actual_list = GetInterval(data, quarter=math.nan, seuil=28).interval
-    increase_list = IncreaseFlight(target_list).increase_flight(actual_list)
+    increase_list = IncreaseFlight(target_list).increase_flight(actual_list, 0)
     OutPutFI(increase_list, filename="./data\\mock_231029.csv", out_path="./results/Traffic_GAP_test\\")

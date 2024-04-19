@@ -91,19 +91,31 @@ def find_suitable_gate(inst: IntervalBase, interval: list) -> Union[IntervalBase
         return inst
 
 
-def get_map_al(inst: IntervalBase, interval_list: list) -> list:
+def get_ref_list(add_list: list, target_list: list) -> list:
     """
-    为对应的航班根据尾流间隔推迟时间，查找是否有合适的机位
+    获取add_list在target time下的对应航班
+    de de的interval不延迟时间
     """
-    ref_inst = get_ref_inst(inst, interval_list)
-    ref_inst = copy.deepcopy(ref_inst)
+    ref_list = []
+    delta_time = 0
+    for al in add_list:
+        ref_inst = get_ref_inst(al, target_list)
+        ref_inst = copy.deepcopy(ref_inst)
 
-    assert ref_inst != [], "No reference interval found" + str(inst.begin_callsign) + str(inst.registration)
+        assert ref_inst != [], "No reference interval found" + str(al.begin_callsign) + str(al.registration)
 
-    ref_inst = delay_time(ref_inst, interval_list, "TLDT")
-    if not ref_inst:
-        return []
-    return ref_inst
+        ref_list.extend(ref_inst)
+
+        if al.begin_callsign[-2:].rstrip() == "ar":
+            delta_time = al.begin_interval - al.time_dict["ar"]["ALDT"] - 5 * 60
+
+    ref_list = rm_repeat(ref_list)
+
+    for ri in ref_list:
+        ri.begin_interval = ri.begin_interval + delta_time
+        ri.end_interval = ri.end_interval + delta_time
+
+    return ref_list
 
 
 def get_ref_inst(inst: IntervalBase, interval_list: list) -> list:
@@ -140,14 +152,10 @@ def _judge_in_target(add_list: list, target_list: list) -> Tuple[list, list]:
     """
     校验通过actual time增加的航班 在target time下是否也能找到停机位
     """
-    ref_list = []
-    for al in add_list:
-        ref_inst = get_map_al(al, target_list)
-        ref_list.extend(ref_inst)
-        if not ref_inst:
-            return [], []
+    if not add_list:
+        return [], []
 
-    ref_list = rm_repeat(ref_list)
+    ref_list = get_ref_list(add_list, target_list)
     ref_list = find_suitable_gate_total(ref_list, target_list)
     return add_list, ref_list
 
@@ -261,6 +269,7 @@ class IncreaseFlight:
         if inst_type == "ar" and max_inst.begin_interval == inst.begin_interval:
             return [inst]
 
+        # 为了能取到 idx - 1 和 idx
         # the first flight of instances is departure, and it is not the first one of the group
         if inst_type == "de" and idx == 0:
             return []
