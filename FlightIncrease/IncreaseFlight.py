@@ -167,6 +167,16 @@ def judge_inst_in_one_hour(inst: IntervalBase) -> bool:
         return True
 
 
+def rm_repeat(ref_list: list) -> list:
+    # 防止重复选择同一个ref_inst
+    if len(ref_list) == 2:
+        if (ref_list[0].begin_callsign == ref_list[1].begin_callsign and
+                ref_list[0].end_callsign == ref_list[1].end_callsign and
+                ref_list[0].registration == ref_list[1].registration):
+            ref_list.pop()
+    return ref_list
+
+
 class IncreaseFlight:
     def __init__(self, actual_list: list, rate: float = 1):
         self.rate = rate
@@ -223,14 +233,9 @@ class IncreaseFlight:
 
             # 校验他是否在actual_interval_list里面也能增加
             add_list, ref_list = judge_in_actual(add_list, target_list)
-            target_list.extend(ref_list)
 
-            # 防止重复选择同一个inst
-            if len(ref_list) == 2:
-                if (ref_list[0].begin_callsign == ref_list[1].begin_callsign and
-                        ref_list[0].end_callsign == ref_list[1].end_callsign and
-                        ref_list[0].registration == ref_list[1].registration):
-                    ref_list.pop()
+            ref_list = rm_repeat(ref_list)
+            target_list.extend(ref_list)
 
             increase_list.extend(add_list)
             self.interval.extend(add_list)
