@@ -140,15 +140,19 @@ def get_ref_inst(inst: IntervalBase, interval_list: list) -> list:
 
 
 def find_suitable_gate_total(add_list: list, interval_list: list) -> list:
+    counter = 0
     for al in add_list:
         al = find_suitable_gate(al, interval_list)
         if al is None:
+            if counter == 1:
+                interval_list.pop()
             return []
         interval_list.append(al)
+        counter = counter + 1
     return add_list
 
 
-def _judge_in_target(add_list: list, target_list: list) -> Tuple[list, list]:
+def _judge_in_target(add_list: list, target_list: list, interval: list) -> Tuple[list, list]:
     """
     校验通过actual time增加的航班 在target time下是否也能找到停机位
     """
@@ -157,6 +161,10 @@ def _judge_in_target(add_list: list, target_list: list) -> Tuple[list, list]:
 
     ref_list = get_ref_list(add_list, target_list)
     ref_list = find_suitable_gate_total(ref_list, target_list)
+    if not ref_list:
+        for i in add_list:
+            interval.pop()
+        return [], []
     return add_list, ref_list
 
 
@@ -211,6 +219,8 @@ class IncreaseFlight:
 
         increase_list = []
 
+        test_lst = []
+
         while len(increase_list) < n * self.rate:
             random_index = random.randint(0, len(original_interval) - 1)
             inst = original_interval[random_index]
@@ -243,9 +253,10 @@ class IncreaseFlight:
             add_list = find_suitable_gate_total(add_list, self.interval)
 
             # 校验他是否在actual_interval_list里面也能增加
-            add_list, ref_list = _judge_in_target(add_list, target_list)
+            add_list, ref_list = _judge_in_target(add_list, target_list, self.interval)
 
             increase_list.extend(add_list)
+            test_lst.extend(ref_list)
 
             if len(original_interval) == 0:
                 break

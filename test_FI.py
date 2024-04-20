@@ -614,15 +614,20 @@ def test_find_conflict_and_find_suitable_gate():
         [0, 27340, 34530] + ["ShanghaiAirlines"] + dummy_data + [45] + ["218"] + ["LJ60", TIME_DICT, "DEP-16R"])
     inst5 = IntervalBase(
         [0, 21340, 28530] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414"] + ["A330", TIME_DICT, "DEP-16R"])
+    inst6 = IntervalBase(
+        [0, 32670, 41450] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414"] + ["A330", TIME_DICT, "DEP-16R"])
 
     # 测试用例 1: 无冲突情况
     assert find_conflict(inst2, "414", [inst1, inst3]) is False
+    assert find_conflict(inst6, "414L", [inst1]) is False
 
     # 测试用例 2: 有冲突情况
     assert find_conflict(inst1, "414", [inst1, inst2, inst3]) is True
     assert find_conflict(inst2, "218", [inst1, inst2, inst3]) is True
     assert find_conflict(inst4, "218", [inst1, inst2, inst3]) is True
     assert find_conflict(inst5, "414R", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst5, "414", [inst1]) is True
+    assert find_conflict(inst6, "414L", [inst3]) is True
 
     assert find_suitable_gate(inst1, [inst2, inst3]).gate == "219"
     assert find_suitable_gate(inst2, [inst1, inst4]).gate != "218"
