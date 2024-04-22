@@ -6,6 +6,7 @@ from typing import List, Union
 import pandas as pd
 
 from BasicFunction.AirlineType import AirlineType
+from BasicFunction.GetNumberInFilename import find_numbers
 from BasicFunction.IntervalType import IntervalBase
 
 
@@ -40,7 +41,7 @@ class OutPutGAP:
         remote_numbers = get_remote_numbers(result_list[0], result_list[-1])
         self.data["remote_numbers"] = remote_numbers
 
-        name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + ["_process"] + ["_"]
+        name = find_numbers(re.search(r'[\\/][^\\/]*$', self.filename).group()) + ["_process"] + ["_"]
         out_name = [self.out_path] + name + [self.pattern] + [".csv"]
         output_file_path = "".join(out_name)
 
@@ -51,7 +52,7 @@ class OutPutGAP:
         for i in range(len(self.data["data"])):
             self._update_data_final(i, result)
 
-        name = find_numbers(re.search(r'\\([^\\]+)$', self.filename).group(1)) + ["_"]
+        name = find_numbers(re.search(r'[\\/][^\\/]*$', self.filename).group()) + ["_"]
         out_name = [self.out_path] + name + [self.pattern] + [".csv"]
         output_file_path = "".join(out_name)
 
@@ -110,11 +111,6 @@ def create_directory(path):
             print(f"Directory '{path}' was created.")
     except Exception as e:
         print(f"An error occurred: {e}")
-
-
-def find_numbers(text: str) -> List[str]:
-    numbers = re.findall(r"\d+", text)
-    return numbers
 
 
 def get_change_times(init_result: dict, last_result: dict) -> int:

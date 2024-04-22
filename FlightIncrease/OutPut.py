@@ -4,6 +4,7 @@ from typing import List
 
 import pandas as pd
 
+from BasicFunction.GetNumberInFilename import find_numbers
 from BasicFunction.IntervalType import IntervalBase
 
 
@@ -82,11 +83,6 @@ def _build_data(increase_list: List[IntervalBase], filename: str) -> dict:
         else:
             data_dict = _build_element(c, data_dict, [c.begin_callsign], filename)
     return data_dict
-
-
-def find_numbers(text: str) -> List[str]:
-    numbers = re.findall(r"\d+", text)
-    return numbers
 
 
 class OutPutFI:
