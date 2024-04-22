@@ -1,7 +1,7 @@
 from run_FI import increase_concatenate_files_with_same_number
 from run_FIGAP import run
 
-rate = 0.4
+rate = 0.5
 
 folder_path_origin = "./results/re_Traffic_GAP_2Pistes"
 

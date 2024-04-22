@@ -225,9 +225,10 @@ class IncreaseFlight:
             random_index = random.randint(0, len(original_interval) - 1)
             inst = original_interval[random_index]
 
+            # 如果inst的航空公司属于international，不增加
             # 如果inst的target时间在一个小时内，不增加
             # 注意: 对于neighbor同样考虑这个问题 详情可见 self._get_neighbor_flight(...) 函数
-            if _judge_inst_in_one_hour(inst):
+            if _judge_inst_in_one_hour(inst) or AirlineType(inst.airline).type == "international":
                 original_interval.remove(inst)
                 continue
 
