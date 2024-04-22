@@ -19,7 +19,7 @@ def concatenate_files_with_same_number(folder1, folder2, output_folder):
     files_in_folder1 = {
         f: find_number_in_filename(f)
         for f in os.listdir(folder1)
-        if f.endswith(".csv") and "process" not in f
+        if f.endswith(".csv") and "process" not in f and "PN" not in f
     }
     files_in_folder2 = {
         f: find_number_in_filename(f)

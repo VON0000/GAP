@@ -14,10 +14,10 @@ from FlightIncrease.IncreaseFlight import (
     is_overlapping,
     _conflict_half,
     _conflict_all,
-    IncreaseFlight,
+    IncreaseFlight, find_conflict, find_suitable_gate, get_ref_list,
 )
 from BasicFunction.IntervalType import IntervalBase
-from FlightIncrease.OutPut import OutPut
+from FlightIncrease.OutPut import OutPutFI
 
 HOUR = 60 * 60
 TIME_DICT = {"ar": {"TTOT": 0, "TLDT": 0, "ATOT": 0, "ALDT": 0},
@@ -107,18 +107,18 @@ def test_conflict_half():
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
-    assert _conflict_half(inst_1, inst_2, "414L", False) == False
-    assert _conflict_half(inst_1, inst_2, "414R", False) == True
-    assert _conflict_half(inst_1, inst_3, "414L", False) == True
+    assert _conflict_half(inst_1, inst_2, "414L", False) is False
+    assert _conflict_half(inst_1, inst_2, "414R", False) is True
+    assert _conflict_half(inst_1, inst_3, "414L", False) is True
 
     # Test Case 2: Overlapping intervals with dependent gate (414L 414R)
-    assert _conflict_half(inst_2, inst_3, "414R", False) == True
+    assert _conflict_half(inst_2, inst_3, "414R", False) is True
 
     # Test Case 3: Non-overlapping intervals with dependent gate (414L 414L)
-    assert _conflict_half(inst_3, inst_4, "414L", False) == False
+    assert _conflict_half(inst_3, inst_4, "414L", False) is False
 
     # Test Case 4: Overlapping intervals but different gate
-    assert _conflict_half(inst_2, inst_5, "414L", False) == False
+    assert _conflict_half(inst_2, inst_5, "414L", False) is False
 
 
 def test_conflict_all():
@@ -139,37 +139,37 @@ def test_conflict_all():
     )
 
     # Test Case 1: Overlapping intervals with dependent gate (414 414L/414R)
-    assert _conflict_all(inst_1, inst_2, "414", False) == True
-    assert _conflict_all(inst_1, inst_3, "414", False) == True
+    assert _conflict_all(inst_1, inst_2, "414", False) is True
+    assert _conflict_all(inst_1, inst_3, "414", False) is True
 
-    # Test Case 2: Non-overlapping intervals with dependent gate (414L 414L)
-    assert _conflict_all(inst_1, inst_4, "414", False) == False
+    # Test Case 2: Non-overlapping intervals with dependent gate is
+    assert _conflict_all(inst_1, inst_4, "414", False) is False
 
     # Test Case 4: Overlapping intervals but different gate
-    assert _conflict_all(inst_1, inst_5, "414", False) == False
+    assert _conflict_all(inst_1, inst_5, "414", False) is False
 
 
 def test_is_overlapping():
     # 时间段1和时间段2重叠
-    assert is_overlapping((1, 5), (3, 7)) == True
+    assert is_overlapping((1, 5), (3, 7)) is True
 
     # 时间段1在时间段2之前
-    assert is_overlapping((1, 5), (7, 10)) == False
+    assert is_overlapping((1, 5), (7, 10)) is False
 
     # 时间段1在时间段2之后
-    assert is_overlapping((10, 15), (1, 5)) == False
+    assert is_overlapping((10, 15), (1, 5)) is False
 
     # 时间段1和时间段2完全相同
-    assert is_overlapping((5, 10), (5, 10)) == True
+    assert is_overlapping((5, 10), (5, 10)) is True
 
     # 时间段1的结束时间等于时间段2的开始时间
-    assert is_overlapping((1, 5), (5, 10)) == True
+    assert is_overlapping((1, 5), (5, 10)) is True
 
     # 时间段1的开始时间等于时间段2的结束时间
-    assert is_overlapping((5, 10), (1, 5)) == True
+    assert is_overlapping((5, 10), (1, 5)) is True
 
     # 一个时间段包含另一个时间段
-    assert is_overlapping((1, 10), (3, 7)) == True
+    assert is_overlapping((1, 10), (3, 7)) is True
 
 
 def test_get_airline_info():
@@ -590,19 +590,121 @@ def test_find_insertion_location():
     # 测试用例 1: 无冲突情况
     test_inst = IntervalBase([0, 54560, 66750] + dummy_data[3:] + ["LJ60", TIME_DICT] + ["DEP-16R"])  # 插入时间在所有飞机之后
     origin_test_inst = deepcopy(test_inst)
-    assert find_insertion_location(useful_interval, test_inst).begin_interval == origin_test_inst.begin_interval
+    assert find_insertion_location(useful_interval, test_inst, "TLDT").begin_interval == origin_test_inst.begin_interval
 
     # 测试用例 2: 有冲突情况
     test_inst_conflict = IntervalBase(
         [0, 13000, 24000] + dummy_data[3:] + ["A330", TIME_DICT] + ["DEP-16R"])  # 插入时间和 inst1 冲突
     origin_test_inst_conflict = deepcopy(test_inst_conflict)
     # 应该返回一个调整后的 inst，不是 test_inst_conflict
-    assert find_insertion_location(useful_interval,
-                                   test_inst_conflict).begin_interval != origin_test_inst_conflict.begin_interval
+    assert find_insertion_location(useful_interval, test_inst_conflict,
+                                   "TLDT").begin_interval == origin_test_inst_conflict.begin_interval + 60
+
+
+def test_find_conflict_and_find_suitable_gate():
+    # 构建一些 IntervalBase 实例
+    dummy_data = ["registration", "begin_callsign", "end_callsign"]
+    inst1 = IntervalBase(
+        [0, 13000, 24000] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414R"] + ["B190", TIME_DICT, "DEP-16R"])
+    inst2 = IntervalBase(
+        [0, 27340, 34530] + ["ShanghaiAirlines"] + dummy_data + [36] + ["218"] + ["FK70", TIME_DICT, "DEP-16R"])
+    inst3 = IntervalBase(
+        [0, 34670, 43450] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414"] + ["A340", TIME_DICT, "DEP-16R"])
+    inst4 = IntervalBase(
+        [0, 27340, 34530] + ["ShanghaiAirlines"] + dummy_data + [45] + ["218"] + ["LJ60", TIME_DICT, "DEP-16R"])
+    inst5 = IntervalBase(
+        [0, 21340, 28530] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414"] + ["A330", TIME_DICT, "DEP-16R"])
+    inst6 = IntervalBase(
+        [0, 32670, 41450] + ["ShanghaiAirlines"] + dummy_data + [45] + ["414"] + ["A330", TIME_DICT, "DEP-16R"])
+
+    # 测试用例 1: 无冲突情况
+    assert find_conflict(inst2, "414", [inst1, inst3]) is False
+    assert find_conflict(inst6, "414L", [inst1]) is False
+
+    # 测试用例 2: 有冲突情况
+    assert find_conflict(inst1, "414", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst2, "218", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst4, "218", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst5, "414R", [inst1, inst2, inst3]) is True
+    assert find_conflict(inst5, "414", [inst1]) is True
+    assert find_conflict(inst6, "414L", [inst3]) is True
+
+    assert find_suitable_gate(inst1, [inst2, inst3]).gate == "219"
+    assert find_suitable_gate(inst2, [inst1, inst4]).gate != "218"
+    assert find_suitable_gate(inst2, [inst1, inst4]).gate is not None
+
+
+def test_get_ref_list_and_rm_repeat():
+    data = get_data("data/mock_231029.csv")
+    target_list = GetInterval(data, quarter=0, seuil=28).interval
+    actual_list = GetInterval(data, quarter=math.nan, seuil=28).interval
+    add_list = [actual_list[17]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 500
+    assert len(get_ref_list(add_list, target_list)) == 2
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 65700 + 300 + 500
+    assert get_ref_list(add_list, target_list)[0].end_interval == 65700 + 20 * 60 + 500
+    assert get_ref_list(add_list, target_list)[1].begin_interval == 74100 - 20 * 60 + 500
+    assert get_ref_list(add_list, target_list)[1].end_interval == 74100 + 500
+
+    add_list = [actual_list[13], actual_list[14]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 600
+    assert len(get_ref_list(add_list, target_list)) == 1
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 32700 + 300 + 600
+    assert get_ref_list(add_list, target_list)[0].end_interval == 36200 + 600
+
+    add_list = [actual_list[0]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 700
+    assert len(get_ref_list(add_list, target_list)) == 1
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 27000 + 300 + 700
+    assert get_ref_list(add_list, target_list)[0].end_interval == 27000 + 20 * 60 + 700
+
+    add_list = [actual_list[2]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 800
+    ref_list = get_ref_list(add_list, target_list)
+    assert len(ref_list) == 1
+    assert ref_list[0].begin_interval == 36000 - 20 * 60
+    assert ref_list[0].end_interval == 36000
+
+    add_list = [actual_list[11], actual_list[12]]
+    add_list[0].begin_interval = add_list[0].begin_interval + 900
+    assert len(get_ref_list(add_list, target_list)) == 2
+    assert get_ref_list(add_list, target_list)[0].begin_interval == 60000 + 300 + 900
+    assert get_ref_list(add_list, target_list)[0].end_interval == 60000 + 20 * 60 + 900
+    assert get_ref_list(add_list, target_list)[1].begin_interval == 64800 - 20 * 60 + 900
+    assert get_ref_list(add_list, target_list)[1].end_interval == 64800 + 900
+
+
+def test_delay_time():
+    def case_length_two(add_list):
+        counter = 0
+        for al in add_list:
+            inst_type = al.begin_callsign[-2:].rstrip()
+            if inst_type == "de":
+                counter += 1
+                continue
+
+            delta_time = 900
+
+            add_list[abs(counter - 1)].begin_interval = add_list[abs(counter - 1)].begin_interval + delta_time
+            add_list[abs(counter - 1)].end_interval = add_list[abs(counter - 1)].end_interval + delta_time
+            break
+
+        return add_list
+
+    data = get_data("data/mock_231029.csv")
+    actual_list = GetInterval(data, quarter=math.nan, seuil=28).interval
+    add_list = [actual_list[11], actual_list[12]]
+
+    departure = case_length_two(add_list)[1]
+
+    assert departure.begin_interval == 71100 - 20 * 60 + 900
+    assert departure.end_interval == 71100 + 900
+
 
 
 def test_all():
     data = get_data("data/mock_231029.csv")
-    original_list = GetInterval(data, quarter=math.nan, seuil=28).interval
-    increase_list = IncreaseFlight(original_list).increase_flight()
-    OutPut(increase_list, filename="./data\\mock_231029.csv", out_path="./results/Traffic_GAP_test\\")
+    target_list = GetInterval(data, quarter=0, seuil=28).interval
+    actual_list = GetInterval(data, quarter=math.nan, seuil=28).interval
+    increase_list = IncreaseFlight(target_list).increase_flight(actual_list, 0)
+    OutPutFI(increase_list, filename="./data\\mock_231029.csv", out_path="./results/Traffic_GAP_test\\")

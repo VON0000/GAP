@@ -1,5 +1,5 @@
 import time
-from typing import Callable
+from typing import Callable, Union
 
 import gurobipy
 
@@ -14,7 +14,7 @@ from GateAllocation.RemoteGate import REMOTE_GATE
 
 
 class GateAllocation:
-    def __init__(self, data: dict, seuil: int, pattern: str, quarter: int = 0,
+    def __init__(self, data: dict, seuil: int, pattern: str, quarter: Union[int, float] = 0,
                  available_gate_strategy: Callable[[IntervalBase], list] = get_available_gate_GAP):
         self.quarter = quarter
         self.pattern = pattern
@@ -51,7 +51,7 @@ class GateAllocation:
         print("优化耗时:%s秒" % (t10 - t9))
 
         if self.model.status == gurobipy.GRB.INFEASIBLE:
-            self.model.computeIIS()
+            # self.model.computeIIS()
             return {}
 
         result = self.get_result()

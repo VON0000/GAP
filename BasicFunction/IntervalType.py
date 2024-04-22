@@ -101,7 +101,7 @@ def _get_qfu_info(data: dict, index_list: List[int], quarter: Union[int, float],
 
         time = time // h
 
-        if time >= 25:
+        if time >= 23:
             time = 23
 
         if time <= 0:

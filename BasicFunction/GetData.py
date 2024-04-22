@@ -24,15 +24,20 @@ def get_time_type(data: dict, data_index: int, data_type: str, quarter: Union[in
     if math.isnan(quarter) and data_type == "ar":
         return "ALDT"
 
+    if math.isinf(quarter) and data_type == "de":
+        return "TTOT"
+    if math.isinf(quarter) and data_type == "ar":
+        return "TLDT"
+
     h = 60 * 60
     q = 60 * 15
 
     if data_type == "de":
-        if data['ATOT'][data_index] <= quarter * q + h:
+        if (data['ATOT'][data_index] <= quarter * q + h) or (data['TTOT'][data_index] <= quarter * q + h):
             return "ATOT"
         return "TTOT"
 
-    if data['ALDT'][data_index] <= quarter * q + h:
+    if (data['ALDT'][data_index] <= quarter * q + h) or (data['TLDT'][data_index] <= quarter * q + h):
         return "ALDT"
     return "TLDT"
 

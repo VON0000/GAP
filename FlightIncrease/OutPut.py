@@ -89,14 +89,14 @@ def find_numbers(text: str) -> List[str]:
     return numbers
 
 
-class OutPut:
+class OutPutFI:
     def __init__(self, increase_list: List[IntervalBase], filename: str, out_path: str):
         increase_list_sorted_by_registration = sorted(increase_list, key=lambda inst: inst.registration)
         self.out_path = out_path
         self.to_csv(increase_list_sorted_by_registration, filename)
 
     def to_csv(self, increase_list: List[IntervalBase], filename: str):
-        name = find_numbers(re.search(r'\\([^\\]+)$', filename).group(1)) + [".csv"]
+        name = find_numbers(re.search(r'[\\/][^\\/]*$', filename).group()) + [".csv"]
         out_path = self.out_path
         self.create_directory(out_path)
         out_name = [out_path] + name
