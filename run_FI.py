@@ -51,10 +51,10 @@ if __name__ == "__main__":
 
     folder_path_origin = "./results/re_Traffic_GAP_2Pistes"
 
-    folder_path_actual_opt = "./results/intermediateFile/t_a_total/re_optimization_actual_3_" + str(rate) + "/"
-    folder_path_target_opt = "./results/intermediateFile/t_a_total/re_optimization_target_3_" + str(rate) + "/"
-    folder_path_increase = "./results/intermediateFile/t_a_total/re_increase_3_" + str(rate) + "/"
-    output_path_concatenate = "./results/intermediateFile/t_a_total/re_concatenated_3_" + str(rate) + "/"
+    folder_path_actual_opt = "./results/intermediateFile/re_optimization_actual/"
+    folder_path_target_opt = "./results/intermediateFile/re_optimization_target/"
+    folder_path_increase = "./results/intermediateFile/re_increase/"
+    output_path_concatenate = "./results/intermediateFile/re_concatenated/"
 
     re_optimization(folder_path_actual_opt, folder_path_target_opt, folder_path_origin)
     increase_concatenate_files_with_same_number(folder_path_target_opt, folder_path_actual_opt, folder_path_increase,
