@@ -394,6 +394,26 @@ def test_change_end_interval():
     assert before == after
 
 
+def test_aircraft_tide():
+    data = get_data("data/error-in-data/modified_gaptraffic-2017-08-17.csv")
+    counter = 0
+    old_lst = []
+    for quarter in range(100):
+        time_tide = AircraftTide(data, quarter, 28).time_tide
+
+        lst = list(time_tide.values())
+
+        if quarter == 0:
+            old_lst = lst
+            continue
+
+        for i in range(len(lst)):
+            if lst[i] != old_lst[i]:
+                counter += 1
+
+    assert counter == 0
+
+
 def test_reallocation():
     data = get_data("data/error-in-data/modified_gaptraffic-2017-08-03.csv")
     init_result = GateAllocation(data, 28, "MANEX").optimization()

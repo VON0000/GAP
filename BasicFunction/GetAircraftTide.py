@@ -27,7 +27,7 @@ class AircraftTide:
         self.seuil = seuil
         self.time_tide = self.get_time_tide()
 
-    def get_time_tide(self):
+    def get_time_tide(self) -> dict:
         """
         获取航班潮汐
         大于 seuil -> True ARR-16L

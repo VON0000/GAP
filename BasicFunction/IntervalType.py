@@ -112,7 +112,7 @@ def _get_qfu_info(data: dict, index_list: List[int], quarter: Union[int, float],
         else:
             qfu_info_list.append("ARR-16R")
 
-        return qfu_info_list
+    return qfu_info_list
 
 
 class IntervalType(IntervalBase):
