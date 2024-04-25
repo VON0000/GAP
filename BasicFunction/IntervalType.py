@@ -87,7 +87,6 @@ def _get_info_list(interval_type: str, data: dict, index_list: List[int], quarte
 
 
 def _get_qfu_info(data: dict, index_list: List[int], quarter: Union[int, float], time_tide: dict) -> list:
-    q = 60 * 15
     h = 60 * 60
 
     qfu_info_list = []
@@ -96,8 +95,7 @@ def _get_qfu_info(data: dict, index_list: List[int], quarter: Union[int, float],
             qfu_info_list.append("DEP-16R")
             return qfu_info_list
 
-        time = data["ALDT"][i] if (data["ALDT"][i] <= quarter * q + h or data["TLDT"][i] < quarter * q) else \
-            data["TLDT"][i]
+        time = get_right_time(data, i, "ar", quarter)
 
         time = time // h
 
