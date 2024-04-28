@@ -1,7 +1,7 @@
 import os
 import re
 from copy import deepcopy
-from typing import List, Union
+from typing import Union
 
 import pandas as pd
 
@@ -65,8 +65,6 @@ class OutPutGAP:
 
     def _update_data_final(self, index: int, result: dict):
         interval = self._get_interval(index, result)
-        if interval is None:
-            return
         if self.data["callsign"][index] == interval.begin_callsign:
             self.data["QFU"][index] = interval.begin_qfu.split("-", 1)[1]
         else:
@@ -76,8 +74,6 @@ class OutPutGAP:
 
     def _update_data_process(self, index: int, lst_index: int, result: dict):
         interval = self._get_interval(index, result)
-        if interval is None:
-            return
         if "Parking" + str(lst_index) not in self.data:
             self.data["Parking" + str(lst_index)] = [""] * len(self.data["callsign"])
         self.data["Parking" + str(lst_index)][index] = result[interval]
@@ -87,20 +83,13 @@ class OutPutGAP:
         获取每个 data 对应的 interval
         根据 registration 和 callsign
         """
-        inst_begin = [inst for inst in self._get_interval_list(result) if
-                      inst.registration == self.data["registration"][index] and inst.begin_callsign ==
-                      self.data["callsign"][index]]
+        inst_lst = [inst for inst in self._get_interval_list(result) if
+                    inst.registration == self.data["registration"][index] and (self.data["callsign"][index] in [
+                        inst.begin_callsign, inst.end_callsign])]
 
-        inst_end = [inst for inst in self._get_interval_list(result) if
-                    inst.registration == self.data["registration"][index] and inst.end_callsign ==
-                    self.data["callsign"][index]]
-
-        if inst_begin == inst_end:
-            if not inst_begin:
-                return None
-            return inst_begin[0]
-
-        return (inst_begin + inst_end)[0]
+        assert inst_lst is not None, "这条数据没有对应的实例" + self.data["registration"][index] + \
+                                     self.data["callsign"][index]
+        return inst_lst[0]
 
 
 def create_directory(path):
