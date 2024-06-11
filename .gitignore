@@ -140,6 +140,6 @@ config_server/
 config.yaml
 schema.json
 
-dataReprocess/all_results/
+dataReprocess/
 results/Traffic_GAP_test
 data/new folder
