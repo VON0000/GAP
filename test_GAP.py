@@ -35,7 +35,7 @@ def test_get_all_taxiing_time():
         "MIN": {
             "DEP-16R": 290,
             "ARR-16L": 510,
-            "ARR-16R": 340
+            "ARR-16R": 335
         },
         "PN_MANEX": {
             "DEP-16R": 290,
@@ -45,7 +45,7 @@ def test_get_all_taxiing_time():
         "PN_MIN": {
             "DEP-16R": 290,
             "ARR-16L": 510,
-            "ARR-16R": 340
+            "ARR-16R": 335
         }
     }
 
@@ -58,7 +58,7 @@ def test_get_all_taxiing_time():
         },
         "MIN": {
             "DEP-16R": 490,
-            "ARR-16L": 380,
+            "ARR-16L": 385,
             "ARR-16R": 260
         },
         "PN_MANEX": {
