@@ -54,9 +54,16 @@ def run(folder_path, out_path, seuil, pattern):
 
 
 if __name__ == "__main__":
-    folder_path = "./results/intermediateFile/re_concatenated/"
-    out_path = "./results/re_Traffic_Augmente_GAP_2Pistes\\"
-    seuil = 0
-    pattern_list = ["MANEX", "PN_MANEX"]
-    for pattern in pattern_list:
-        run(folder_path, out_path, seuil, pattern)
+
+    out_path_lst = ["./results/re_Traffic_Augmente_GAP_2Pistes\\", "./results/re_Traffic_Augmente_GAP_16R\\",
+                    "./results/re_Traffic_Augmente_GAP_mix\\"]
+
+    seuil_lst = [0, 10000, 28]
+
+    for i in range(3):
+        folder_path = "./results/intermediateFile/re_concatenated/"
+        out_path = out_path_lst[i]
+        seuil = seuil_lst[i]
+        pattern_list = ["MANEX", "PN_MANEX"]
+        for pattern in pattern_list:
+            run(folder_path, out_path, seuil, pattern)
