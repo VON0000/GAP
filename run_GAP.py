@@ -8,8 +8,8 @@ from GateAllocation.reAllocation import ReAllocation
 if __name__ == "__main__":
 
     folder_path = "./data/error-in-data"
-    out_path = "./results/re_Traffic_GAP_2Pistes\\"
-    seuil = 0
+    out_path = "./results/re_Traffic_GAP_16R\\"
+    seuil = 10000
     pattern_list = ["MANEX", "PN_MANEX"]
     sans_taxiing_time = False
 
