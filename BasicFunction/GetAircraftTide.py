@@ -37,6 +37,11 @@ class AircraftTide:
 
         time_list = self._get_time_used(0)
 
+        if self.seuil == 0:
+            for i in range(24):
+                time_tide[i] = True
+            return time_tide
+
         for i in range(24):
             counter = _count_numbers_in_range(time_list, i * 60 * 60, (i + 1) * 60 * 60)
             if counter > self.seuil:
